@@ -33,10 +33,50 @@ section {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+section h2 {
+    color: #4a90e2;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+ul, ol {
+    padding-left: 20px;
+}
+
+ul li, ol li {
+    margin-bottom: 8px;
+}
+
+a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 footer {
     text-align: center;
     font-size: 0.8em;
     color: #666;
     border-top: 1px solid #ddd;
     margin-top: 2em;
+}
+
+#features ul {
+    list-style-type: square;
+}
+
+#getting-started ol {
+    list-style-type: decimal;
+}
+
+#contact ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#contact li {
+    margin-bottom: 10px;
 }
