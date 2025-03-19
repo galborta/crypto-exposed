@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Post - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-2xl font-bold text-gray-800">Admin Panel</a>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="/admin" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+                    <button id="logoutBtn" class="text-red-600 hover:text-red-800">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto py-8 px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Create New Post</h1>
+        
+        <form id="postForm" class="bg-white shadow-md rounded-lg p-6">
+            <div class="mb-6">
+                <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                <input type="text" id="title" name="title" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-6">
+                <label for="slug" class="block text-gray-700 text-sm font-bold mb-2">Slug</label>
+                <input type="text" id="slug" name="slug" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-sm text-gray-500 mt-1">URL-friendly version of the title (e.g., "my-first-post")</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="excerpt" class="block text-gray-700 text-sm font-bold mb-2">Excerpt</label>
+                <textarea id="excerpt" name="excerpt" rows="3" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <p class="text-sm text-gray-500 mt-1">A brief summary of the post</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="content" class="block text-gray-700 text-sm font-bold mb-2">Content</label>
+                <textarea id="content" name="content"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end">
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Publish Post
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#content',
+            plugins: 'link image code table lists',
+            toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+            height: 400,
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }'
+        });
+
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function(e) {
+            const slug = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+            document.getElementById('slug').value = slug;
+        });
+
+        // Handle form submission
+        document.getElementById('postForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                alert('Please log in first');
+                window.location.href = '/admin';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById('title').value,
+                        slug: document.getElementById('slug').value,
+                        excerpt: document.getElementById('excerpt').value,
+                        content: tinymce.get('content').getContent()
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Post created successfully!');
+                    window.location.href = '/admin';
+                } else {
+                    throw new Error(data.message || 'Failed to create post');
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminId');
+            window.location.href = '/admin';
+        });
+    </script>
+</body>
+</html> 

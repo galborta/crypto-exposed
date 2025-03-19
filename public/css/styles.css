@@ -356,3 +356,137 @@ code {
         margin-left: 15px;
     }
 }
+
+/* Custom styles beyond Tailwind */
+.prose {
+    max-width: 65ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.prose img {
+    margin: 2rem auto;
+    border-radius: 0.5rem;
+}
+
+.comment-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.comment {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    transition: transform 0.2s ease-in-out;
+}
+
+.comment:hover {
+    transform: translateX(4px);
+}
+
+.comment-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#posts article {
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+#posts article:nth-child(1) { animation-delay: 0.1s; }
+#posts article:nth-child(2) { animation-delay: 0.2s; }
+#posts article:nth-child(3) { animation-delay: 0.3s; }
+#posts article:nth-child(4) { animation-delay: 0.4s; }
+#posts article:nth-child(5) { animation-delay: 0.5s; }
+#posts article:nth-child(6) { animation-delay: 0.6s; }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .dark\:bg-gray-900 {
+        background-color: #111827;
+    }
+
+    .dark\:text-white {
+        color: #ffffff;
+    }
+
+    .dark\:text-gray-300 {
+        color: #d1d5db;
+    }
+
+    .prose {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .prose a {
+        color: #93c5fd;
+    }
+
+    .prose strong {
+        color: white;
+    }
+
+    .prose h1, .prose h2, .prose h3, .prose h4 {
+        color: white;
+    }
+
+    .prose blockquote {
+        border-left-color: #4b5563;
+        color: #9ca3af;
+    }
+
+    .prose code {
+        background-color: #374151;
+        color: #e5e7eb;
+    }
+
+    .prose pre {
+        background-color: #1f2937;
+    }
+}
+
+/* Modal transitions */
+#postModal {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#postModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#postModal:not(.hidden) {
+    opacity: 1;
+}
+
+/* Form focus states */
+input:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+    .prose {
+        font-size: 0.95rem;
+    }
+
+    #postModal > div {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+}
