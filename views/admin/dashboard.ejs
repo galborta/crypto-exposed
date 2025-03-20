@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Blog</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <div class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <header class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <h1 class="text-xl font-bold">Admin Panel</h1>
+            </div>
+            <nav class="ml-6 flex space-x-8">
+              <a href="/admin/dashboard" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Dashboard
+              </a>
+              <a href="/admin/posts" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Posts
+              </a>
+            </nav>
+          </div>
+          <div class="flex items-center">
+            <button id="logout-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main content -->
+    <main class="flex-grow">
+      <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+          <div class="border-4 border-dashed border-gray-200 rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-4">Welcome, <%= admin.username %></h2>
+            
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <!-- Stats Card -->
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Total Posts
+                    </dt>
+                    <dd class="mt-1 text-3xl font-semibold text-gray-900" id="total-posts">
+                      Loading...
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+              
+              <!-- Stats Card -->
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Published Posts
+                    </dt>
+                    <dd class="mt-1 text-3xl font-semibold text-gray-900" id="published-posts">
+                      Loading...
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+              
+              <!-- Stats Card -->
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Draft Posts
+                    </dt>
+                    <dd class="mt-1 text-3xl font-semibold text-gray-900" id="draft-posts">
+                      Loading...
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-8">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Recent Posts</h3>
+                <a href="/admin/posts/edit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  New Post
+                </a>
+              </div>
+              
+              <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200" id="recent-posts-list">
+                  <li class="px-6 py-4 text-center text-gray-500">Loading recent posts...</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('adminToken');
+      
+      if (!token) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      // Handle logout
+      document.getElementById('logout-button').addEventListener('click', () => {
+        localStorage.removeItem('adminToken');
+        window.location.href = '/admin/login';
+      });
+      
+      // Fetch stats
+      fetchStats();
+      
+      // Fetch recent posts
+      fetchRecentPosts();
+      
+      async function fetchStats() {
+        try {
+          const response = await fetch('/api/posts/stats', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            document.getElementById('total-posts').textContent = data.data.total;
+            document.getElementById('published-posts').textContent = data.data.published;
+            document.getElementById('draft-posts').textContent = data.data.draft;
+          }
+        } catch (error) {
+          console.error('Error fetching stats:', error);
+        }
+      }
+      
+      async function fetchRecentPosts() {
+        try {
+          const response = await fetch('/api/posts?limit=5', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success && data.data.length > 0) {
+            const postsList = document.getElementById('recent-posts-list');
+            postsList.innerHTML = '';
+            
+            data.data.forEach(post => {
+              const li = document.createElement('li');
+              const status = post.publishedAt ? 'Published' : 'Draft';
+              const statusClass = post.publishedAt ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+              
+              li.innerHTML = `
+                <div class="px-4 py-4 sm:px-6">
+                  <div class="flex items-center justify-between">
+                    <a href="/admin/posts/edit/${post.slug}" class="text-sm font-medium text-blue-600 truncate hover:underline">
+                      ${post.title}
+                    </a>
+                    <div class="ml-2 flex-shrink-0 flex">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${status}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-2 sm:flex sm:justify-between">
+                    <div class="sm:flex">
+                      <p class="flex items-center text-sm text-gray-500">
+                        ${post.excerpt ? post.excerpt.slice(0, 100) + '...' : 'No excerpt'}
+                      </p>
+                    </div>
+                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                      <span>
+                        ${post.publishedAt 
+                          ? new Date(post.publishedAt).toLocaleDateString() 
+                          : new Date(post.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              `;
+              
+              postsList.appendChild(li);
+            });
+            
+          } else {
+            document.getElementById('recent-posts-list').innerHTML = `
+              <li class="px-6 py-4 text-center text-gray-500">No posts found</li>
+            `;
+          }
+        } catch (error) {
+          console.error('Error fetching recent posts:', error);
+          document.getElementById('recent-posts-list').innerHTML = `
+            <li class="px-6 py-4 text-center text-gray-500">Error loading posts</li>
+          `;
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/database');
+const connectDB = require('./config/db');
+const seedAdmin = require('./utils/seedAdmin');
 
 // Load environment variables
 dotenv.config();
@@ -10,11 +11,11 @@ dotenv.config();
 // Connect to database
 connectDB();
 
-// Import routes
-const indexRoutes = require('./routes/index');
-const apiRoutes = require('./routes/api');
-
 const app = express();
+
+// View engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // CORS configuration
 const corsOptions = {
@@ -29,37 +30,25 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-app.use(express.json()); // Parse JSON bodies (formerly body-parser)
-app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.use('/', indexRoutes);
-app.use('/api', apiRoutes);
+// Route files
+const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const adminViewRoutes = require('./routes/adminViewRoutes');
 
-// Mount routes
-app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/posts', require('./routes/postRoutes'));
-app.use('/api/comments', require('./routes/commentRoutes'));
-
-// Serve index.html for the root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Serve admin panel
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
-});
-
-// Serve new post page
-app.get('/admin/posts/new', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'posts', 'new', 'index.html'));
-});
+// Mount routers
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/admin', adminViewRoutes);
 
 // 404 Error Handler
 app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+  res.status(404).render('404');
 });
 
 // Global Error Handler
@@ -73,7 +62,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// Start the server
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, async () => {
   console.log(`Server is running in ${process.env.NODE_ENV} mode on http://localhost:${PORT}`);
+  
+  // Create default admin user if none exists
+  await seedAdmin();
 }); 
