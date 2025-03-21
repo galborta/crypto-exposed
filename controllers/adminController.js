@@ -108,18 +108,29 @@ exports.loginAdmin = async (req, res) => {
     admin.lastLogin = Date.now();
     await admin.save();
     
-    // Generate JWT token
+    // Generate token
     const token = admin.getSignedJwtToken();
     console.log(`[ADMIN] Login successful for: ${email}`);
     
-    // Don't return the password
+    // Set cookie options
+    const cookieOptions = {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    };
+    
+    // Remove password from response
     admin.password = undefined;
     
-    res.status(200).json({
-      success: true,
-      data: admin,
-      token
-    });
+    // Send token as cookie and in response
+    res.cookie('token', token, cookieOptions)
+      .status(200)
+      .json({
+        success: true,
+        data: admin,
+        token
+      });
   } catch (error) {
     console.error('[ADMIN] Login error:', error);
     res.status(500).json({

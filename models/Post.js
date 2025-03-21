@@ -11,9 +11,9 @@ const PostSchema = new Schema({
   slug: {
     type: String,
     required: [true, 'Slug is required'],
-    unique: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    index: { unique: true }
   },
   content: {
     type: String,
@@ -48,18 +48,20 @@ const PostSchema = new Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true // This will automatically manage createdAt and updatedAt
 });
 
-// Create a pre-save hook to update the updatedAt field
-PostSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// Indexes
+PostSchema.index({ publishedAt: -1 }); // Index for sorting by publish date
+PostSchema.index({ published: 1, publishedAt: -1 }); // Compound index for filtering published posts and sorting
 
 // Create a pre-save hook to set publishedAt when post is published
 PostSchema.pre('save', function(next) {
   if (this.isModified('published') && this.published && !this.publishedAt) {
     this.publishedAt = Date.now();
+  } else if (this.isModified('published') && !this.published) {
+    this.publishedAt = null;
   }
   next();
 });

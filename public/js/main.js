@@ -3,31 +3,81 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
+// Get CSRF token from meta tag
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+}
+
+// Common fetch options with CSRF token
+function getFetchOptions(method = 'GET', body = null) {
+    const options = {
+        method,
+        headers: {
+            'CSRF-Token': getCsrfToken()
+        },
+        credentials: 'include'
+    };
+
+    if (body) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+    }
+
+    return options;
+}
+
 function setupEventListeners() {
     const modal = document.getElementById('postModal');
     const closeModal = document.getElementById('closeModal');
     const commentForm = document.getElementById('commentForm');
 
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
             modal.classList.add('hidden');
-        }
-    });
+        });
+    }
 
-    commentForm.addEventListener('submit', handleCommentSubmit);
+    if (modal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    }
+
+    if (commentForm) {
+        commentForm.addEventListener('submit', handleCommentSubmit);
+    }
 }
 
 async function loadPosts() {
+    console.log('[FRONTEND] Loading posts');
     try {
-        const response = await fetch('/api/posts');
+        const response = await fetch('/api/posts', getFetchOptions());
         const data = await response.json();
         
-        const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = data.posts.map(post => `
+        if (!data.success) {
+            throw new Error(data.message || 'Error loading posts');
+        }
+
+        console.log(`[FRONTEND] Loaded ${data.count} posts`);
+        const postsContainer = document.getElementById('posts-container');
+        
+        if (!postsContainer) {
+            console.error('[FRONTEND] Posts container element not found');
+            return;
+        }
+
+        if (data.data.length === 0) {
+            postsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-gray-600 dark:text-gray-400">No posts available yet.</p>
+                </div>
+            `;
+            return;
+        }
+
+        postsContainer.innerHTML = data.data.map(post => `
             <article class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
                 <div class="p-6">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -36,10 +86,21 @@ async function loadPosts() {
                         </a>
                     </h2>
                     <p class="text-gray-600 dark:text-gray-300 mb-4">${post.excerpt}</p>
-                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                        <time datetime="${new Date(post.createdAt).toISOString()}">
-                            ${new Date(post.createdAt).toLocaleDateString()}
-                        </time>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <time datetime="${new Date(post.publishedAt || post.createdAt).toISOString()}">
+                                ${new Date(post.publishedAt || post.createdAt).toLocaleDateString()}
+                            </time>
+                        </div>
+                        ${post.tags && post.tags.length > 0 ? `
+                            <div class="flex flex-wrap gap-2">
+                                ${post.tags.map(tag => `
+                                    <span class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                                        ${tag}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             </article>
@@ -53,42 +114,78 @@ async function loadPosts() {
             });
         });
     } catch (error) {
-        console.error('Error loading posts:', error);
+        console.error('[FRONTEND] Error loading posts:', error);
+        const postsContainer = document.getElementById('posts-container');
+        if (postsContainer) {
+            postsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-600 dark:text-red-400">Error loading posts. Please try again later.</p>
+                </div>
+            `;
+        }
     }
 }
 
 async function openPost(slug) {
+    console.log(`[FRONTEND] Opening post: ${slug}`);
     try {
-        const response = await fetch(`/api/posts/${slug}`);
-        const post = await response.json();
+        const response = await fetch(`/api/posts/${slug}`, getFetchOptions());
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Error loading post');
+        }
+
+        const post = data.data;
+        console.log('[FRONTEND] Post loaded successfully');
         
         const postContent = document.getElementById('postContent');
+        if (!postContent) {
+            console.error('[FRONTEND] Post content element not found');
+            return;
+        }
+
         postContent.innerHTML = `
             <h1 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">${post.title}</h1>
             <div class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                <time datetime="${new Date(post.createdAt).toISOString()}">
-                    ${new Date(post.createdAt).toLocaleDateString()}
+                <time datetime="${new Date(post.publishedAt || post.createdAt).toISOString()}">
+                    ${new Date(post.publishedAt || post.createdAt).toLocaleDateString()}
                 </time>
             </div>
-            <div class="prose dark:prose-invert">${post.content}</div>
+            <div class="prose dark:prose-invert max-w-none">${post.content}</div>
+            ${post.tags && post.tags.length > 0 ? `
+                <div class="mt-6 flex flex-wrap gap-2">
+                    ${post.tags.map(tag => `
+                        <span class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                            ${tag}
+                        </span>
+                    `).join('')}
+                </div>
+            ` : ''}
         `;
 
         // Store the current post ID for commenting
-        document.getElementById('commentForm').dataset.postId = post._id;
-
-        // Load comments
-        loadComments(post._id);
+        const commentForm = document.getElementById('commentForm');
+        if (commentForm) {
+            commentForm.dataset.postId = post._id;
+            // Load comments
+            loadComments(post._id);
+        }
 
         // Show modal
-        document.getElementById('postModal').classList.remove('hidden');
+        const modal = document.getElementById('postModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
     } catch (error) {
-        console.error('Error loading post:', error);
+        console.error('[FRONTEND] Error loading post:', error);
+        alert('Error loading post. Please try again later.');
     }
 }
 
 async function loadComments(postId) {
     try {
-        const response = await fetch(`/api/posts/${postId}/comments`);
+        const response = await fetch(`/api/posts/${postId}/comments`, getFetchOptions());
         const data = await response.json();
         
         const commentsContainer = document.getElementById('comments');
@@ -120,16 +217,12 @@ async function handleCommentSubmit(e) {
     const commentInput = form.querySelector('#comment');
 
     try {
-        const response = await fetch(`/api/posts/${postId}/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        const response = await fetch(`/api/posts/${postId}/comments`, 
+            getFetchOptions('POST', {
                 name: nameInput.value || 'Anonymous',
                 content: commentInput.value
-            }),
-        });
+            })
+        );
 
         if (response.ok) {
             // Clear form

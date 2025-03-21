@@ -7,12 +7,10 @@ function setupEventListeners() {
     const loginForm = document.getElementById('adminLoginForm');
     const logoutBtn = document.getElementById('logoutBtn');
     const newPostBtn = document.getElementById('newPostBtn');
-    const moderateCommentsBtn = document.getElementById('moderateCommentsBtn');
 
     loginForm?.addEventListener('submit', handleLogin);
     logoutBtn?.addEventListener('click', handleLogout);
     newPostBtn?.addEventListener('click', () => window.location.href = '/admin/posts/new');
-    moderateCommentsBtn?.addEventListener('click', () => window.location.href = '/admin/comments');
 }
 
 async function checkAuthStatus() {
@@ -20,26 +18,22 @@ async function checkAuthStatus() {
     const loginForm = document.getElementById('loginForm');
     const dashboard = document.getElementById('dashboard');
 
-    if (!token) {
-        loginForm.classList.remove('hidden');
-        dashboard.classList.add('hidden');
-        return;
-    }
-
     try {
-        const response = await fetch('/api/admin/profile?adminId=' + localStorage.getItem('adminId'), {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
+        // Try to fetch profile - the cookie will be sent automatically
+        const response = await fetch('/api/admin/profile');
+        
         if (response.ok) {
-            loginForm.classList.add('hidden');
-            dashboard.classList.remove('hidden');
-            loadDashboardData();
-        } else {
-            throw new Error('Authentication failed');
+            const data = await response.json();
+            if (data.success) {
+                loginForm.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                loadDashboardData();
+                return;
+            }
         }
+        
+        // If we get here, authentication failed
+        throw new Error('Authentication failed');
     } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.removeItem('adminToken');
@@ -60,15 +54,19 @@ async function handleLogin(e) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password }),
+            credentials: 'include' // This is important for cookies
         });
 
         const data = await response.json();
 
         if (data.success) {
+            // Store in localStorage as backup
             localStorage.setItem('adminToken', data.token);
             localStorage.setItem('adminId', data.data._id);
-            checkAuthStatus();
+            
+            // Refresh the page to ensure all auth state is correct
+            window.location.href = '/admin/dashboard';
         } else {
             alert('Login failed: ' + data.message);
         }
@@ -81,22 +79,30 @@ async function handleLogin(e) {
 function handleLogout() {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminId');
+    
+    // Clear the auth cookie
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
     window.location.href = '/admin';
 }
 
 async function loadDashboardData() {
     try {
-        const [postsResponse, commentsResponse] = await Promise.all([
-            fetch('/api/posts'),
-            fetch('/api/comments')
-        ]);
+        const response = await fetch('/api/admin/posts/stats', {
+            credentials: 'include' // This is important for cookies
+        });
 
-        const postsData = await postsResponse.json();
-        const commentsData = await commentsResponse.json();
+        const data = await response.json();
 
-        document.getElementById('postCount').textContent = postsData.total || '0';
-        document.getElementById('commentCount').textContent = commentsData.total || '0';
+        if (data.success) {
+            document.getElementById('postCount').textContent = data.data.total || '0';
+            document.getElementById('publishedCount').textContent = data.data.published || '0';
+            document.getElementById('draftCount').textContent = data.data.draft || '0';
+        } else {
+            throw new Error(data.message || 'Failed to load stats');
+        }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
+        alert('Error loading dashboard data. Please try again.');
     }
 } 
