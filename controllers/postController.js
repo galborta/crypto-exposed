@@ -32,16 +32,38 @@ exports.getPosts = async (req, res) => {
     const isAdmin = req.admin;
     const query = isAdmin ? {} : { published: true };
     
-    console.log('[POSTS] Using query:', JSON.stringify(query));
+    console.log('[POSTS] Query parameters:', {
+      isAdmin,
+      query,
+      page,
+      limit,
+      skip
+    });
     
     const posts = await Post.find(query)
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select('title slug excerpt coverImage publishedAt tags published updatedAt');
+      .select('title slug excerpt content publishedAt tags published createdAt updatedAt');
     
     const total = await Post.countDocuments(query);
-    console.log(`[POSTS] Found ${posts.length} posts (total: ${total})`);
+    
+    console.log('[POSTS] Database results:', {
+      totalPosts: total,
+      fetchedPosts: posts.length,
+      postsData: posts.map(p => ({
+        title: p.title,
+        slug: p.slug,
+        published: p.published
+      }))
+    });
+    
+    // Format the response data
+    const formattedPosts = posts.map(post => ({
+      ...post.toObject(),
+      excerpt: post.excerpt || post.content.substring(0, 150) + '...',
+      publishedAt: post.publishedAt || post.createdAt
+    }));
     
     res.status(200).json({
       success: true,
@@ -52,7 +74,7 @@ exports.getPosts = async (req, res) => {
         page,
         limit
       },
-      data: posts
+      data: formattedPosts
     });
   } catch (error) {
     console.error('[POSTS] Error fetching posts:', error);

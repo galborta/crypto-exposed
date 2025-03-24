@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const mongoose = require('mongoose');
 const seedAdmin = require('./utils/seedAdmin');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
@@ -10,7 +10,32 @@ const csrf = require('csurf');
 // Load environment variables
 dotenv.config();
 
-// Connect to database
+// Connect to database with enhanced logging
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blog');
+        console.log('\n[DATABASE] MongoDB Connected:');
+        console.log('Host:', conn.connection.host);
+        console.log('Database:', conn.connection.name);
+        console.log('State:', conn.connection.readyState);
+        
+        // Check for posts immediately after connection
+        const Post = require('./models/Post');
+        const postCount = await Post.countDocuments();
+        const publishedCount = await Post.countDocuments({ published: true });
+        
+        console.log('\n[DATABASE] Post Statistics:');
+        console.log('Total Posts:', postCount);
+        console.log('Published Posts:', publishedCount);
+        
+        return conn;
+    } catch (error) {
+        console.error('\n[DATABASE] Error:', error.message);
+        process.exit(1);
+    }
+};
+
+// Initialize database connection
 connectDB();
 
 const app = express();
@@ -25,19 +50,15 @@ const corsOptions = {
   credentials: true
 };
 
-// Middleware
+// Basic middleware
 app.use(cors(corsOptions));
 app.use(cookieParser(process.env.COOKIE_SECRET || 'your-secret-key'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files before CSRF
-app.use(express.static('public'));
-app.use('/css', express.static(path.join(__dirname, 'public/css')));
-
 // CSRF protection
 const csrfProtection = csrf({
-  cookie: true, // This will use the default _csrf cookie
+  cookie: true,
   value: (req) => {
     return (
       req.headers['x-csrf-token'] ||
@@ -49,13 +70,11 @@ const csrfProtection = csrf({
 
 // Apply CSRF protection to all routes except /api/admin/login and /.identity
 app.use((req, res, next) => {
-  // Skip CSRF for these paths
   if (req.path === '/api/admin/login' && req.method === 'POST' ||
       req.path === '/.identity') {
     return next();
   }
 
-  // For POST requests to /api/admin/posts, ensure token is present
   if (req.path === '/api/admin/posts' && req.method === 'POST') {
     console.log('[CSRF] Request headers:', {
       'x-csrf-token': req.headers['x-csrf-token'],
@@ -67,19 +86,16 @@ app.use((req, res, next) => {
   csrfProtection(req, res, next);
 });
 
-// Make CSRF token available to views and set CSRF cookie
+// Make CSRF token available to views
 app.use((req, res, next) => {
-  // Skip token generation for these paths
   if (req.path === '/api/admin/login' && req.method === 'POST' ||
       req.path === '/.identity') {
     return next();
   }
 
-  // Generate new token
   const token = req.csrfToken();
   res.locals.csrfToken = token;
   
-  // Set the CSRF token cookie
   res.cookie('XSRF-TOKEN', token, {
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
@@ -96,17 +112,86 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminViewRoutes = require('./routes/adminViewRoutes');
 const adminPostRoutes = require('./routes/adminPostRoutes');
 
-// Mount routers
+// Homepage route with comprehensive logging
+app.get('/', async (req, res) => {
+    console.log('\n[HOMEPAGE] Request received');
+    
+    try {
+        const Post = require('./models/Post');
+        
+        // Get published posts
+        const publishedPosts = await Post.find({ published: true })
+            .sort({ publishedAt: -1, createdAt: -1 })
+            .lean();
+            
+        console.log('\n[HOMEPAGE] Found posts:', {
+            count: publishedPosts.length,
+            posts: publishedPosts.map(p => ({
+                id: p._id,
+                title: p.title,
+                published: p.published,
+                publishedAt: p.publishedAt
+            }))
+        });
+
+        // Set cache control headers
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        
+        // Add debug data
+        const debugData = {
+            time: new Date().toISOString(),
+            postsCount: publishedPosts.length,
+            dbState: mongoose.connection.readyState,
+            NODE_ENV: process.env.NODE_ENV || 'development',
+            posts: publishedPosts.map(p => ({
+                id: p._id,
+                title: p.title,
+                content: p.content ? p.content.substring(0, 50) + '...' : null
+            }))
+        };
+        
+        console.log('\n[HOMEPAGE] Rendering template with data:', debugData);
+        
+        // Render with detailed debug info
+        res.render('index', {
+            posts: publishedPosts,
+            error: null,
+            debug: debugData,
+            NODE_ENV: process.env.NODE_ENV || 'development'
+        });
+        
+    } catch (error) {
+        console.error('\n[HOMEPAGE] Error:', error);
+        res.render('index', { 
+            posts: [],
+            error: 'Failed to load posts. Error: ' + error.message,
+            debug: {
+                time: new Date().toISOString(),
+                error: error.message,
+                dbState: mongoose.connection.readyState,
+                NODE_ENV: process.env.NODE_ENV || 'development'
+            },
+            NODE_ENV: process.env.NODE_ENV || 'development'
+        });
+    }
+});
+
+// Mount API routers
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/posts', adminPostRoutes);
 app.use('/admin', adminViewRoutes);
 
-// Render index page
-app.get('/', (req, res) => {
-  res.render('index');
-});
+// Static files - serve AFTER routes
+app.use('/js', express.static(path.join(__dirname, 'public/js'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+}));
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use(express.static('public'));
 
 // 404 Error Handler
 app.use((req, res, next) => {
@@ -147,7 +232,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, async () => {
   console.log(`Server is running in ${process.env.NODE_ENV} mode on http://localhost:${PORT}`);
-  
-  // Create default admin user if none exists
   await seedAdmin();
 }); 
