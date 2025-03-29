@@ -18,4 +18,14 @@ router.put('/resetpassword/:resettoken', resetPassword);
 // Protected routes
 router.get('/profile', protect, getAdminProfile);
 
+// Import routes
+const adminViewRoutes = require('./adminViewRoutes');
+const adminPostRoutes = require('./adminPostRoutes');
+const adminProfileRoutes = require('./adminProfileRoutes');
+
+// Use routes
+router.use('/admin', adminViewRoutes);
+router.use('/admin/api', adminPostRoutes);
+router.use('/admin/api', adminProfileRoutes);
+
 module.exports = router; 

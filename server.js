@@ -111,6 +111,8 @@ const commentRoutes = require('./routes/commentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminViewRoutes = require('./routes/adminViewRoutes');
 const adminPostRoutes = require('./routes/adminPostRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const adminProfileRoutes = require('./routes/adminProfileRoutes');
 
 // Homepage route with comprehensive logging
 app.get('/', async (req, res) => {
@@ -181,6 +183,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/posts', adminPostRoutes);
+app.use('/api', profileRoutes);
+app.use('/api/admin', adminProfileRoutes);
 app.use('/admin', adminViewRoutes);
 
 // Static files - serve AFTER routes
