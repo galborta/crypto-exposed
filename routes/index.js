@@ -12,9 +12,19 @@ router.use('/api', postRoutes);
 router.use('/api', commentRoutes);
 router.use('/api', profileRoutes);
 
-// Home route
-router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/index.html'));
+// Homepage route
+router.get('/', async (req, res) => {
+    try {
+        res.render('index', {
+            title: 'Crypto Exposed - Exposing Crypto Scammers'
+        });
+    } catch (error) {
+        console.error('Error rendering homepage:', error);
+        res.status(500).render('index', { 
+            title: 'Crypto Exposed - Error',
+            error: 'An error occurred while loading the page.' 
+        });
+    }
 });
 
 // Add more routes as needed
