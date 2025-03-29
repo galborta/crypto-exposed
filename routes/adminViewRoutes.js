@@ -6,6 +6,33 @@ const csrf = require('csurf');
 // Initialize CSRF protection
 const csrfProtection = csrf({ cookie: true });
 
+// Protected routes
+router.use(protect);
+
+// Admin dashboard
+router.get('/dashboard', (req, res) => {
+    res.render('admin/dashboard', {
+        title: 'Admin Dashboard',
+        user: req.user
+    });
+});
+
+// Profiles management
+router.get('/profiles', (req, res) => {
+    res.render('admin/profiles', {
+        title: 'Manage Profiles',
+        user: req.user
+    });
+});
+
+// Login page (unprotected)
+router.get('/login', (req, res) => {
+    if (req.user) {
+        return res.redirect('/admin/dashboard');
+    }
+    res.render('admin/login', { title: 'Admin Login' });
+});
+
 // Redirect /admin/login to /admin
 router.get('/login', (req, res) => {
   console.log('[ADMIN ROUTES] Redirecting /admin/login to /admin');

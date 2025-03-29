@@ -3,59 +3,39 @@ const mongoose = require('mongoose');
 const profileSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, 'Please add a name'],
     trim: true
   },
   photoUrl: {
     type: String,
-    trim: true,
-    default: null
-  },
-  associatedProjects: [{
-    name: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    type: {
-      type: String,
-      enum: ['token', 'platform', 'project'],
-      required: true
-    },
-    details: {
-      type: String,
-      trim: true
+    validate: {
+      validator: function(v) {
+        return !v || /^https?:\/\/.+/.test(v);
+      },
+      message: 'Please provide a valid URL'
     }
-  }],
-  totalScammedUSD: {
-    type: Number,
-    required: true,
-    min: 0
   },
   description: {
     type: String,
-    trim: true
+    required: [true, 'Please add a description']
   },
-  evidence: [{
-    type: {
-      type: String,
-      enum: ['link', 'image', 'document'],
-      required: true
-    },
-    url: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    description: {
-      type: String,
-      trim: true
-    }
-  }],
+  totalScammedUSD: {
+    type: Number,
+    required: [true, 'Please add total amount scammed'],
+    min: [0, 'Amount must be positive']
+  },
   status: {
     type: String,
     enum: ['active', 'inactive', 'under_investigation'],
     default: 'active'
+  },
+  associatedProjects: {
+    type: String,
+    required: [true, 'Please add associated projects']
+  },
+  evidence: {
+    type: String,
+    required: [true, 'Please add evidence']
   },
   createdAt: {
     type: Date,
@@ -73,6 +53,4 @@ profileSchema.pre('save', function(next) {
   next();
 });
 
-const Profile = mongoose.model('Profile', profileSchema);
-
-module.exports = Profile; 
+module.exports = mongoose.model('Profile', profileSchema); 
