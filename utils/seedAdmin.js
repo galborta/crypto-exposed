@@ -6,27 +6,22 @@ const Admin = require('../models/Admin');
  */
 const seedAdmin = async () => {
   try {
-    // Check if admin already exists
+    // Check if any admin exists
     const adminCount = await Admin.countDocuments();
+    console.log(`${adminCount} admin user(s) already exist. ${adminCount > 0 ? 'Skipping creation.' : 'Creating new admin.'}`);
     
-    if (adminCount === 0 && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
-      console.log('No admin users found. Creating default admin...');
-      
-      await Admin.create({
-        username: 'admin',
-        email: process.env.ADMIN_EMAIL,
-        password: process.env.ADMIN_PASSWORD,
+    if (adminCount === 0) {
+      const admin = new Admin({
+        email: 'zenith-zephyr@tutamail.com',
+        password: 'x0rhAXEGkECds7rNatEW',
         role: 'admin'
       });
       
-      console.log('Default admin user created successfully.');
-    } else if (adminCount > 0) {
-      console.log(`${adminCount} admin user(s) already exist. Skipping creation.`);
-    } else {
-      console.log('Admin environment variables not set. Skipping admin creation.');
+      await admin.save();
+      console.log('Admin user created successfully');
     }
   } catch (error) {
-    console.error('Error creating default admin user:', error);
+    console.error('Error seeding admin:', error);
   }
 };
 
