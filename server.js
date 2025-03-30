@@ -68,26 +68,33 @@ const csrfProtection = csrf({
   }
 });
 
-// Apply CSRF protection to all routes except /api/admin/login and /.identity
+// Apply CSRF protection to all routes except /api/admin/login, /.identity, and /api/agent/*
 app.use((req, res, next) => {
+  // Debug logging for all requests
+  console.log('\n[CSRF] Request path:', req.path);
+  console.log('[CSRF] Request method:', req.method);
+  
+  if (req.path.startsWith('/api/agent/')) {
+    console.log('[CSRF] Skipping CSRF for agent route');
+    return next();
+  }
+  
   if (req.path === '/api/admin/login' && req.method === 'POST' ||
       req.path === '/.identity') {
+    console.log('[CSRF] Skipping CSRF for excluded route');
     return next();
   }
 
-  if (req.path === '/api/admin/posts' && req.method === 'POST') {
-    console.log('[CSRF] Request headers:', {
-      'x-csrf-token': req.headers['x-csrf-token'],
-      'x-xsrf-token': req.headers['x-xsrf-token'],
-      cookie: req.cookies['XSRF-TOKEN']
-    });
-  }
-
+  console.log('[CSRF] Applying CSRF protection');
   csrfProtection(req, res, next);
 });
 
 // Make CSRF token available to views
 app.use((req, res, next) => {
+  if (req.path.startsWith('/api/agent/')) {
+    return next();
+  }
+  
   if (req.path === '/api/admin/login' && req.method === 'POST' ||
       req.path === '/.identity') {
     return next();
@@ -114,6 +121,7 @@ const adminPostRoutes = require('./routes/adminPostRoutes');
 const profileRoutes = require('./routes/api/profiles');
 const adminProfileRoutes = require('./routes/adminProfileRoutes');
 const authRoutes = require('./routes/api/auth');
+const agentProfileRoutes = require('./routes/api/agentProfiles');
 
 // Homepage route with comprehensive logging
 app.get('/', async (req, res) => {
@@ -187,6 +195,7 @@ app.use('/api/admin/posts', adminPostRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/admin', adminViewRoutes);
+app.use('/api/agent/profiles', agentProfileRoutes);
 
 // Static files - serve AFTER routes
 app.use('/js', express.static(path.join(__dirname, 'public/js'), {
