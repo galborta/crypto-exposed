@@ -10,7 +10,7 @@ router.use(protect);
 router.get('/stats', async (req, res) => {
     try {
         const total = await Profile.countDocuments();
-        const active = await Profile.countDocuments({ status: 'active' });
+        const publishedProfiles = await Profile.countDocuments({ status: 'Published' });
         const totalScammed = await Profile.aggregate([
             {
                 $group: {
@@ -22,8 +22,8 @@ router.get('/stats', async (req, res) => {
 
         res.json({
             total,
-            active,
-            totalScammed: totalScammed[0]?.total || 0
+            publishedProfiles,
+            totalScammedUSD: totalScammed[0]?.total || 0
         });
     } catch (error) {
         console.error('Error fetching profile statistics:', error);
@@ -35,7 +35,7 @@ router.get('/stats', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const profiles = await Profile.find().sort({ createdAt: -1 });
-        res.json(profiles);
+        res.json({ profiles });
     } catch (error) {
         console.error('Error fetching profiles:', error);
         res.status(500).json({ error: 'Error fetching profiles' });
@@ -103,6 +103,17 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error deleting profile:', error);
         res.status(500).json({ error: 'Error deleting profile' });
+    }
+});
+
+// Update all profiles to Published
+router.post('/publish-all', protect, async (req, res) => {
+    try {
+        const result = await Profile.updateMany({}, { status: 'Published' });
+        res.json({ message: `Updated ${result.modifiedCount} profiles to Published status` });
+    } catch (error) {
+        console.error('Error updating profiles:', error);
+        res.status(500).json({ error: 'Error updating profiles' });
     }
 });
 

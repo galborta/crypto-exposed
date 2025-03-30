@@ -24,7 +24,7 @@
       <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-bold mb-6">Welcome to Crypto Exposed</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Quick Stats -->
           <div class="bg-blue-100 p-6 rounded-lg">
             <h3 class="text-lg font-semibold text-blue-800 mb-2">Total Profiles</h3>
@@ -32,8 +32,8 @@
           </div>
           
           <div class="bg-green-100 p-6 rounded-lg">
-            <h3 class="text-lg font-semibold text-green-800 mb-2">Active Profiles</h3>
-            <p class="text-3xl font-bold text-green-900" id="activeProfiles">0</p>
+            <h3 class="text-lg font-semibold text-green-800 mb-2">Published Profiles</h3>
+            <p class="text-3xl font-bold text-green-900" id="publishedProfiles">0</p>
           </div>
           
           <div class="bg-red-100 p-6 rounded-lg">
@@ -63,13 +63,16 @@
       try {
         const response = await fetch('/api/profiles/stats');
         const data = await response.json();
+        console.log('Stats data:', data); // Debug log
         
-        document.getElementById('totalProfiles').textContent = data.total;
-        document.getElementById('activeProfiles').textContent = data.active;
+        document.getElementById('totalProfiles').textContent = data.total || 0;
+        document.getElementById('publishedProfiles').textContent = data.publishedProfiles || 0;
         document.getElementById('totalScammed').textContent = new Intl.NumberFormat('en-US', {
           style: 'currency',
-          currency: 'USD'
-        }).format(data.totalScammed);
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(data.totalScammedUSD || 0);
       } catch (error) {
         console.error('Error fetching stats:', error);
       }

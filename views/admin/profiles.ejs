@@ -25,8 +25,8 @@
                 <p class="text-2xl font-bold mt-2" id="totalProfiles">0</p>
             </div>
             <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Active Profiles</h3>
-                <p class="text-2xl font-bold mt-2" id="activeProfiles">0</p>
+                <h3 class="text-gray-500 text-sm font-medium">Published Profiles</h3>
+                <p class="text-2xl font-bold mt-2" id="publishedProfiles">0</p>
             </div>
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-gray-500 text-sm font-medium">Total Amount Scammed</h3>
@@ -61,36 +61,64 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4" id="modalTitle">Add New Profile</h3>
                 <form id="profileForm" class="space-y-4">
                     <input type="hidden" id="profileId">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Name</label>
-                        <input type="text" id="name" required class="mt-1">
+                    
+                    <!-- Basic Information Section -->
+                    <div class="border-b pb-4">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Basic Information</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Age</label>
+                                <input type="number" id="age" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Height</label>
+                                <input type="text" id="height" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="e.g., 5'11">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Weight</label>
+                                <input type="text" id="weight" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="e.g., 170 lbs">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Nationality</label>
+                                <input type="text" id="nationality" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Photo URL</label>
+                                <input type="url" id="photoUrl" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Photo URL</label>
-                        <input type="url" id="photoUrl" class="mt-1">
-                    </div>
+
+                    <!-- Other Information -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Amount Scammed (USD)</label>
-                        <input type="number" id="totalScammedUSD" required min="0" class="mt-1">
+                        <input type="number" id="totalScammedUSD" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description" required class="mt-1" rows="3"></textarea>
+                        <textarea id="description" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Associated Projects</label>
-                        <textarea id="associatedProjects" required class="mt-1" rows="3" placeholder="List all associated projects..."></textarea>
+                        <textarea id="associatedProjects" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3" placeholder="List all associated projects..."></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Evidence</label>
-                        <textarea id="evidence" required class="mt-1" rows="3" placeholder="List all evidence..."></textarea>
+                        <textarea id="evidence" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3" placeholder="List all evidence..."></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Status</label>
-                        <select id="status" required class="mt-1">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="under_investigation">Under Investigation</option>
+                        <select id="status" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="Draft">Draft</option>
+                            <option value="Published">Published</option>
                         </select>
                     </div>
                     <div class="flex justify-end space-x-3">
@@ -112,12 +140,31 @@
         // Fetch and display profiles
         async function fetchProfiles() {
             try {
-                const response = await fetch('/api/profiles');
-                profiles = await response.json();
+                const [profilesResponse, statsResponse] = await Promise.all([
+                    fetch('/api/profiles'),
+                    fetch('/api/profiles/stats')
+                ]);
+
+                const profilesData = await profilesResponse.json();
+                const statsData = await statsResponse.json();
+
+                // Update profiles array
+                profiles = profilesData.profiles || [];
+                
+                // Update stats
+                document.getElementById('totalProfiles').textContent = statsData.total || 0;
+                document.getElementById('publishedProfiles').textContent = statsData.publishedProfiles || 0;
+                document.getElementById('totalScammed').textContent = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(statsData.totalScammedUSD || 0);
+
+                // Render profiles
                 renderProfiles();
-                updateStats();
             } catch (error) {
-                console.error('Error fetching profiles:', error);
+                console.error('Error fetching data:', error);
             }
         }
 
@@ -133,17 +180,27 @@
                             ` : ''}
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${profile.name}</div>
+                                <div class="text-sm text-gray-500">${profile.nationality}</div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">
-                            ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(profile.totalScammedUSD)}
+                            ${new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            }).format(profile.totalScammedUSD)}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-badge ${getStatusClass(profile.status)}">
-                            ${formatStatus(profile.status)}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            profile.status === 'Published' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                        }">
+                            ${profile.status}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -152,20 +209,6 @@
                     </td>
                 </tr>
             `).join('');
-        }
-
-        // Update statistics
-        function updateStats() {
-            const totalProfiles = profiles.length;
-            const activeProfiles = profiles.filter(p => p.status === 'active').length;
-            const totalScammed = profiles.reduce((sum, p) => sum + p.totalScammedUSD, 0);
-
-            document.getElementById('totalProfiles').textContent = totalProfiles;
-            document.getElementById('activeProfiles').textContent = activeProfiles;
-            document.getElementById('totalScammed').textContent = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(totalScammed);
         }
 
         // Modal functions
@@ -186,6 +229,11 @@
             if (profile) {
                 document.getElementById('profileId').value = profile._id;
                 document.getElementById('name').value = profile.name;
+                document.getElementById('dateOfBirth').value = profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : '';
+                document.getElementById('age').value = profile.age || '';
+                document.getElementById('height').value = profile.height || '';
+                document.getElementById('weight').value = profile.weight || '';
+                document.getElementById('nationality').value = profile.nationality || '';
                 document.getElementById('photoUrl').value = profile.photoUrl || '';
                 document.getElementById('totalScammedUSD').value = profile.totalScammedUSD;
                 document.getElementById('description').value = profile.description;
@@ -221,6 +269,11 @@
             const profileId = document.getElementById('profileId').value;
             const profileData = {
                 name: document.getElementById('name').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                age: Number(document.getElementById('age').value),
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                nationality: document.getElementById('nationality').value,
                 photoUrl: document.getElementById('photoUrl').value,
                 totalScammedUSD: Number(document.getElementById('totalScammedUSD').value),
                 description: document.getElementById('description').value,
@@ -249,22 +302,6 @@
                 console.error('Error saving profile:', error);
             }
         });
-
-        // Helper functions
-        function getStatusClass(status) {
-            const classes = {
-                active: 'status-active',
-                inactive: 'status-inactive',
-                under_investigation: 'status-investigating'
-            };
-            return classes[status] || '';
-        }
-
-        function formatStatus(status) {
-            return status.split('_').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
-        }
 
         // Load profiles when page loads
         document.addEventListener('DOMContentLoaded', fetchProfiles);

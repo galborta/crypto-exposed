@@ -3,39 +3,54 @@ const mongoose = require('mongoose');
 const profileSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a name'],
+    required: [true, 'Name is required'],
     trim: true
+  },
+  dateOfBirth: {
+    type: Date,
+    required: [true, 'Date of birth is required']
+  },
+  age: {
+    type: Number,
+    required: [true, 'Age is required']
+  },
+  height: {
+    type: String,
+    required: [true, 'Height is required']
+  },
+  weight: {
+    type: String,
+    required: [true, 'Weight is required']
+  },
+  nationality: {
+    type: String,
+    required: [true, 'Nationality is required']
   },
   photoUrl: {
     type: String,
-    validate: {
-      validator: function(v) {
-        return !v || /^https?:\/\/.+/.test(v);
-      },
-      message: 'Please provide a valid URL'
-    }
+    required: false
   },
   description: {
     type: String,
-    required: [true, 'Please add a description']
+    required: [true, 'Description is required']
   },
   totalScammedUSD: {
     type: Number,
-    required: [true, 'Please add total amount scammed'],
-    min: [0, 'Amount must be positive']
+    required: [true, 'Total amount scammed is required'],
+    min: [0, 'Total amount scammed must be positive']
   },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'under_investigation'],
-    default: 'active'
+    enum: ['Draft', 'Published'],
+    default: 'Draft'
   },
   associatedProjects: {
     type: String,
-    required: [true, 'Please add associated projects']
+    required: [true, 'Associated projects are required']
   },
   evidence: {
     type: String,
-    required: [true, 'Please add evidence']
+    required: [true, 'Evidence is required']
   },
   createdAt: {
     type: Date,
