@@ -40,6 +40,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File #</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Scammed</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -56,9 +57,10 @@
 
     <!-- Modal -->
     <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto">
-        <div class="relative my-10 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
-            <div class="mt-3">
-                <div class="flex justify-between items-center mb-4">
+        <div class="relative my-10 mx-auto p-0 border w-[32rem] shadow-lg rounded-md bg-white max-h-[90vh] overflow-hidden">
+            <!-- Sticky Header -->
+            <div class="sticky top-0 bg-white border-b z-20 px-5 py-4">
+                <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Add New Profile</h3>
                     <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
                         <span class="sr-only">Close</span>
@@ -67,6 +69,9 @@
                         </svg>
                     </button>
                 </div>
+            </div>
+            <!-- Scrollable Content -->
+            <div class="p-5 overflow-y-auto max-h-[calc(90vh-4rem)]">
                 <form id="profileForm" class="space-y-4">
                     <input type="hidden" id="profileId">
                     
@@ -74,6 +79,11 @@
                     <div class="border-b pb-4">
                         <h4 class="text-md font-medium text-gray-900 mb-3">Basic Information</h4>
                         <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">File Case</label>
+                                <input type="text" id="fileNumber" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50">
+                                <p class="mt-1 text-xs text-gray-500">Automatically generated</p>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Name</label>
                                 <input type="text" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
@@ -97,6 +107,10 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Nationality</label>
                                 <input type="text" id="nationality" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Place of Birth</label>
+                                <input type="text" id="placeOfBirth" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="e.g., Palo Alto, California, USA">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Photo URL</label>
@@ -181,6 +195,9 @@
             const tbody = document.getElementById('profilesTableBody');
             tbody.innerHTML = profiles.map(profile => `
                 <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                        File case: ${profile.fileNumber || 'N/A'}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             ${profile.photoUrl ? `
@@ -189,6 +206,7 @@
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${profile.name}</div>
                                 <div class="text-sm text-gray-500">${profile.nationality}</div>
+                                <div class="text-xs text-gray-500">${profile.placeOfBirth || 'N/A'}</div>
                             </div>
                         </div>
                     </td>
@@ -236,12 +254,14 @@
             const profile = profiles.find(p => p._id === id);
             if (profile) {
                 document.getElementById('profileId').value = profile._id;
+                document.getElementById('fileNumber').value = profile.fileNumber || '';
                 document.getElementById('name').value = profile.name || '';
                 document.getElementById('dateOfBirth').value = profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : '';
                 document.getElementById('age').value = profile.age || '';
                 document.getElementById('height').value = profile.height || '';
                 document.getElementById('weight').value = profile.weight || '';
                 document.getElementById('nationality').value = profile.nationality || '';
+                document.getElementById('placeOfBirth').value = profile.placeOfBirth || '';
                 document.getElementById('photoUrl').value = profile.photoUrl || '';
                 document.getElementById('totalScammedUSD').value = profile.totalScammedUSD || '';
                 document.getElementById('description').value = profile.description || '';
@@ -285,6 +305,7 @@
                 height: document.getElementById('height').value,
                 weight: document.getElementById('weight').value,
                 nationality: document.getElementById('nationality').value,
+                placeOfBirth: document.getElementById('placeOfBirth').value,
                 photoUrl: document.getElementById('photoUrl').value,
                 totalScammedUSD: Number(document.getElementById('totalScammedUSD').value),
                 description: document.getElementById('description').value,

@@ -1,6 +1,21 @@
 const mongoose = require('mongoose');
 
 const profileSchema = new mongoose.Schema({
+  fileNumber: {
+    type: String,
+    required: [true, 'File number is required'],
+    unique: true,
+    default: function() {
+      // Generate a random file number in format XX-YYZ-XXXXX
+      const year = new Date().getFullYear().toString().slice(-2);
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const prefix1 = letters[Math.floor(Math.random() * letters.length)];
+      const prefix2 = letters[Math.floor(Math.random() * letters.length)];
+      const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+      const randomNum = Math.floor(10000 + Math.random() * 90000); // 5 digit number
+      return `${prefix1}${prefix2}-${year}${randomLetter}-${randomNum}`;
+    }
+  },
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -25,6 +40,10 @@ const profileSchema = new mongoose.Schema({
   nationality: {
     type: String,
     required: [true, 'Nationality is required']
+  },
+  placeOfBirth: {
+    type: String,
+    required: [true, 'Place of birth is required']
   },
   photoUrl: {
     type: String,
