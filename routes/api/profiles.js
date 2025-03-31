@@ -1,7 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const Profile = require('../../models/Profile');
-const { protect } = require('../../middleware/auth');
+const { protect, isAuthenticated, isAdmin } = require('../../middleware/auth');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure multer-storage-cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'scammer-profiles',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Protect all routes
 router.use(protect);
@@ -72,16 +94,30 @@ router.post('/', async (req, res) => {
 });
 
 // Update profile
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, upload.single('photo'), async (req, res) => {
     try {
+        console.log('Updating profile:', req.params.id);
+        console.log('Update data:', req.body);
+        
+        const updateData = { ...req.body };
+        
+        // If a new photo was uploaded, use its URL
+        if (req.file) {
+            updateData.photoUrl = req.file.path;
+        }
+
         const profile = await Profile.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
+
         if (!profile) {
+            console.log('Profile not found:', req.params.id);
             return res.status(404).json({ error: 'Profile not found' });
         }
+
+        console.log('Profile updated successfully:', profile);
         res.json(profile);
     } catch (error) {
         console.error('Error updating profile:', error);

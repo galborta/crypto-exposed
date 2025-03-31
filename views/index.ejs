@@ -54,8 +54,8 @@
     </main>
 
     <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto">
-        <div class="relative my-10 mx-auto p-0 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-hidden">
+    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full flex items-center justify-center">
+        <div class="relative mx-auto p-0 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white max-h-[90vh] flex flex-col">
             <!-- Sticky Header -->
             <div class="sticky top-0 bg-white border-b z-20 px-5 py-4">
                 <div class="flex justify-between items-center">
@@ -72,12 +72,12 @@
                 </div>
             </div>
             <!-- Scrollable Content -->
-            <div class="p-5 overflow-y-auto max-h-[calc(90vh-4rem)]">
+            <div class="p-5 overflow-y-auto flex-1">
                 <div class="space-y-6">
                     <!-- Basic Information -->
                     <div class="flex items-start space-x-6">
                         <img id="modalPhoto" class="w-32 h-32 rounded-lg object-cover" src="" alt="">
-                        <div class="space-y-2">
+                        <div class="space-y-2 flex-1">
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div>
                                     <p class="text-sm text-gray-600">Date of Birth:</p>
@@ -124,7 +124,7 @@
                     <div>
                         <h4 class="text-lg font-semibold mb-2">Associated Projects</h4>
                         <p class="text-gray-700" id="modalProjects"></p>
-                    </div>
+        </div>
 
                     <!-- Evidence -->
                     <div>
@@ -135,6 +135,34 @@
             </div>
         </div>
     </div>
+
+    <style>
+        /* Ensure modal content is scrollable */
+        #profileModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 50;
+            padding: 1rem;
+        }
+        
+        #profileModal.show {
+            display: flex;
+        }
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Ensure modal content doesn't overflow */
+        #profileModal .space-y-6 {
+            padding-bottom: 1rem;
+        }
+    </style>
 
     <script>
         let profiles = [];
@@ -243,12 +271,16 @@
                 document.getElementById('modalProjects').textContent = profile.associatedProjects;
                 document.getElementById('modalEvidence').textContent = profile.evidence;
                 
+                document.getElementById('profileModal').classList.add('show');
                 document.getElementById('profileModal').classList.remove('hidden');
+                document.body.classList.add('modal-open');
             }
         }
 
         function closeModal() {
+            document.getElementById('profileModal').classList.remove('show');
             document.getElementById('profileModal').classList.add('hidden');
+            document.body.classList.remove('modal-open');
         }
 
         function formatCurrency(amount) {
