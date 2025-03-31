@@ -24,7 +24,7 @@
                 <div class="flex gap-4">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
                            class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="searchProfiles()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                    <button onclick="searchProfiles()" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800">
                         Search
                     </button>
                 </div>
@@ -34,7 +34,7 @@
         <!-- Main List Section -->
         <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
             <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-red-600">Wall of Shame</h2>
+                <h2 class="text-xl font-semibold text-black">Wall of Shame</h2>
             </div>
             <div id="profilesGrid" class="divide-y divide-gray-200">
                 <!-- Profiles will be rendered here -->
@@ -169,7 +169,7 @@
                 <div class="flex items-center px-4 sm:px-6 py-4 hover:bg-gray-50 cursor-pointer space-x-3 sm:space-x-4" 
                      onclick="showProfileDetails('${profile._id}')">
                     <div class="flex-none w-12 h-12 sm:w-16 sm:h-16">
-                        <img src="${profile.photoUrl || '/default-avatar.png'}" 
+                        <img src="${profile.photoUrl || '/default-avatar.svg'}" 
                              alt="${profile.name}" 
                              class="w-full h-full object-cover rounded-full">
                     </div>
@@ -189,7 +189,7 @@
             const profile = profiles.find(p => p._id === id);
             if (profile) {
                 document.getElementById('modalName').textContent = profile.name;
-                document.getElementById('modalPhoto').src = profile.photoUrl || '/default-avatar.png';
+                document.getElementById('modalPhoto').src = profile.photoUrl || '/default-avatar.svg';
                 document.getElementById('modalDOB').textContent = new Date(profile.dateOfBirth).toLocaleDateString();
                 document.getElementById('modalAge').textContent = profile.age;
                 document.getElementById('modalHeight').textContent = profile.height;
