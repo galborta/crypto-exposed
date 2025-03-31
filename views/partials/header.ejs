@@ -1,0 +1,46 @@
+<!-- Header with Responsive Menu -->
+<header class="bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold">Crypto Exposed</a>
+            
+            <!-- Mobile menu button -->
+            <button id="menuButton" class="md:hidden text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path class="block" id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path class="hidden" id="closeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <!-- Desktop menu -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="/" class="text-white hover:text-gray-300">Home</a>
+                <a href="/about" class="text-white hover:text-gray-300">About Us</a>
+                <a href="/donate" class="text-white hover:text-gray-300">Donate</a>
+            </nav>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden mt-4">
+            <nav class="flex flex-col space-y-4">
+                <a href="/" class="text-white hover:text-gray-300">Home</a>
+                <a href="/about" class="text-white hover:text-gray-300">About Us</a>
+                <a href="/donate" class="text-white hover:text-gray-300">Donate</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Mobile menu toggle
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    const closeIcon = document.getElementById('closeIcon');
+
+    menuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+    });
+</script> 

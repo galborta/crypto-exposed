@@ -7,14 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-    <header class="bg-gray-900 text-white">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold">Crypto Exposed</h1>
-                <p class="text-gray-400">Exposing Crypto Scammers</p>
-            </div>
-        </div>
-    </header>
+    <%- include('partials/header') %>
 
     <main class="container mx-auto px-4 py-8">
         <!-- Search Section -->
@@ -117,6 +110,8 @@
             </div>
         </div>
     </div>
+
+    <%- include('partials/footer') %>
 
     <script>
         let profiles = [];

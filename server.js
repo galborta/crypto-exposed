@@ -122,70 +122,10 @@ const profileRoutes = require('./routes/api/profiles');
 const adminProfileRoutes = require('./routes/adminProfileRoutes');
 const authRoutes = require('./routes/api/auth');
 const agentProfileRoutes = require('./routes/api/agentProfiles');
+const indexRouter = require('./routes/index');
 
-// Homepage route with comprehensive logging
-app.get('/', async (req, res) => {
-    console.log('\n[HOMEPAGE] Request received');
-    
-    try {
-        const Post = require('./models/Post');
-        
-        // Get published posts
-        const publishedPosts = await Post.find({ published: true })
-            .sort({ publishedAt: -1, createdAt: -1 })
-            .lean();
-            
-        console.log('\n[HOMEPAGE] Found posts:', {
-            count: publishedPosts.length,
-            posts: publishedPosts.map(p => ({
-                id: p._id,
-                title: p.title,
-                published: p.published,
-                publishedAt: p.publishedAt
-            }))
-        });
-
-        // Set cache control headers
-        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        
-        // Add debug data
-        const debugData = {
-            time: new Date().toISOString(),
-            postsCount: publishedPosts.length,
-            dbState: mongoose.connection.readyState,
-            NODE_ENV: process.env.NODE_ENV || 'development',
-            posts: publishedPosts.map(p => ({
-                id: p._id,
-                title: p.title,
-                content: p.content ? p.content.substring(0, 50) + '...' : null
-            }))
-        };
-        
-        console.log('\n[HOMEPAGE] Rendering template with data:', debugData);
-        
-        // Render with detailed debug info
-        res.render('index', {
-            posts: publishedPosts,
-            error: null,
-            debug: debugData,
-            NODE_ENV: process.env.NODE_ENV || 'development'
-        });
-        
-    } catch (error) {
-        console.error('\n[HOMEPAGE] Error:', error);
-        res.render('index', { 
-            posts: [],
-            error: 'Failed to load posts. Error: ' + error.message,
-            debug: {
-                time: new Date().toISOString(),
-                error: error.message,
-                dbState: mongoose.connection.readyState,
-                NODE_ENV: process.env.NODE_ENV || 'development'
-            },
-            NODE_ENV: process.env.NODE_ENV || 'development'
-        });
-    }
-});
+// Mount main router first
+app.use('/', indexRouter);
 
 // Mount API routers
 app.use('/api/posts', postRoutes);
