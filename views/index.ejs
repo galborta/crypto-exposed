@@ -17,22 +17,6 @@
     </header>
 
     <main class="container mx-auto px-4 py-8">
-        <!-- Stats Section -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Total Scammers Exposed</h3>
-                <p class="text-2xl font-bold mt-2" id="totalProfiles">0</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Published Profiles</h3>
-                <p class="text-2xl font-bold mt-2" id="publishedProfiles">0</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Total Amount Scammed</h3>
-                <p class="text-2xl font-bold mt-2 text-red-600" id="totalScammed">$0</p>
-            </div>
-        </div>
-
         <!-- Search Section -->
         <div class="mb-8">
             <div class="bg-white rounded-lg shadow p-6">
@@ -47,122 +31,92 @@
             </div>
         </div>
 
-        <!-- Profile Grid -->
-        <div id="profilesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            <!-- Profiles will be rendered here -->
+        <!-- Main List Section -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+            <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-red-600">Wall of Shame</h2>
+            </div>
+            <div id="profilesGrid" class="divide-y divide-gray-200">
+                <!-- Profiles will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Total Amount Scammed</h3>
+                <p class="text-2xl font-bold mt-2 text-red-600" id="totalScammed">$0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Total Scammers Exposed</h3>
+                <p class="text-2xl font-bold mt-2" id="totalProfiles">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-gray-500 text-sm font-medium">Published Profiles</h3>
+                <p class="text-2xl font-bold mt-2" id="publishedProfiles">0</p>
+            </div>
         </div>
     </main>
 
     <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full flex items-center justify-center">
-        <div class="relative mx-auto p-0 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white max-h-[90vh] flex flex-col">
-            <!-- Sticky Header -->
-            <div class="sticky top-0 bg-white border-b z-20 px-5 py-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="text-2xl font-bold text-gray-900" id="modalName"></h3>
-                        <p class="text-sm font-mono text-gray-600 mt-1">File case: <span id="modalFileNumber"></span></p>
-                    </div>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">Close</span>
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white mt-10">
+            <!-- Modal content remains the same -->
+            <div class="flex justify-between items-center pb-3">
+                <h3 class="text-2xl font-bold" id="modalName"></h3>
+                <button onclick="closeModal()" class="text-black close-modal">
+                    <span class="text-3xl">&times;</span>
+                </button>
             </div>
-            <!-- Scrollable Content -->
-            <div class="p-5 overflow-y-auto flex-1">
-                <div class="space-y-6">
-                    <!-- Basic Information -->
-                    <div class="flex items-start space-x-6">
-                        <img id="modalPhoto" class="w-32 h-32 rounded-lg object-cover" src="" alt="">
-                        <div class="space-y-2 flex-1">
-                            <div class="grid grid-cols-2 gap-4 mb-6">
-                                <div>
-                                    <p class="text-sm text-gray-600">Date of Birth:</p>
-                                    <p class="text-base" id="modalDOB"></p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Age:</p>
-                                    <p class="text-base" id="modalAge"></p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Height:</p>
-                                    <p class="text-base" id="modalHeight"></p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Weight:</p>
-                                    <p class="text-base" id="modalWeight"></p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Nationality:</p>
-                                    <p class="text-base" id="modalNationality"></p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Place of Birth:</p>
-                                    <p class="text-base" id="modalPlaceOfBirth"></p>
-                                </div>
-                            </div>
+            <div class="mt-2">
+                <div class="space-y-4">
+                    <img id="modalPhoto" class="w-full h-64 object-cover rounded-lg" src="" alt="">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Date of Birth:</p>
+                            <p id="modalDOB"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Age:</p>
+                            <p id="modalAge"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Height:</p>
+                            <p id="modalHeight"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Weight:</p>
+                            <p id="modalWeight"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Nationality:</p>
+                            <p id="modalNationality"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Place of Birth:</p>
+                            <p id="modalPlaceOfBirth"></p>
                         </div>
                     </div>
-
-                    <!-- Impact Details -->
                     <div class="bg-red-50 p-4 rounded-lg">
-                        <h4 class="text-lg font-semibold text-red-800 mb-2">Impact</h4>
-                        <p class="text-2xl font-bold text-red-600" id="modalAmount"></p>
-                        <p class="text-sm text-red-700 mt-1">Total Amount Scammed in USD</p>
+                        <h4 class="text-lg font-semibold text-red-800">Amount Scammed</h4>
+                        <p class="text-3xl font-bold text-red-600" id="modalAmount"></p>
                     </div>
-
-                    <!-- Description -->
                     <div>
-                        <h4 class="text-lg font-semibold mb-2">Description</h4>
+                        <h4 class="text-lg font-semibold">Description</h4>
                         <p class="text-gray-700" id="modalDescription"></p>
                     </div>
-
-                    <!-- Projects -->
                     <div>
-                        <h4 class="text-lg font-semibold mb-2">Associated Projects</h4>
+                        <h4 class="text-lg font-semibold">Associated Projects</h4>
                         <p class="text-gray-700" id="modalProjects"></p>
-        </div>
-
-                    <!-- Evidence -->
+                    </div>
                     <div>
-                        <h4 class="text-lg font-semibold mb-2">Evidence</h4>
+                        <h4 class="text-lg font-semibold">Evidence</h4>
                         <p class="text-gray-700" id="modalEvidence"></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <style>
-        /* Ensure modal content is scrollable */
-        #profileModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 50;
-            padding: 1rem;
-        }
-        
-        #profileModal.show {
-            display: flex;
-        }
-        
-        /* Prevent body scroll when modal is open */
-        body.modal-open {
-            overflow: hidden;
-        }
-
-        /* Ensure modal content doesn't overflow */
-        #profileModal .space-y-6 {
-            padding-bottom: 1rem;
-        }
-    </style>
 
     <script>
         let profiles = [];
@@ -173,7 +127,6 @@
                 // Fetch stats
                 const statsResponse = await fetch('/api/profiles/stats');
                 const stats = await statsResponse.json();
-                console.log('Stats:', stats); // Debug log
                 
                 // Update stats display
                 document.getElementById('totalProfiles').textContent = stats.total || 0;
@@ -183,7 +136,6 @@
                 // Fetch profiles
                 const profilesResponse = await fetch('/api/profiles');
                 const data = await profilesResponse.json();
-                console.log('Profiles data:', data); // Debug log
                 
                 // Handle different response structures
                 if (data.profiles) {
@@ -194,53 +146,40 @@
                     profiles = [];
                 }
                 
-                // Filter and render published profiles
-                const publishedProfiles = profiles.filter(p => p.status === 'Published');
-                console.log('Published profiles:', publishedProfiles); // Debug log
+                // Filter published profiles and sort by amount scammed
+                const publishedProfiles = profiles
+                    .filter(p => p.status === 'Published')
+                    .sort((a, b) => b.totalScammedUSD - a.totalScammedUSD);
+                
                 renderProfiles(publishedProfiles);
             } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('profilesGrid').innerHTML = 
-                    '<p class="col-span-full text-center text-red-500 py-8">Error loading profiles. Please try again later.</p>';
+                console.error('Error initializing:', error);
             }
         }
 
         function renderProfiles(profilesToShow) {
             const container = document.getElementById('profilesGrid');
-            if (!container) {
-                console.error('Profiles grid container not found');
-                return;
-            }
-
+            
             if (!profilesToShow || !profilesToShow.length) {
-                container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">No published profiles found</p>';
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No profiles found</p>';
                 return;
             }
 
-            container.innerHTML = profilesToShow.map(profile => `
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" 
+            container.innerHTML = profilesToShow.map((profile) => `
+                <div class="flex items-center px-4 sm:px-6 py-4 hover:bg-gray-50 cursor-pointer space-x-3 sm:space-x-4" 
                      onclick="showProfileDetails('${profile._id}')">
-                    <div class="relative">
-                        ${profile.photoUrl ? `
-                            <img src="${profile.photoUrl}" alt="${profile.name}" class="w-full h-48 object-cover">
-                        ` : `
-                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                <span class="text-4xl text-gray-500">${profile.name.charAt(0)}</span>
-                            </div>
-                        `}
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                            <h3 class="text-xl font-bold text-white">${profile.name}</h3>
-                            <p class="text-sm text-gray-200">${profile.nationality}</p>
-                        </div>
+                    <div class="flex-none w-12 h-12 sm:w-16 sm:h-16">
+                        <img src="${profile.photoUrl || '/default-avatar.png'}" 
+                             alt="${profile.name}" 
+                             class="w-full h-full object-cover rounded-full">
                     </div>
-                    <div class="p-4">
-                        <div class="mb-4">
-                            <div class="flex justify-between items-baseline">
-                                <p class="text-sm text-gray-600">Amount Scammed:</p>
-                                <p class="text-lg font-bold text-red-600">${formatCurrency(profile.totalScammedUSD)}</p>
-                            </div>
-                        </div>
-                        <p class="text-gray-600 text-sm line-clamp-2">${profile.description}</p>
+                    <div class="flex-grow min-w-0">
+                        <h3 class="text-base sm:text-lg font-semibold truncate">${profile.name}</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">${profile.associatedProjects || 'Unknown project'}</p>
+                    </div>
+                    <div class="flex-none text-right">
+                        <p class="text-base sm:text-xl font-bold text-red-600">${formatCurrency(profile.totalScammedUSD)}</p>
+                        <p class="text-xs sm:text-sm text-gray-500">Total Scammed</p>
                     </div>
                 </div>
             `).join('');
@@ -250,37 +189,40 @@
             const profile = profiles.find(p => p._id === id);
             if (profile) {
                 document.getElementById('modalName').textContent = profile.name;
-                document.getElementById('modalFileNumber').textContent = profile.fileNumber || '';
-                
-                const photoEl = document.getElementById('modalPhoto');
-                if (profile.photoUrl) {
-                    photoEl.src = profile.photoUrl;
-                    photoEl.classList.remove('hidden');
-                } else {
-                    photoEl.classList.add('hidden');
-                }
-                
+                document.getElementById('modalPhoto').src = profile.photoUrl || '/default-avatar.png';
                 document.getElementById('modalDOB').textContent = new Date(profile.dateOfBirth).toLocaleDateString();
                 document.getElementById('modalAge').textContent = profile.age;
                 document.getElementById('modalHeight').textContent = profile.height;
                 document.getElementById('modalWeight').textContent = profile.weight;
                 document.getElementById('modalNationality').textContent = profile.nationality;
-                document.getElementById('modalPlaceOfBirth').textContent = profile.placeOfBirth || 'N/A';
+                document.getElementById('modalPlaceOfBirth').textContent = profile.placeOfBirth;
                 document.getElementById('modalAmount').textContent = formatCurrency(profile.totalScammedUSD);
                 document.getElementById('modalDescription').textContent = profile.description;
                 document.getElementById('modalProjects').textContent = profile.associatedProjects;
                 document.getElementById('modalEvidence').textContent = profile.evidence;
                 
-                document.getElementById('profileModal').classList.add('show');
                 document.getElementById('profileModal').classList.remove('hidden');
                 document.body.classList.add('modal-open');
             }
         }
 
         function closeModal() {
-            document.getElementById('profileModal').classList.remove('show');
             document.getElementById('profileModal').classList.add('hidden');
             document.body.classList.remove('modal-open');
+        }
+
+        function searchProfiles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = profiles
+                .filter(profile => 
+                    profile.status === 'Published' && (
+                        profile.name.toLowerCase().includes(searchTerm) ||
+                        (profile.associatedProjects && profile.associatedProjects.toLowerCase().includes(searchTerm))
+                    )
+                )
+                .sort((a, b) => b.totalScammedUSD - a.totalScammedUSD);
+            
+            renderProfiles(filtered);
         }
 
         function formatCurrency(amount) {
@@ -292,50 +234,22 @@
             }).format(amount);
         }
 
-        // Search profiles
-        function searchProfiles() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            filteredProfiles = profiles.filter(profile => 
-                profile.name.toLowerCase().includes(searchTerm) ||
-                profile.associatedProjects.toLowerCase().includes(searchTerm) ||
-                profile.description.toLowerCase().includes(searchTerm)
-            );
-            renderProfiles(filteredProfiles);
-        }
-
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initialize);
+        initialize();
+
+        // Add search input event listener for real-time search
+        document.getElementById('searchInput').addEventListener('input', searchProfiles);
     </script>
 
     <style>
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 9999px;
+        /* Ensure modal content is scrollable */
+        #profileModal {
+            z-index: 50;
+            padding: 1rem;
         }
-
-        .status-active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .status-inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-investigating {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
             overflow: hidden;
         }
     </style>
