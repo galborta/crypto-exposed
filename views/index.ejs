@@ -68,7 +68,7 @@
                     <h3 class="text-2xl font-bold" id="modalName"></h3>
                     <div class="mt-1 text-sm text-gray-600" id="modalProjects"></div>
                     <div class="mt-3 bg-red-50 rounded-lg px-4 py-2 inline-block">
-                        <p class="text-xs text-red-600 font-medium uppercase tracking-wide">Amount Scammed</p>
+                        <p class="text-xs text-red-600 font-medium uppercase tracking-wide">Financial Impact</p>
                         <p class="text-lg font-bold text-red-700" id="modalAmount"></p>
                     </div>
                 </div>
@@ -118,11 +118,18 @@
                 </div>
             </div>
 
-            <!-- Evidence Section -->
-            <div>
-                <h4 class="text-lg font-semibold mb-2">Evidence</h4>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700" id="modalEvidence"></p>
+            <!-- Methodology Section -->
+            <div class="mb-6">
+                <button onclick="toggleMethodology()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <span class="text-lg font-semibold">Methodology</span>
+                    <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="methodologyContent" class="hidden mt-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-gray-700" id="modalEvidence"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -213,9 +220,11 @@
                 document.getElementById('modalProjects').textContent = profile.associatedProjects || 'Unknown project';
                 document.getElementById('modalEvidence').textContent = profile.evidence;
                 
-                // Reset basic info section to closed state
+                // Reset collapsible sections to closed state
                 document.getElementById('basicInfoContent').classList.add('hidden');
                 document.getElementById('basicInfoArrow').classList.remove('rotate-180');
+                document.getElementById('methodologyContent').classList.add('hidden');
+                document.getElementById('methodologyArrow').classList.remove('rotate-180');
                 
                 document.getElementById('profileModal').classList.remove('hidden');
                 document.body.classList.add('modal-open');
@@ -250,10 +259,17 @@
             }).format(amount);
         }
 
-        // Add new function for toggling basic info
         function toggleBasicInfo() {
             const content = document.getElementById('basicInfoContent');
             const arrow = document.getElementById('basicInfoArrow');
+            
+            content.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        function toggleMethodology() {
+            const content = document.getElementById('methodologyContent');
+            const arrow = document.getElementById('methodologyArrow');
             
             content.classList.toggle('hidden');
             arrow.classList.toggle('rotate-180');
@@ -308,16 +324,19 @@
             opacity: 0;
         }
         
-        /* Add smooth transitions for basic info toggle */
-        #basicInfoArrow {
+        /* Add smooth transitions for collapsible sections */
+        #basicInfoArrow,
+        #methodologyArrow {
             transition: transform 0.2s ease-in-out;
         }
         
-        #basicInfoContent {
+        #basicInfoContent,
+        #methodologyContent {
             transition: all 0.2s ease-in-out;
         }
         
-        #basicInfoContent.hidden {
+        #basicInfoContent.hidden,
+        #methodologyContent.hidden {
             display: none;
         }
     </style>
