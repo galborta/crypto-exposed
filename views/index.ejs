@@ -75,9 +75,9 @@
             </div>
 
             <!-- Overview Section -->
-            <div class="mb-6">
+            <div class="mb-8">
                 <h4 class="text-lg font-semibold mb-2">Overview</h4>
-                <p class="text-gray-700 leading-relaxed" id="modalDescription"></p>
+                <p class="text-gray-700 leading-relaxed" id="modalOverview"></p>
             </div>
 
             <!-- Basic Information Section -->
@@ -134,16 +134,16 @@
             </div>
 
             <!-- Methodology Section -->
-            <div class="mb-6">
+            <div class="mb-8">
                 <button onclick="toggleMethodology()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                     <span class="text-lg font-semibold">Methodology</span>
                     <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
                 <div id="methodologyContent" class="hidden mt-4">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-700" id="modalEvidence"></p>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-700" id="modalMethodology"></p>
                     </div>
                 </div>
             </div>
@@ -231,10 +231,10 @@
                 document.getElementById('modalNationality').textContent = profile.nationality;
                 document.getElementById('modalPlaceOfBirth').textContent = profile.placeOfBirth;
                 document.getElementById('modalAmount').textContent = formatCurrency(profile.totalScammedUSD);
-                document.getElementById('modalDescription').textContent = profile.description;
+                document.getElementById('modalOverview').textContent = profile.overview;
                 document.getElementById('modalProjects').textContent = profile.associatedProjects || 'Unknown project';
-                document.getElementById('modalEvidence').textContent = profile.evidence;
                 document.getElementById('modalStory').textContent = profile.story || 'No story available';
+                document.getElementById('modalMethodology').textContent = profile.methodology;
                 
                 // Reset collapsible sections to closed state
                 document.getElementById('basicInfoContent').classList.add('hidden');
