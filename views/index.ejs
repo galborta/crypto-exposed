@@ -118,6 +118,21 @@
                 </div>
             </div>
 
+            <!-- Story Section -->
+            <div class="mb-6">
+                <button onclick="toggleStory()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <span class="text-lg font-semibold">Story</span>
+                    <svg id="storyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="storyContent" class="hidden mt-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-gray-700" id="modalStory"></p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Methodology Section -->
             <div class="mb-6">
                 <button onclick="toggleMethodology()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
@@ -219,12 +234,15 @@
                 document.getElementById('modalDescription').textContent = profile.description;
                 document.getElementById('modalProjects').textContent = profile.associatedProjects || 'Unknown project';
                 document.getElementById('modalEvidence').textContent = profile.evidence;
+                document.getElementById('modalStory').textContent = profile.story || 'No story available';
                 
                 // Reset collapsible sections to closed state
                 document.getElementById('basicInfoContent').classList.add('hidden');
                 document.getElementById('basicInfoArrow').classList.remove('rotate-180');
                 document.getElementById('methodologyContent').classList.add('hidden');
                 document.getElementById('methodologyArrow').classList.remove('rotate-180');
+                document.getElementById('storyContent').classList.add('hidden');
+                document.getElementById('storyArrow').classList.remove('rotate-180');
                 
                 document.getElementById('profileModal').classList.remove('hidden');
                 document.body.classList.add('modal-open');
@@ -270,6 +288,14 @@
         function toggleMethodology() {
             const content = document.getElementById('methodologyContent');
             const arrow = document.getElementById('methodologyArrow');
+            
+            content.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        function toggleStory() {
+            const content = document.getElementById('storyContent');
+            const arrow = document.getElementById('storyArrow');
             
             content.classList.toggle('hidden');
             arrow.classList.toggle('rotate-180');
@@ -326,17 +352,20 @@
         
         /* Add smooth transitions for collapsible sections */
         #basicInfoArrow,
-        #methodologyArrow {
+        #methodologyArrow,
+        #storyArrow {
             transition: transform 0.2s ease-in-out;
         }
         
         #basicInfoContent,
-        #methodologyContent {
+        #methodologyContent,
+        #storyContent {
             transition: all 0.2s ease-in-out;
         }
         
         #basicInfoContent.hidden,
-        #methodologyContent.hidden {
+        #methodologyContent.hidden,
+        #storyContent.hidden {
             display: none;
         }
     </style>
