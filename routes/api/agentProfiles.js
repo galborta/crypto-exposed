@@ -31,10 +31,16 @@ const validateProfileData = (data) => {
         'weight',
         'nationality',
         'placeOfBirth',
-        'description',
+        'overview',
         'totalScammedUSD',
         'associatedProjects',
-        'evidence'
+        'methodology'
+    ];
+
+    // Optional fields that don't need validation
+    const optionalFields = [
+        'photoUrl',
+        'story'
     ];
 
     requiredFields.forEach(field => {
@@ -57,6 +63,10 @@ const validateProfileData = (data) => {
     }
 
     // Value validations
+    if (data.age && data.age < 0) {
+        errors.push('age must be positive');
+    }
+
     if (data.totalScammedUSD && data.totalScammedUSD < 0) {
         errors.push('totalScammedUSD must be positive');
     }

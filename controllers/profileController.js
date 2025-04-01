@@ -14,7 +14,7 @@ exports.getAllProfiles = async (req, res) => {
 // Get active profiles for public view
 exports.getActiveProfiles = async (req, res) => {
   try {
-    const profiles = await Profile.find({ status: 'active' })
+    const profiles = await Profile.find({ status: 'Published' })
       .sort({ totalScammedUSD: -1 });
     res.json(profiles);
   } catch (error) {
@@ -85,7 +85,7 @@ exports.deleteProfile = async (req, res) => {
 exports.getProfileStats = async (req, res) => {
   try {
     const totalProfiles = await Profile.countDocuments();
-    const activeProfiles = await Profile.countDocuments({ status: 'active' });
+    const publishedProfiles = await Profile.countDocuments({ status: 'Published' });
     const totalScammed = await Profile.aggregate([
       {
         $group: {
@@ -97,7 +97,7 @@ exports.getProfileStats = async (req, res) => {
 
     res.json({
       totalProfiles,
-      activeProfiles,
+      publishedProfiles,
       totalScammedUSD: totalScammed[0]?.total || 0
     });
   } catch (error) {

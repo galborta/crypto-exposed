@@ -21,13 +21,19 @@ const profileSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true
   },
+  photoUrl: {
+    type: String,
+    required: false,
+    default: ''
+  },
   dateOfBirth: {
     type: Date,
     required: [true, 'Date of birth is required']
   },
   age: {
     type: Number,
-    required: [true, 'Age is required']
+    required: [true, 'Age is required'],
+    min: [0, 'Age must be positive']
   },
   height: {
     type: String,
@@ -45,31 +51,31 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Place of birth is required']
   },
-  photoUrl: {
-    type: String,
-    required: false
-  },
-  description: {
-    type: String,
-    required: [true, 'Description is required']
-  },
   totalScammedUSD: {
     type: Number,
     required: [true, 'Total amount scammed is required'],
     min: [0, 'Total amount scammed must be positive']
   },
-  status: {
+  overview: {
     type: String,
-    enum: ['Draft', 'Published'],
-    default: 'Draft'
+    required: [true, 'Overview is required']
   },
   associatedProjects: {
     type: String,
     required: [true, 'Associated projects are required']
   },
-  evidence: {
+  story: {
     type: String,
-    required: [true, 'Evidence is required']
+    required: false
+  },
+  methodology: {
+    type: String,
+    required: [true, 'Methodology is required']
+  },
+  status: {
+    type: String,
+    enum: ['Draft', 'Published'],
+    default: 'Draft'
   },
   createdAt: {
     type: Date,
@@ -85,6 +91,16 @@ const profileSchema = new mongoose.Schema({
 profileSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
+});
+
+// Format dates when converting to JSON
+profileSchema.set('toJSON', {
+  transform: function(doc, ret, options) {
+    if (ret.dateOfBirth) {
+      ret.dateOfBirth = ret.dateOfBirth.toISOString().split('T')[0];
+    }
+    return ret;
+  }
 });
 
 module.exports = mongoose.model('Profile', profileSchema); 
