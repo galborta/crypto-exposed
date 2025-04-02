@@ -75,20 +75,29 @@
             </div>
 
             <!-- Overview Section -->
-            <div class="mb-8">
-                <h4 class="text-lg font-semibold mb-2">Overview</h4>
-                <p class="text-gray-700 leading-relaxed" id="modalOverview"></p>
+            <div class="mb-6">
+                <button onclick="toggleOverview()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <span class="text-lg font-semibold">Overview</span>
+                    <svg id="overviewArrow" class="w-5 h-5 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="overviewContent" class="section-content open">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-gray-700" id="modalOverview"></p>
+                    </div>
+                </div>
             </div>
 
             <!-- Basic Information Section -->
             <div class="mb-6">
-                <button onclick="toggleBasicInfo()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                <button onclick="toggleBasicInfo()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                     <span class="text-lg font-semibold">Basic Information</span>
                     <svg id="basicInfoArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-                <div id="basicInfoContent" class="hidden mt-4">
+                <div id="basicInfoContent" class="section-content">
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Nationality</p>
@@ -120,13 +129,13 @@
 
             <!-- Story Section -->
             <div class="mb-6">
-                <button onclick="toggleStory()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                <button onclick="toggleStory()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                     <span class="text-lg font-semibold">Story</span>
                     <svg id="storyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-                <div id="storyContent" class="hidden mt-4">
+                <div id="storyContent" class="section-content">
                     <div class="bg-gray-50 rounded-lg p-4">
                         <p class="text-gray-700" id="modalStory"></p>
                     </div>
@@ -135,13 +144,13 @@
 
             <!-- Methodology Section -->
             <div class="mb-8">
-                <button onclick="toggleMethodology()" class="w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                <button onclick="toggleMethodology()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                     <span class="text-lg font-semibold">Methodology</span>
                     <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-                <div id="methodologyContent" class="hidden mt-4">
+                <div id="methodologyContent" class="section-content">
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <p class="text-gray-700" id="modalMethodology"></p>
                     </div>
@@ -236,13 +245,17 @@
                 document.getElementById('modalStory').textContent = profile.story || 'No story available';
                 document.getElementById('modalMethodology').textContent = profile.methodology;
                 
-                // Reset collapsible sections to closed state
-                document.getElementById('basicInfoContent').classList.add('hidden');
-                document.getElementById('basicInfoArrow').classList.remove('rotate-180');
-                document.getElementById('methodologyContent').classList.add('hidden');
-                document.getElementById('methodologyArrow').classList.remove('rotate-180');
-                document.getElementById('storyContent').classList.add('hidden');
-                document.getElementById('storyArrow').classList.remove('rotate-180');
+                // Reset all sections
+                ['overview', 'basicInfo', 'story', 'methodology'].forEach(section => {
+                    const content = document.getElementById(`${section}Content`);
+                    const arrow = document.getElementById(`${section}Arrow`);
+                    content.classList.remove('open');
+                    arrow.classList.remove('rotate-180');
+                });
+                
+                // Show overview by default
+                document.getElementById('overviewContent').classList.add('open');
+                document.getElementById('overviewArrow').classList.add('rotate-180');
                 
                 document.getElementById('profileModal').classList.remove('hidden');
                 document.body.classList.add('modal-open');
@@ -277,28 +290,58 @@
             }).format(amount);
         }
 
-        function toggleBasicInfo() {
-            const content = document.getElementById('basicInfoContent');
-            const arrow = document.getElementById('basicInfoArrow');
-            
-            content.classList.toggle('hidden');
-            arrow.classList.toggle('rotate-180');
+        const sections = ['overview', 'basicInfo', 'story', 'methodology'];
+        
+        function getNextSection(currentSection) {
+            const currentIndex = sections.indexOf(currentSection);
+            return sections[(currentIndex + 1) % sections.length];
+        }
+        
+        function closeAllSections() {
+            sections.forEach(section => {
+                const content = document.getElementById(`${section}Content`);
+                const arrow = document.getElementById(`${section}Arrow`);
+                content.classList.remove('open');
+                arrow.classList.remove('rotate-180');
+            });
+        }
+        
+        function openSection(section) {
+            const content = document.getElementById(`${section}Content`);
+            const arrow = document.getElementById(`${section}Arrow`);
+            content.classList.add('open');
+            arrow.classList.add('rotate-180');
         }
 
-        function toggleMethodology() {
-            const content = document.getElementById('methodologyContent');
-            const arrow = document.getElementById('methodologyArrow');
+        function toggleSection(section) {
+            const content = document.getElementById(`${section}Content`);
+            const arrow = document.getElementById(`${section}Arrow`);
             
-            content.classList.toggle('hidden');
-            arrow.classList.toggle('rotate-180');
+            if (!content.classList.contains('open')) {
+                // Opening this section
+                closeAllSections();
+                openSection(section);
+            } else {
+                // Closing this section, open next one
+                closeAllSections();
+                openSection(getNextSection(section));
+            }
+        }
+
+        function toggleOverview() {
+            toggleSection('overview');
+        }
+
+        function toggleBasicInfo() {
+            toggleSection('basicInfo');
         }
 
         function toggleStory() {
-            const content = document.getElementById('storyContent');
-            const arrow = document.getElementById('storyArrow');
-            
-            content.classList.toggle('hidden');
-            arrow.classList.toggle('rotate-180');
+            toggleSection('story');
+        }
+
+        function toggleMethodology() {
+            toggleSection('methodology');
         }
 
         // Initialize when page loads
@@ -351,22 +394,29 @@
         }
         
         /* Add smooth transitions for collapsible sections */
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.2s ease-out;
+            opacity: 0;
+            margin-top: 0;
+        }
+        
+        .section-content.open {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        
+        #overviewArrow,
         #basicInfoArrow,
         #methodologyArrow,
         #storyArrow {
-            transition: transform 0.2s ease-in-out;
+            transition: transform 0.3s ease-in-out;
         }
-        
-        #basicInfoContent,
-        #methodologyContent,
-        #storyContent {
-            transition: all 0.2s ease-in-out;
-        }
-        
-        #basicInfoContent.hidden,
-        #methodologyContent.hidden,
-        #storyContent.hidden {
-            display: none;
+
+        .section-button:hover {
+            background-color: #f3f4f6;
         }
     </style>
 </body>

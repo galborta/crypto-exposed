@@ -6,8 +6,14 @@ const path = require('path');
 const profilesRouter = require('./routes/api/profiles');
 const agentProfilesRouter = require('./routes/api/agentProfiles');
 const uploadRouter = require('./routes/api/upload');
+const logger = require('./utils/logger');
 
 const app = express();
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => logger.success('MongoDB Connected'))
+    .catch(err => logger.error('MongoDB Connection Error: ' + err));
 
 // Set view engine and views directory
 app.set('view engine', 'ejs');
@@ -21,9 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Debug middleware
 app.use((req, res, next) => {
-    console.log('[DEBUG] Request path:', req.path);
-    console.log('[DEBUG] Request method:', req.method);
-    console.log('[DEBUG] Request headers:', req.headers);
+    logger.request(req);
     next();
 });
 
@@ -41,29 +45,23 @@ const csrfProtection = csrf({
 
 // Apply CSRF protection to all routes except /api/agent/*
 app.use((req, res, next) => {
-    console.log('[CSRF] Request path:', req.path);
-    console.log('[CSRF] Request method:', req.method);
-    
-    // Skip CSRF for API routes that need to be excluded
-    if (req.path.startsWith('/api/agent/')) {
-        console.log('[CSRF] Skipping CSRF for excluded route');
+    if (req.path === '/.identity' || req.path === '/favicon.ico') {
         next();
     } else {
-        console.log('[CSRF] Applying CSRF protection');
         csrfProtection(req, res, next);
     }
 });
 
 // Add CSRF token to all rendered views
 app.use((req, res, next) => {
-    console.log('[VIEW] Adding CSRF token to view locals');
+    logger.info('[VIEW] Adding CSRF token to view locals');
     // Always set csrfToken in res.locals for views
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
     next();
 });
 
 // Main routes - should come first
-console.log('[APP] Mounting view router');
+logger.info('[APP] Mounting view router');
 const viewRouter = require('./routes/index');
 app.use('/', viewRouter);
 
@@ -78,7 +76,7 @@ app.use('/admin', require('./routes/admin'));
 
 // 404 handler - make sure this comes last
 app.use((req, res, next) => {
-    console.log('[404 HANDLER] No route matched for:', {
+    logger.info('[404 HANDLER] No route matched for:', {
         path: req.path,
         method: req.method,
         originalUrl: req.originalUrl
@@ -91,7 +89,7 @@ app.use((req, res, next) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('[ERROR]', err.stack);
+    logger.error(err.stack);
     
     // Handle Multer errors
     if (err.name === 'MulterError') {
@@ -104,6 +102,7 @@ app.use((err, req, res, next) => {
     
     // Handle CSRF errors
     if (err.code === 'EBADCSRFTOKEN') {
+        logger.warn('Invalid CSRF token');
         if (req.xhr) {
             return res.status(403).json({ error: 'Invalid CSRF token' });
         }
@@ -124,6 +123,11 @@ app.use((err, req, res, next) => {
             csrfToken: req.csrfToken()
         });
     }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    logger.success(`Server running on port ${PORT}`);
 });
 
 module.exports = app; 
