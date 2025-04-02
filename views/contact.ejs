@@ -3,54 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Crypto Exposed</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Contact Us - EXP0S3D</title>
+    <%- include('partials/styles') %>
 </head>
 <body class="bg-gray-100">
     <%- include('partials/header') %>
 
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-2xl mx-auto">
-            <div class="bg-white rounded-lg shadow-lg p-8">
-                <h1 class="text-3xl font-bold mb-6">Contact Us</h1>
-                
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                <h1 class="text-2xl font-bold mb-6">Contact Us</h1>
+
+                <!-- Form Type Selection -->
+                <div class="mb-8">
+                    <div class="flex space-x-4">
+                        <button onclick="switchForm('contact')" id="contactBtn" class="flex-1 py-3 px-4 rounded-lg bg-black text-white">Contact Us</button>
+                        <button onclick="switchForm('suggestion')" id="suggestionBtn" class="flex-1 py-3 px-4 rounded-lg bg-gray-200 text-gray-700">Submit Entry</button>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
                 <form id="contactForm" class="space-y-6">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input type="text" id="name" name="name" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500 focus:outline-none">
+                        <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" id="contact-name" name="name" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="email" name="email" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500 focus:outline-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email or Twitter Handle</label>
+                        <div class="flex">
+                            <input type="text" id="contact-email-twitter" name="contact" placeholder="Email or @twitter"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
                     </div>
 
                     <div>
-                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                        <select id="subject" name="subject" required
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500 focus:outline-none">
-                            <option value="">Select a subject</option>
-                            <option value="report">Report a Scammer</option>
-                            <option value="evidence">Submit Evidence</option>
-                            <option value="correction">Request Correction</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <label for="contact-message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                        <textarea id="contact-message" name="message" rows="4" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
 
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                        <textarea id="message" name="message" rows="6" required
-                                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500 focus:outline-none"></textarea>
+                    <button type="submit" class="w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                        Send Message
+                    </button>
+                </form>
+
+                <!-- Entry Submission Form -->
+                <form id="suggestionForm" class="hidden space-y-6">
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                        <p class="text-sm text-gray-600">
+                            Our team conducts thorough research to ensure complete and accurate information before adding new entries to our database.
+                        </p>
                     </div>
 
-                    <div>
-                        <button type="submit" 
-                                class="w-full bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-                            Send Message
-                        </button>
+                    <!-- Information Type Selection -->
+                    <div class="space-y-3">
+                        <p class="text-sm font-medium text-gray-700">What information do you have?</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="toggleField('name')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm info-toggle">
+                                Subject Name
+                            </button>
+                            <button type="button" onclick="toggleField('twitter')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm info-toggle">
+                                Twitter Handle
+                            </button>
+                            <button type="button" onclick="toggleField('wallets')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm info-toggle">
+                                Wallet Addresses
+                            </button>
+                            <button type="button" onclick="toggleField('attachments')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm info-toggle">
+                                Attachments
+                            </button>
+                            <button type="button" onclick="toggleField('message')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm info-toggle">
+                                Additional Info
+                            </button>
+                        </div>
                     </div>
+
+                    <div id="name-field" class="hidden field-section">
+                        <label for="suggestion-subject" class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
+                        <input type="text" id="suggestion-subject" name="subject"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div id="twitter-field" class="hidden field-section">
+                        <label for="suggestion-twitter" class="block text-sm font-medium text-gray-700 mb-1">Twitter Handle</label>
+                        <input type="text" id="suggestion-twitter" name="twitter" placeholder="@handle"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div id="wallets-field" class="hidden field-section">
+                        <label for="suggestion-wallets" class="block text-sm font-medium text-gray-700 mb-1">Wallet Addresses</label>
+                        <textarea id="suggestion-wallets" name="wallets" rows="2" placeholder="One address per line"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <div id="attachments-field" class="hidden field-section">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                        <input type="file" multiple
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Screenshots, documents, or other evidence</p>
+                    </div>
+
+                    <div id="message-field" class="hidden field-section">
+                        <label for="suggestion-message" class="block text-sm font-medium text-gray-700 mb-1">Additional Information</label>
+                        <textarea id="suggestion-message" name="message" rows="4"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                        Submit Entry
+                    </button>
                 </form>
             </div>
         </div>
@@ -59,37 +121,85 @@
     <%- include('partials/footer') %>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Here you would typically send the form data to your backend
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value
-            };
+        function switchForm(type) {
+            const contactForm = document.getElementById('contactForm');
+            const suggestionForm = document.getElementById('suggestionForm');
+            const contactBtn = document.getElementById('contactBtn');
+            const suggestionBtn = document.getElementById('suggestionBtn');
 
-            try {
-                // Replace with your actual API endpoint
-                const response = await fetch('/api/contact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (response.ok) {
-                    alert('Message sent successfully!');
-                    e.target.reset();
-                } else {
-                    throw new Error('Failed to send message');
-                }
-            } catch (error) {
-                alert('Error sending message. Please try again later.');
-                console.error('Error:', error);
+            if (type === 'contact') {
+                contactForm.classList.remove('hidden');
+                suggestionForm.classList.add('hidden');
+                contactBtn.classList.add('bg-black', 'text-white');
+                contactBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                suggestionBtn.classList.add('bg-gray-200', 'text-gray-700');
+                suggestionBtn.classList.remove('bg-black', 'text-white');
+            } else {
+                contactForm.classList.add('hidden');
+                suggestionForm.classList.remove('hidden');
+                contactBtn.classList.add('bg-gray-200', 'text-gray-700');
+                contactBtn.classList.remove('bg-black', 'text-white');
+                suggestionBtn.classList.add('bg-black', 'text-white');
+                suggestionBtn.classList.remove('bg-gray-200', 'text-gray-700');
             }
+        }
+
+        function toggleField(fieldName) {
+            const button = event.target;
+            const fieldSection = document.getElementById(`${fieldName}-field`);
+            
+            if (fieldSection.classList.contains('hidden')) {
+                fieldSection.classList.remove('hidden');
+                button.classList.remove('bg-gray-200');
+                button.classList.add('bg-blue-500', 'text-white');
+            } else {
+                fieldSection.classList.add('hidden');
+                button.classList.remove('bg-blue-500', 'text-white');
+                button.classList.add('bg-gray-200');
+            }
+        }
+
+        // Handle form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                try {
+                    const response = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ...data,
+                            type: e.target.id === 'contactForm' ? 'contact' : 'suggestion'
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert('Message sent successfully!');
+                        e.target.reset();
+                        // Reset toggle buttons if it's the suggestion form
+                        if (e.target.id === 'suggestionForm') {
+                            document.querySelectorAll('.info-toggle').forEach(button => {
+                                button.classList.remove('bg-blue-500', 'text-white');
+                                button.classList.add('bg-gray-200');
+                            });
+                            document.querySelectorAll('.field-section').forEach(section => {
+                                section.classList.add('hidden');
+                            });
+                        }
+                    } else {
+                        throw new Error('Failed to send message');
+                    }
+                } catch (error) {
+                    alert('Error sending message. Please try again later.');
+                    console.error('Error:', error);
+                }
+            });
         });
     </script>
 </body>

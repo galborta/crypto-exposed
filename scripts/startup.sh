@@ -6,7 +6,7 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Starting Crypto Exposed platform...${NC}"
+echo -e "${BLUE}Starting EXP0S3D platform...${NC}"
 echo "----------------------------------------"
 
 # Kill any existing processes
@@ -50,8 +50,8 @@ check_service() {
             fi
             ;;
         "tunnel")
-            if curl -s https://crypto-exposed-agent.loca.lt > /dev/null; then
-                echo -e "${GREEN}✓ Tunnel is running on https://crypto-exposed-agent.loca.lt${NC}"
+            if curl -s https://exp0s3d-agent.loca.lt > /dev/null; then
+                echo -e "${GREEN}✓ Tunnel is running on https://exp0s3d-agent.loca.lt${NC}"
                 return 0
             else
                 echo -e "${RED}✗ Tunnel failed to start${NC}"
@@ -63,7 +63,7 @@ check_service() {
 
 # Start application and tunnel
 npm run dev & 
-lt --port 3000 --subdomain crypto-exposed-agent &
+lt --port 3000 --subdomain exp0s3d-agent &
 
 # Wait for services to start
 sleep 3

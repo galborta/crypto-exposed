@@ -1,6 +1,66 @@
-# Crypto Exposed Platform
+# EXP0S3D Platform
 
-A platform for documenting and exposing cryptocurrency scammers with verified profiles and evidence.
+A platform dedicated to maintaining transparency in the cryptocurrency space.
+
+## Features
+
+- Real-time tracking and documentation
+- Community-driven reporting system
+- Secure contact and submission forms
+- Multi-chain address tracking
+- Evidence-based documentation
+
+## Tech Stack
+
+- Node.js
+- Express
+- EJS Templates
+- TailwindCSS
+- MongoDB
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+3. Create `.env` file with required environment variables:
+```
+PORT=3000
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+COOKIE_SECRET=your_cookie_secret
+```
+4. Run the application:
+```bash
+npm start
+```
+
+## API Endpoints
+
+- `/api/contact` - Handle contact and entry submissions
+- `/api/auth` - Authentication endpoints
+- `/api/entries` - Entry management endpoints
+
+## Contributing
+
+Contact us through the platform's submission form to contribute information or report issues.
+
+## Version
+
+Current: 1.0.0
+
+## License
+
+All rights reserved © 2024 EXP0S3D
+
+## Overview
+
+EXP0S3D is a web-based platform that maintains a database of verified cryptocurrency scammers and their associated fraudulent activities. The platform serves two main purposes:
+
+1. To warn potential victims about known scammers
+2. To document and track the methods used in cryptocurrency fraud
 
 ## Quick Start
 

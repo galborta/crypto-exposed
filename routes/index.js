@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const Post = require('../models/Post');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 
 // Print all registered routes when the router is initialized
 const routes = router.stack
@@ -85,7 +86,7 @@ router.get('/about', (req, res) => {
     console.log('[INDEX ROUTER] Processing about page request');
     try {
         res.render('about', {
-            title: 'About Us - Crypto Exposed',
+            title: 'About Us - EXP0S3D',
             csrfToken: req.csrfToken()
         });
         console.log('[INDEX ROUTER] About page rendered successfully');
@@ -99,22 +100,87 @@ router.get('/about', (req, res) => {
     }
 });
 
-// Donate page route
-router.get('/donate', (req, res) => {
-    console.log('[INDEX ROUTER] Processing donate page request');
+// Contact page route
+router.get('/contact', (req, res) => {
+    console.log('[INDEX ROUTER] Processing contact page request');
     try {
-        res.render('donate', {
-            title: 'Donate - Crypto Exposed',
+        res.render('contact', {
+            title: 'Contact Us - EXP0S3D',
             csrfToken: req.csrfToken()
         });
-        console.log('[INDEX ROUTER] Donate page rendered successfully');
+        console.log('[INDEX ROUTER] Contact page rendered successfully');
     } catch (error) {
-        console.error('[INDEX ROUTER] Error rendering donate page:', error);
+        console.error('[INDEX ROUTER] Error rendering contact page:', error);
         res.status(500).render('error', {
             title: 'Error',
             error: error.message,
             csrfToken: req.csrfToken()
         });
+    }
+});
+
+// Contribute page route (formerly donate)
+router.get('/contribute', (req, res) => {
+    console.log('[INDEX ROUTER] Processing contribute page request');
+    try {
+        res.render('contribute', {
+            title: 'Contribute - EXP0S3D',
+            csrfToken: req.csrfToken()
+        });
+        console.log('[INDEX ROUTER] Contribute page rendered successfully');
+    } catch (error) {
+        console.error('[INDEX ROUTER] Error rendering contribute page:', error);
+        res.status(500).render('error', {
+            title: 'Error',
+            error: error.message,
+            csrfToken: req.csrfToken()
+        });
+    }
+});
+
+// Create a transporter using Tutanota SMTP settings
+const transporter = nodemailer.createTransport({
+    host: 'smtp.tutanota.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'zenith-zephyr@tutamail.com',
+        pass: process.env.EMAIL_PASSWORD // Add this to your .env file
+    }
+});
+
+// Contact form submission
+router.post('/api/contact', async (req, res) => {
+    try {
+        const { name, email, subject, message } = req.body;
+
+        // Send email
+        await transporter.sendMail({
+            from: '"EXP0S3D Contact Form" <zenith-zephyr@tutamail.com>',
+            to: 'zenith-zephyr@tutamail.com',
+            subject: `[EXP0S3D] ${subject} - from ${name}`,
+            text: `
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+Message:
+${message}
+            `,
+            html: `
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> ${name}</p>
+<p><strong>Email:</strong> ${email}</p>
+<p><strong>Subject:</strong> ${subject}</p>
+<p><strong>Message:</strong></p>
+<p>${message.replace(/\n/g, '<br>')}</p>
+            `
+        });
+
+        res.status(200).json({ message: 'Message sent successfully' });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send message' });
     }
 });
 
