@@ -19,16 +19,33 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'scammer-profiles',
         allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        transformation: [{ width: 500, height: 500, crop: 'limit' }]
+        transformation: [
+            { width: 500, height: 500, crop: 'fill' },
+            { quality: 'auto' },
+            { fetch_format: 'auto' }
+        ],
+        public_id: (req, file) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            return `profile-${uniqueSuffix}`;
+        }
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        // Check file type
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+    }
+});
 
-// Protect all routes
-router.use(protect);
-
-// Get profile statistics
+// Get profile statistics - public
 router.get('/stats', async (req, res) => {
     try {
         const total = await Profile.countDocuments();
@@ -53,18 +70,66 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-// Get all profiles
+// Get all profiles - public
 router.get('/', async (req, res) => {
     try {
-        const profiles = await Profile.find().sort({ createdAt: -1 });
-        res.json({ profiles });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // Only select fields needed for the list view
+        const profiles = await Profile.find()
+            .select('fileNumber name nationality placeOfBirth photoUrl totalScammedUSD status createdAt age height weight overview methodology story associatedProjects dateOfBirth')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(); // Convert to plain JS objects for faster serialization
+
+        // Get total count for pagination
+        const total = await Profile.countDocuments();
+
+        // Get stats in the same query to avoid multiple API calls
+        const stats = await Profile.aggregate([
+            {
+                $facet: {
+                    'publishedCount': [
+                        { $match: { status: 'Published' } },
+                        { $count: 'count' }
+                    ],
+                    'totalScammed': [
+                        { $group: {
+                            _id: null,
+                            total: { $sum: '$totalScammedUSD' }
+                        }}
+                    ]
+                }
+            }
+        ]);
+
+        const publishedProfiles = stats[0].publishedCount[0]?.count || 0;
+        const totalScammedUSD = stats[0].totalScammed[0]?.total || 0;
+
+        res.json({
+            profiles,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit),
+                hasMore: total > skip + profiles.length
+            },
+            stats: {
+                total,
+                publishedProfiles,
+                totalScammedUSD
+            }
+        });
     } catch (error) {
         console.error('Error fetching profiles:', error);
         res.status(500).json({ error: 'Error fetching profiles' });
     }
 });
 
-// Get single profile
+// Get single profile - public
 router.get('/:id', async (req, res) => {
     try {
         const profile = await Profile.findById(req.params.id);
@@ -78,8 +143,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Create new profile
-router.post('/', async (req, res) => {
+// Create new profile - protected
+router.post('/', protect, async (req, res) => {
     try {
         const profile = new Profile(req.body);
         await profile.save();
@@ -93,7 +158,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Update profile
+// Update profile - protected
 router.put('/:id', protect, upload.single('photo'), async (req, res) => {
     try {
         console.log('Updating profile:', req.params.id);
@@ -128,8 +193,8 @@ router.put('/:id', protect, upload.single('photo'), async (req, res) => {
     }
 });
 
-// Delete profile
-router.delete('/:id', async (req, res) => {
+// Delete profile - protected
+router.delete('/:id', protect, async (req, res) => {
     try {
         const profile = await Profile.findByIdAndDelete(req.params.id);
         if (!profile) {
@@ -142,7 +207,7 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// Update all profiles to Published
+// Update all profiles to Published - protected
 router.post('/publish-all', protect, async (req, res) => {
     try {
         const result = await Profile.updateMany({}, { status: 'Published' });
@@ -150,6 +215,33 @@ router.post('/publish-all', protect, async (req, res) => {
     } catch (error) {
         console.error('Error updating profiles:', error);
         res.status(500).json({ error: 'Error updating profiles' });
+    }
+});
+
+// Upload photo for profile - protected
+router.post('/:id/photo', protect, upload.single('photo'), async (req, res) => {
+    try {
+        console.log('Uploading photo for profile:', req.params.id);
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No photo file provided' });
+        }
+
+        const profile = await Profile.findByIdAndUpdate(
+            req.params.id,
+            { photoUrl: req.file.path },
+            { new: true }
+        );
+
+        if (!profile) {
+            return res.status(404).json({ error: 'Profile not found' });
+        }
+
+        console.log('Photo uploaded successfully:', req.file.path);
+        res.json({ photoUrl: req.file.path });
+    } catch (error) {
+        console.error('Error uploading photo:', error);
+        res.status(500).json({ error: 'Error uploading photo' });
     }
 });
 

@@ -37,11 +37,25 @@ const profileSchema = new mongoose.Schema({
   },
   height: {
     type: String,
-    required: [true, 'Height is required']
+    required: [true, 'Height is required'],
+    validate: {
+      validator: function(v) {
+        // Allow formats like 5'10" or 5'10 or 178cm
+        return /^\d+'?\d+"?$|^\d+cm$/.test(v);
+      },
+      message: props => `${props.value} is not a valid height format. Use format like 5'10" or 178cm`
+    }
   },
   weight: {
     type: String,
-    required: [true, 'Weight is required']
+    required: [true, 'Weight is required'],
+    validate: {
+      validator: function(v) {
+        // Allow formats like 165 lbs or 75kg
+        return /^\d+\s*(lbs|kg)$/.test(v);
+      },
+      message: props => `${props.value} is not a valid weight format. Use format like 165 lbs or 75kg`
+    }
   },
   nationality: {
     type: String,
@@ -58,7 +72,8 @@ const profileSchema = new mongoose.Schema({
   },
   overview: {
     type: String,
-    required: [true, 'Overview is required']
+    required: [true, 'Overview is required'],
+    minlength: [50, 'Overview must be at least 50 characters long']
   },
   associatedProjects: {
     type: String,
@@ -66,11 +81,13 @@ const profileSchema = new mongoose.Schema({
   },
   story: {
     type: String,
-    required: false
+    required: false,
+    default: ''
   },
   methodology: {
     type: String,
-    required: [true, 'Methodology is required']
+    required: [true, 'Methodology is required'],
+    minlength: [50, 'Methodology must be at least 50 characters long']
   },
   status: {
     type: String,

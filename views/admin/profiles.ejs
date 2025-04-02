@@ -41,15 +41,25 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File #</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Scammed</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                File #
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Amount Scammed
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="profilesTableBody">
-                        <!-- Profiles will be inserted here -->
+                    <tbody id="profilesTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Profiles will be rendered here -->
                     </tbody>
                 </table>
             </div>
@@ -143,17 +153,29 @@
                     </div>
                     <div class="col-span-6">
                         <label class="block text-sm font-medium text-gray-700">Overview</label>
-                        <textarea id="overview" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                        rows="4" placeholder="Provide a detailed overview of the scammer's activities..."></textarea>
+                        <textarea id="overview" required minlength="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                        rows="4" placeholder="Provide a detailed overview of the scammer's activities (minimum 50 characters)..."></textarea>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span id="overviewCount">0</span>/50 characters minimum
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium text-gray-700">Story</label>
+                        <textarea id="story" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                        rows="6" placeholder="Provide a detailed narrative of the scammer's story..."></textarea>
                     </div>
                     <div class="col-span-6">
                         <label class="block text-sm font-medium text-gray-700">Methodology</label>
-                        <textarea id="methodology" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
-                        rows="3" placeholder="Describe the scam methodology used..."></textarea>
+                        <textarea id="methodology" required minlength="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                        rows="4" placeholder="Describe the scam methodology used (minimum 50 characters)..."></textarea>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span id="methodologyCount">0</span>/50 characters minimum
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Associated Projects</label>
-                        <textarea id="associatedProjects" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3" placeholder="List all associated projects..."></textarea>
+                        <textarea id="associatedProjects" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                        rows="3" placeholder="List all associated projects, one per line..."></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Status</label>
@@ -207,74 +229,89 @@
 
     <script>
         let profiles = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let isLoading = false;
 
         // Fetch and display profiles
-        async function fetchProfiles() {
-            try {
-                const [profilesResponse, statsResponse] = await Promise.all([
-                    fetch('/api/profiles'),
-                    fetch('/api/profiles/stats')
-                ]);
+        async function fetchProfiles(page = 1) {
+            if (isLoading) return;
+            isLoading = true;
 
-                const profilesData = await profilesResponse.json();
-                const statsData = await statsResponse.json();
+            try {
+                const response = await fetch(`/api/profiles?page=${page}&limit=10`);
+                const data = await response.json();
 
                 // Update profiles array
-                profiles = profilesData.profiles || [];
+                profiles = data.profiles;
+                currentPage = data.pagination.page;
+                totalPages = data.pagination.pages;
                 
                 // Update stats
-                document.getElementById('totalProfiles').textContent = statsData.total || 0;
-                document.getElementById('publishedProfiles').textContent = statsData.publishedProfiles || 0;
+                document.getElementById('totalProfiles').textContent = data.stats.total || 0;
+                document.getElementById('publishedProfiles').textContent = data.stats.publishedProfiles || 0;
                 document.getElementById('totalScammed').textContent = new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: 'USD',
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0
-                }).format(statsData.totalScammedUSD || 0);
+                }).format(data.stats.totalScammedUSD || 0);
 
                 // Render profiles
                 renderProfiles();
+                renderPagination();
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                isLoading = false;
             }
         }
 
         // Render profiles in table
         function renderProfiles() {
             const tbody = document.getElementById('profilesTableBody');
-            tbody.innerHTML = profiles.map(profile => `
-                <tr>
+            
+            // Clear existing content
+            tbody.innerHTML = '';
+
+            // Create document fragment for better performance
+            const fragment = document.createDocumentFragment();
+
+            profiles.forEach(profile => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                        File case: ${profile.fileNumber || 'N/A'}
+                        ${profile.fileNumber || 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            ${profile.photoUrl ? `
-                                <img class="h-10 w-10 rounded-full mr-3" src="${profile.photoUrl}" alt="">
-                            ` : ''}
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${profile.name}</div>
-                                <div class="text-sm text-gray-500">${profile.nationality}</div>
-                                <div class="text-xs text-gray-500">${profile.placeOfBirth || 'N/A'}</div>
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full object-cover" 
+                                     src="${profile.photoUrl || '/default-avatar.svg'}" 
+                                     alt="${profile.name}"
+                                     loading="lazy">
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${profile.name || 'N/A'}</div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">
+                        <div class="text-sm text-gray-900 font-medium">
                             ${new Intl.NumberFormat('en-US', {
                                 style: 'currency',
                                 currency: 'USD',
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0
-                            }).format(profile.totalScammedUSD)}
+                            }).format(profile.totalScammedUSD || 0)}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="status-badge ${profile.status === 'Published' ? 'status-active' : 'status-inactive'}">
-                            ${profile.status}
+                            ${profile.status || 'Draft'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button onclick="openModal('${profile._id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
                             Edit
                         </button>
@@ -282,8 +319,75 @@
                             Delete
                         </button>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                fragment.appendChild(tr);
+            });
+
+            tbody.appendChild(fragment);
+
+            // Show no results message if needed
+            if (profiles.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No profiles found
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination() {
+            const paginationContainer = document.getElementById('pagination');
+            if (!paginationContainer) return;
+
+            let html = '<div class="flex justify-center space-x-2 mt-4">';
+            
+            // Previous button
+            html += `
+                <button 
+                    onclick="changePage(${currentPage - 1})" 
+                    class="px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                    Previous
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `
+                        <button 
+                            onclick="changePage(${i})" 
+                            class="px-3 py-1 rounded ${i === currentPage ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<span class="px-2">...</span>';
+                }
+            }
+
+            // Next button
+            html += `
+                <button 
+                    onclick="changePage(${currentPage + 1})" 
+                    class="px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+                    ${currentPage === totalPages ? 'disabled' : ''}>
+                    Next
+                </button>
+            `;
+
+            html += '</div>';
+            paginationContainer.innerHTML = html;
+        }
+
+        // Change page
+        async function changePage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            await fetchProfiles(page);
+            window.scrollTo(0, 0);
         }
 
         // Modal functions
@@ -301,22 +405,29 @@
                     modalTitle.textContent = 'Edit Profile';
                     document.getElementById('profileId').value = profile._id;
                     document.getElementById('fileNumber').value = profile.fileNumber || '';
-                    document.getElementById('name').value = profile.name;
-                    document.getElementById('dateOfBirth').value = profile.dateOfBirth.split('T')[0];
-                    document.getElementById('age').value = profile.age;
-                    document.getElementById('height').value = profile.height;
-                    document.getElementById('weight').value = profile.weight;
-                    document.getElementById('nationality').value = profile.nationality;
+                    document.getElementById('name').value = profile.name || '';
+                    // Safely handle date format
+                    const dob = profile.dateOfBirth ? new Date(profile.dateOfBirth) : null;
+                    document.getElementById('dateOfBirth').value = dob ? dob.toISOString().split('T')[0] : '';
+                    document.getElementById('age').value = profile.age || '';
+                    document.getElementById('height').value = profile.height || '';
+                    document.getElementById('weight').value = profile.weight || '';
+                    document.getElementById('nationality').value = profile.nationality || '';
                     document.getElementById('placeOfBirth').value = profile.placeOfBirth || '';
                     document.getElementById('photoUrl').value = profile.photoUrl || '';
                     photoPreview.src = profile.photoUrl || '';
                     photoPreview.style.display = profile.photoUrl ? 'block' : 'none';
                     photoInput.value = ''; // Clear file input
-                    document.getElementById('totalScammedUSD').value = profile.totalScammedUSD;
-                    document.getElementById('overview').value = profile.overview;
-                    document.getElementById('methodology').value = profile.methodology;
-                    document.getElementById('associatedProjects').value = profile.associatedProjects;
-                    document.getElementById('status').value = profile.status;
+                    document.getElementById('totalScammedUSD').value = profile.totalScammedUSD || 0;
+                    document.getElementById('overview').value = profile.overview || '';
+                    document.getElementById('methodology').value = profile.methodology || '';
+                    document.getElementById('associatedProjects').value = profile.associatedProjects || '';
+                    document.getElementById('story').value = profile.story || '';
+                    document.getElementById('status').value = profile.status || 'Draft';
+                    
+                    // Safely update character counts
+                    document.getElementById('overviewCount').textContent = (profile.overview || '').length;
+                    document.getElementById('methodologyCount').textContent = (profile.methodology || '').length;
                 }
             } else {
                 // Add new mode
@@ -326,6 +437,9 @@
                 photoPreview.src = '';
                 photoPreview.style.display = 'none';
                 document.getElementById('photoUrl').value = '';
+                // Reset character counts
+                document.getElementById('overviewCount').textContent = '0';
+                document.getElementById('methodologyCount').textContent = '0';
             }
 
             modal.classList.remove('hidden');
@@ -360,61 +474,108 @@
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Reset any previous error states
+            const inputs = document.querySelectorAll('#profileForm input, #profileForm textarea, #profileForm select');
+            inputs.forEach(input => {
+                input.classList.remove('border-red-500');
+                const errorMsg = input.parentElement.querySelector('.error-message');
+                if (errorMsg) errorMsg.remove();
+            });
+            
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const profileId = document.getElementById('profileId').value;
             const photoInput = document.getElementById('photoInput');
             const photoFile = photoInput.files[0];
             let photoUrl = document.getElementById('photoUrl').value;
 
-            const formData = new FormData();
-            
-            // Add all profile data to FormData
-            formData.append('name', document.getElementById('name').value);
-            formData.append('dateOfBirth', document.getElementById('dateOfBirth').value);
-            formData.append('age', document.getElementById('age').value);
-            formData.append('height', document.getElementById('height').value);
-            formData.append('weight', document.getElementById('weight').value);
-            formData.append('nationality', document.getElementById('nationality').value);
-            formData.append('placeOfBirth', document.getElementById('placeOfBirth').value);
-            formData.append('totalScammedUSD', document.getElementById('totalScammedUSD').value);
-            formData.append('overview', document.getElementById('overview').value);
-            formData.append('methodology', document.getElementById('methodology').value);
-            formData.append('associatedProjects', document.getElementById('associatedProjects').value);
-            formData.append('status', document.getElementById('status').value);
-            
-            // If there's an existing photo URL, add it
-            if (photoUrl) {
-                formData.append('photoUrl', photoUrl);
-            }
-            
-            // If there's a new photo file, add it
-            if (photoFile) {
-                formData.append('photo', photoFile);
-            }
-
             try {
+                // First, if we have a new photo, upload it
+                if (photoFile) {
+                    const photoFormData = new FormData();
+                    photoFormData.append('photo', photoFile);
+                    
+                    const photoResponse = await fetch(`/api/profiles/${profileId}/photo`, {
+                        method: 'POST',
+                        headers: {
+                            'CSRF-Token': csrfToken
+                        },
+                        credentials: 'include',
+                        body: photoFormData
+                    });
+                    
+                    if (!photoResponse.ok) {
+                        throw new Error('Failed to upload photo');
+                    }
+                    
+                    const photoData = await photoResponse.json();
+                    photoUrl = photoData.photoUrl; // Get the Cloudinary URL
+                }
+
+                // Create profile data object
+                const profileData = {
+                    name: document.getElementById('name').value,
+                    dateOfBirth: document.getElementById('dateOfBirth').value,
+                    age: parseInt(document.getElementById('age').value),
+                    height: document.getElementById('height').value,
+                    weight: document.getElementById('weight').value,
+                    nationality: document.getElementById('nationality').value,
+                    placeOfBirth: document.getElementById('placeOfBirth').value,
+                    totalScammedUSD: parseInt(document.getElementById('totalScammedUSD').value),
+                    overview: document.getElementById('overview').value,
+                    methodology: document.getElementById('methodology').value,
+                    associatedProjects: document.getElementById('associatedProjects').value,
+                    story: document.getElementById('story').value || '',
+                    status: document.getElementById('status').value
+                };
+                
+                // Add photo URL if exists
+                if (photoUrl) {
+                    profileData.photoUrl = photoUrl;
+                }
+
                 const url = profileId ? `/api/profiles/${profileId}` : '/api/profiles';
                 const method = profileId ? 'PUT' : 'POST';
                 
                 const response = await fetch(url, {
                     method,
                     headers: {
+                        'Content-Type': 'application/json',
                         'CSRF-Token': csrfToken
                     },
                     credentials: 'include',
-                    body: formData
+                    body: JSON.stringify(profileData)
                 });
 
+                const data = await response.json();
+                
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to save profile');
+                    // Handle validation errors
+                    if (data.error && data.error.includes('validation failed')) {
+                        const errors = data.error.split(',');
+                        errors.forEach(error => {
+                            const field = error.split(':')[0].trim().split(' ')[0].toLowerCase();
+                            const input = document.getElementById(field);
+                            if (input) {
+                                input.classList.add('border-red-500');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                                errorDiv.textContent = error.split(':')[1] || error;
+                                input.parentElement.appendChild(errorDiv);
+                            }
+                        });
+                        throw new Error('Please fill in all required fields correctly');
+                    }
+                    throw new Error(data.error || 'Failed to save profile');
                 }
 
                 closeModal();
                 await fetchProfiles();
             } catch (error) {
                 console.error('Error saving profile:', error);
-                alert('Failed to save profile: ' + error.message);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4';
+                errorDiv.textContent = error.message;
+                document.querySelector('#profileForm').insertBefore(errorDiv, document.querySelector('#profileForm').firstChild);
             }
         });
 
@@ -432,8 +593,32 @@
             }
         });
 
+        // Add character count listeners
+        document.getElementById('overview').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('overviewCount').textContent = count;
+            if (count < 50) {
+                document.getElementById('overviewCount').classList.add('text-red-500');
+            } else {
+                document.getElementById('overviewCount').classList.remove('text-red-500');
+            }
+        });
+
+        document.getElementById('methodology').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('methodologyCount').textContent = count;
+            if (count < 50) {
+                document.getElementById('methodologyCount').classList.add('text-red-500');
+            } else {
+                document.getElementById('methodologyCount').classList.remove('text-red-500');
+            }
+        });
+
         // Load profiles when page loads
-        document.addEventListener('DOMContentLoaded', fetchProfiles);
+        document.addEventListener('DOMContentLoaded', () => fetchProfiles(1));
     </script>
+
+    <!-- Add pagination container -->
+    <div id="pagination" class="mt-4"></div>
 </body>
 </html> 
