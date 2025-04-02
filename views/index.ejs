@@ -84,7 +84,7 @@
                 </button>
                 <div id="overviewContent" class="section-content open">
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-700" id="modalOverview"></p>
+                        <p class="text-gray-700 whitespace-pre-wrap" id="modalOverview"></p>
                     </div>
                 </div>
             </div>
@@ -137,7 +137,7 @@
                 </button>
                 <div id="storyContent" class="section-content">
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-700" id="modalStory"></p>
+                        <p class="text-gray-700 whitespace-pre-wrap" id="modalStory"></p>
                     </div>
                 </div>
             </div>
@@ -152,12 +152,12 @@
                 </button>
                 <div id="methodologyContent" class="section-content">
                     <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-gray-700" id="modalMethodology"></p>
-                                </div>
-                            </div>
-                        </div>
+                        <p class="text-gray-700 whitespace-pre-wrap" id="modalMethodology"></p>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
+    </div>
 
     <%- include('partials/footer') %>
 
@@ -240,10 +240,10 @@
                 document.getElementById('modalNationality').textContent = profile.nationality;
                 document.getElementById('modalPlaceOfBirth').textContent = profile.placeOfBirth;
                 document.getElementById('modalAmount').textContent = formatCurrency(profile.totalScammedUSD);
-                document.getElementById('modalOverview').textContent = profile.overview;
+                document.getElementById('modalOverview').textContent = profile.overview || '';
                 document.getElementById('modalProjects').textContent = profile.associatedProjects || 'Unknown project';
                 document.getElementById('modalStory').textContent = profile.story || 'No story available';
-                document.getElementById('modalMethodology').textContent = profile.methodology;
+                document.getElementById('modalMethodology').textContent = profile.methodology || '';
                 
                 // Reset all sections
                 ['overview', 'basicInfo', 'story', 'methodology'].forEach(section => {
@@ -403,9 +403,34 @@
         }
         
         .section-content.open {
-            max-height: 1000px;
+            max-height: none;
             opacity: 1;
             margin-top: 1rem;
+        }
+
+        /* Add max height to content containers with scrolling */
+        .section-content .bg-gray-50 {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
         }
         
         #overviewArrow,
