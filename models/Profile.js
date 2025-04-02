@@ -40,10 +40,10 @@ const profileSchema = new mongoose.Schema({
     required: [true, 'Height is required'],
     validate: {
       validator: function(v) {
-        // Allow formats like 5'10" or 5'10 or 178cm
-        return /^\d+'?\d+"?$|^\d+cm$/.test(v);
+        // Allow formats like 5'10" or 5'10 or 178cm or Unknown
+        return /^\d+'?\d+"?$|^\d+cm$|^Unknown$/.test(v);
       },
-      message: props => `${props.value} is not a valid height format. Use format like 5'10" or 178cm`
+      message: props => `${props.value} is not a valid height format. Use format like 5'10", 178cm, or Unknown`
     }
   },
   weight: {
@@ -51,10 +51,10 @@ const profileSchema = new mongoose.Schema({
     required: [true, 'Weight is required'],
     validate: {
       validator: function(v) {
-        // Allow formats like 165 lbs or 75kg
-        return /^\d+\s*(lbs|kg)$/.test(v);
+        // Allow formats like 165 lbs or 75kg or Unknown
+        return /^\d+\s*(lbs|kg)$|^Unknown$/.test(v);
       },
-      message: props => `${props.value} is not a valid weight format. Use format like 165 lbs or 75kg`
+      message: props => `${props.value} is not a valid weight format. Use format like 165 lbs, 75kg, or Unknown`
     }
   },
   nationality: {
