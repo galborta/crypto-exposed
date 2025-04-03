@@ -5,18 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EXP0S3D - Exposing Crypto Scammers</title>
     <%- include('partials/styles') %>
+    <style>
+        @font-face {
+            font-family: 'Satoshi';
+            src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
+                 url('/fonts/Satoshi-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            background-color: #20201d;
+        }
+
+        /* Text colors for search and wall of shame */
+        .text-black {
+            color: #20201d !important;
+        }
+
+        #profilesGrid h3 {
+            color: #20201d;
+        }
+
+        #modalOverview,
+        #modalStory,
+        #modalMethodology {
+            font-family: 'Satoshi', sans-serif;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            color: #20201d;
+        }
+
+        /* Update modal text colors */
+        #modalName {
+            color: #20201d;
+        }
+
+        .section-button span {
+            color: #20201d;
+        }
+
+        .section-button svg {
+            color: #20201d;
+        }
+
+        /* Modal styles */
+        #profileModal {
+            z-index: 50;
+            padding: 1rem;
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        #profileModal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #profileModal:not(.hidden) {
+            opacity: 1;
+        }
+        
+        /* Modal content transition */
+        #profileModal > div {
+            transition: transform 0.2s ease-in-out;
+            transform: scale(0.95);
+        }
+        
+        #profileModal:not(.hidden) > div {
+            transform: scale(1);
+        }
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        /* Smooth image loading */
+        #modalPhoto {
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        #modalPhoto:not([src]), 
+        #modalPhoto[src=""] {
+            opacity: 0;
+        }
+        
+        /* Add smooth transitions for collapsible sections */
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.2s ease-out;
+            opacity: 0;
+            margin-top: 0;
+        }
+        
+        .section-content.open {
+            max-height: none;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        /* Add max height to content containers with scrolling */
+        .section-content .bg-gray-50 {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+
+        .section-content .bg-gray-50::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
+        }
+        
+        #overviewArrow,
+        #basicInfoArrow,
+        #methodologyArrow,
+        #storyArrow {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .section-button:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="text-gray-100">
     <%- include('partials/header') %>
 
     <main class="container mx-auto px-4 py-8">
         <!-- Search Section -->
         <div class="mb-8">
             <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">Search Scammers</h2>
+                <h2 class="text-xl font-semibold mb-4 text-black">Search Scammers</h2>
                 <div class="flex gap-4">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
-                           class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white">
                     <button onclick="searchProfiles()" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800">
                         Search
                     </button>
@@ -35,18 +172,10 @@
         </div>
 
         <!-- Stats Section -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-gray-500 text-sm font-medium">Total Amount Scammed</h3>
-                <p class="text-2xl font-bold mt-2 text-red-600" id="totalScammed">$0</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Total Scammers Exposed</h3>
-                <p class="text-2xl font-bold mt-2" id="totalProfiles">0</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Published Profiles</h3>
-                <p class="text-2xl font-bold mt-2" id="publishedProfiles">0</p>
+                <p class="text-2xl font-bold mt-2" style="color: #9e2a2b" id="totalScammed">$0</p>
             </div>
         </div>
     </main>
@@ -67,9 +196,9 @@
                 <div class="flex-1">
                     <h3 class="text-2xl font-bold" id="modalName"></h3>
                     <div class="mt-1 text-sm text-gray-600" id="modalProjects"></div>
-                    <div class="mt-3 bg-red-50 rounded-lg px-4 py-2 inline-block">
-                        <p class="text-xs text-red-600 font-medium uppercase tracking-wide">Financial Impact</p>
-                        <p class="text-lg font-bold text-red-700" id="modalAmount"></p>
+                    <div class="mt-3" style="background-color: rgba(158, 42, 43, 0.1); border-radius: 0.5rem; padding: 0.5rem 1rem;">
+                        <p style="color: #9e2a2b" class="text-xs font-medium uppercase tracking-wide">Financial Impact</p>
+                        <p style="color: #9e2a2b" class="text-lg font-bold" id="modalAmount"></p>
                     </div>
                 </div>
             </div>
@@ -101,27 +230,27 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Nationality</p>
-                            <p class="font-medium" id="modalNationality"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalNationality"></p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Date of Birth</p>
-                            <p class="font-medium" id="modalDOB"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalDOB"></p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Age</p>
-                            <p class="font-medium" id="modalAge"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalAge"></p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Place of Birth</p>
-                            <p class="font-medium" id="modalPlaceOfBirth"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalPlaceOfBirth"></p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Height</p>
-                            <p class="font-medium" id="modalHeight"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalHeight"></p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-sm text-gray-500">Weight</p>
-                            <p class="font-medium" id="modalWeight"></p>
+                            <p class="font-medium" style="color: #20201D" id="modalWeight"></p>
                         </div>
                     </div>
                 </div>
@@ -171,9 +300,7 @@
                 const statsResponse = await fetch('/api/profiles/stats');
                 const stats = await statsResponse.json();
                 
-                // Update stats display
-                document.getElementById('totalProfiles').textContent = stats.total || 0;
-                document.getElementById('publishedProfiles').textContent = stats.publishedProfiles || 0;
+                // Update only total scammed amount
                 document.getElementById('totalScammed').textContent = formatCurrency(stats.totalScammedUSD || 0);
                 
                 // Fetch profiles
@@ -217,11 +344,11 @@
                              class="w-full h-full object-cover rounded-full">
                     </div>
                     <div class="flex-grow min-w-0">
-                        <h3 class="text-base sm:text-lg font-semibold truncate">${profile.name}</h3>
+                        <h3 class="text-base sm:text-lg font-semibold truncate text-black">${profile.name}</h3>
                         <p class="text-xs sm:text-sm text-gray-500 truncate">${profile.associatedProjects || 'Unknown project'}</p>
                     </div>
                     <div class="flex-none text-right">
-                        <p class="text-base sm:text-xl font-bold text-red-600">${formatCurrency(profile.totalScammedUSD)}</p>
+                        <p class="text-base sm:text-xl font-bold" style="color: #9e2a2b">${formatCurrency(profile.totalScammedUSD)}</p>
                         <p class="text-xs sm:text-sm text-gray-500">Total Scammed</p>
                     </div>
                 </div>
@@ -350,99 +477,5 @@
         // Add search input event listener for real-time search
         document.getElementById('searchInput').addEventListener('input', searchProfiles);
     </script>
-
-    <style>
-        /* Modal styles */
-        #profileModal {
-            z-index: 50;
-            padding: 1rem;
-            transition: opacity 0.2s ease-in-out;
-        }
-        
-        #profileModal.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        #profileModal:not(.hidden) {
-            opacity: 1;
-        }
-        
-        /* Modal content transition */
-        #profileModal > div {
-            transition: transform 0.2s ease-in-out;
-            transform: scale(0.95);
-        }
-        
-        #profileModal:not(.hidden) > div {
-            transform: scale(1);
-        }
-        
-        /* Prevent body scroll when modal is open */
-        body.modal-open {
-            overflow: hidden;
-        }
-        
-        /* Smooth image loading */
-        #modalPhoto {
-            transition: opacity 0.2s ease-in-out;
-        }
-        
-        #modalPhoto:not([src]), 
-        #modalPhoto[src=""] {
-            opacity: 0;
-        }
-        
-        /* Add smooth transitions for collapsible sections */
-        .section-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.2s ease-out;
-            opacity: 0;
-            margin-top: 0;
-        }
-        
-        .section-content.open {
-            max-height: none;
-            opacity: 1;
-            margin-top: 1rem;
-        }
-
-        /* Add max height to content containers with scrolling */
-        .section-content .bg-gray-50 {
-            max-height: 400px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-thumb {
-            background-color: rgba(156, 163, 175, 0.5);
-            border-radius: 3px;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(156, 163, 175, 0.7);
-        }
-        
-        #overviewArrow,
-        #basicInfoArrow,
-        #methodologyArrow,
-        #storyArrow {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .section-button:hover {
-            background-color: #f3f4f6;
-        }
-    </style>
 </body>
 </html>
