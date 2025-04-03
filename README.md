@@ -330,3 +330,61 @@ This is a private project. Please contact the repository owner for contribution 
   - Admin dashboard
   - Search functionality
   - Basic statistics
+
+## Database Management
+
+### MongoDB Configuration
+The application uses MongoDB as its primary database. The database connection is configured in `server.js` and uses the following environment variables:
+
+```bash
+MONGODB_URI=mongodb://localhost:27017/blog  # Database connection string
+```
+
+Key database features:
+- Automatic connection retry
+- Connection pooling
+- Error logging and monitoring
+- Real-time statistics tracking
+
+### Automated Backup System
+
+The platform includes a robust automated backup system that ensures data safety:
+
+#### Backup Schedule
+- Automatic daily backups at 3:00 AM
+- Both local and cloud storage
+- 7-day retention policy
+
+#### Backup Components
+1. **Local Backups**
+   - Location: `./backups` directory
+   - Format: Compressed MongoDB dumps (.gz)
+   - Naming: `backup-[TIMESTAMP].gz`
+
+2. **Cloud Backups**
+   - Storage: Cloudinary
+   - Folder: `database_backups`
+   - Secure encrypted storage
+   - Accessible via Cloudinary dashboard
+
+#### Backup Scripts
+- `scripts/backup.js`: Main backup script
+- `scripts/cron-backup.sh`: Scheduler script
+- Logs stored in `./logs` directory
+
+#### Restore Process
+To restore from a backup:
+
+```bash
+# From local backup
+mongorestore --gzip --archive=backups/[backup-file].gz
+
+# From cloud backup
+curl -o restore.gz [cloudinary-url] && mongorestore --gzip --archive=restore.gz
+```
+
+#### Monitoring
+- Success/failure logs in `logs/backup.log`
+- Error logs in `logs/backup-error.log`
+- Cloudinary upload confirmations
+- Automatic cleanup of old backups
