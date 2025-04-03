@@ -32,9 +32,13 @@
         #modalStory,
         #modalMethodology {
             font-family: 'Satoshi', sans-serif;
-            line-height: 1.6;
+            line-height: 1.8;
             font-size: 1.05rem;
             color: #20201d;
+            text-align: left;
+            max-width: 70ch; /* Optimal line length for readability */
+            margin: 0 auto;
+            padding: 0 0.5rem;
         }
 
         /* Update modal text colors */
@@ -154,7 +158,7 @@
                 <div class="flex gap-4">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
                            class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white">
-                    <button onclick="searchProfiles()" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800">
+                    <button onclick="searchProfiles()" style="background-color: #20201D" class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity">
                         Search
                     </button>
                 </div>
@@ -288,7 +292,20 @@
         </div>
     </div>
 
-    <%- include('partials/footer') %>
+    <!-- Footer -->
+    <footer style="background-color: #20201D">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <nav class="flex justify-center space-x-8 mb-6">
+                <a href="/" class="text-white hover:text-gray-300 transition-colors">Home</a>
+                <a href="/about" class="text-white hover:text-gray-300 transition-colors">About</a>
+                <a href="/contact" class="text-white hover:text-gray-300 transition-colors">Contact</a>
+                <a href="/contribute" class="text-white hover:text-gray-300 transition-colors">Contribute</a>
+            </nav>
+            <p class="text-center text-white text-sm" style="transform: rotate(180deg)">
+                Fiat justitia ruat caelum.
+            </p>
+        </div>
+    </footer>
 
     <script>
         let profiles = [];
