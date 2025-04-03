@@ -28,17 +28,53 @@
             color: #20201d;
         }
 
+        /* Modal content styling */
         #modalOverview,
         #modalStory,
         #modalMethodology {
             font-family: 'Satoshi', sans-serif;
-            line-height: 1.8;
-            font-size: 1.05rem;
+            font-size: 1.125rem; /* 18px base size for better readability */
+            line-height: 1.5;
             color: #20201d;
             text-align: left;
-            max-width: 70ch; /* Optimal line length for readability */
+            max-width: 65ch; /* Optimal line length */
             margin: 0 auto;
-            padding: 0 0.5rem;
+            padding: 0 1rem;
+        }
+
+        /* Paragraph spacing */
+        #modalOverview p,
+        #modalStory p,
+        #modalMethodology p {
+            margin-bottom: 1.5em; /* Space between paragraphs */
+            font-weight: 400; /* Regular weight for body text */
+        }
+
+        /* Ensure text remains readable at different zoom levels */
+        @media screen and (max-width: 768px) {
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                font-size: calc(1rem + 0.5vw); /* Responsive font size */
+                line-height: 1.6; /* Slightly increased line height for smaller screens */
+                padding: 0 0.75rem;
+            }
+        }
+
+        /* High contrast and clear focus states for better accessibility */
+        #modalOverview:focus,
+        #modalStory:focus,
+        #modalMethodology:focus {
+            outline: 2px solid #20201d;
+            outline-offset: 2px;
+        }
+
+        /* Improve text selection visibility */
+        #modalOverview::selection,
+        #modalStory::selection,
+        #modalMethodology::selection {
+            background-color: rgba(32, 32, 29, 0.2);
+            color: #20201d;
         }
 
         /* Update modal text colors */
@@ -185,14 +221,16 @@
     </main>
 
     <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full" onclick="handleModalClick(event)">
         <div class="relative mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white mt-10">
-            <!-- Close button -->
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
+            <!-- Close button - moved to top right corner with more padding -->
+            <div class="flex justify-end mb-4">
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
 
             <!-- Profile Header -->
             <div class="flex items-start space-x-4 mb-6">
@@ -406,6 +444,13 @@
             }
         }
 
+        function handleModalClick(event) {
+            // Close modal only if clicking the overlay (not the modal content)
+            if (event.target.id === 'profileModal') {
+                closeModal();
+            }
+        }
+
         function closeModal() {
             document.getElementById('profileModal').classList.add('hidden');
             document.body.classList.remove('modal-open');
@@ -493,6 +538,13 @@
 
         // Add search input event listener for real-time search
         document.getElementById('searchInput').addEventListener('input', searchProfiles);
+
+        // Add escape key listener for closing modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
