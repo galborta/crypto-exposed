@@ -40,6 +40,11 @@
             max-width: 65ch; /* Optimal line length */
             margin: 0 auto;
             padding: 0 1rem;
+            white-space: pre-wrap; /* Preserve paragraph structure */
+            word-break: normal;
+            word-wrap: normal;
+            overflow-wrap: normal;
+            hyphens: none;
         }
 
         /* Paragraph spacing */
@@ -50,14 +55,30 @@
             font-weight: 400; /* Regular weight for body text */
         }
 
-        /* Ensure text remains readable at different zoom levels */
+        /* Mobile-specific adjustments */
         @media screen and (max-width: 768px) {
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: calc(1rem + 0.5vw); /* Responsive font size */
-                line-height: 1.6; /* Slightly increased line height for smaller screens */
+                font-size: 1rem; /* 16px on mobile */
+                line-height: 1.5;
                 padding: 0 0.75rem;
+            }
+
+            /* Ensure modal content is properly padded */
+            .section-content .bg-gray-50 {
+                padding: 1rem;
+                max-height: 70vh; /* Limit height on mobile */
+            }
+        }
+
+        /* Even smaller screens */
+        @media screen and (max-width: 480px) {
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                font-size: 0.9375rem; /* 15px on very small screens */
+                line-height: 1.5;
             }
         }
 
@@ -80,6 +101,18 @@
         /* Update modal text colors */
         #modalName {
             color: #20201d;
+            font-size: 1.25rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            white-space: normal;
+        }
+
+        @media screen and (max-width: 768px) {
+            #modalName {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
         }
 
         .section-button span {
@@ -152,6 +185,8 @@
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
         }
 
         .section-content .bg-gray-50::-webkit-scrollbar {
@@ -324,9 +359,9 @@
                 <div id="methodologyContent" class="section-content">
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <p class="text-gray-700 whitespace-pre-wrap" id="modalMethodology"></p>
-                    </div>
-                </div>
-            </div>
+                                </div>
+                            </div>
+                        </div>
         </div>
     </div>
 
