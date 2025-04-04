@@ -21,41 +21,21 @@ const profileSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true
   },
-  photoUrl: {
-    type: String,
-    required: false,
-    default: ''
-  },
   dateOfBirth: {
     type: Date,
     required: [true, 'Date of birth is required']
   },
   age: {
     type: Number,
-    required: [true, 'Age is required'],
-    min: [0, 'Age must be positive']
+    required: [true, 'Age is required']
   },
   height: {
     type: String,
-    required: [true, 'Height is required'],
-    validate: {
-      validator: function(v) {
-        // Allow formats like 5'10" or 5'10 or 178cm or Unknown
-        return /^\d+'?\d+"?$|^\d+cm$|^Unknown$/.test(v);
-      },
-      message: props => `${props.value} is not a valid height format. Use format like 5'10", 178cm, or Unknown`
-    }
+    required: [true, 'Height is required']
   },
   weight: {
     type: String,
-    required: [true, 'Weight is required'],
-    validate: {
-      validator: function(v) {
-        // Allow formats like 165 lbs or 75kg or Unknown
-        return /^\d+\s*(lbs|kg)$|^Unknown$/.test(v);
-      },
-      message: props => `${props.value} is not a valid weight format. Use format like 165 lbs, 75kg, or Unknown`
-    }
+    required: [true, 'Weight is required']
   },
   nationality: {
     type: String,
@@ -65,34 +45,35 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Place of birth is required']
   },
+  photoUrl: {
+    type: String,
+    required: false
+  },
+  overview: {
+    type: String,
+    required: [true, 'Overview is required']
+  },
   totalScammedUSD: {
     type: Number,
     required: [true, 'Total amount scammed is required'],
     min: [0, 'Total amount scammed must be positive']
   },
-  overview: {
+  status: {
     type: String,
-    required: [true, 'Overview is required'],
-    minlength: [50, 'Overview must be at least 50 characters long']
+    enum: ['Draft', 'Published'],
+    default: 'Draft'
   },
   associatedProjects: {
     type: String,
     required: [true, 'Associated projects are required']
   },
-  story: {
-    type: String,
-    required: false,
-    default: ''
-  },
   methodology: {
     type: String,
-    required: [true, 'Methodology is required'],
-    minlength: [50, 'Methodology must be at least 50 characters long']
+    required: [true, 'Methodology is required']
   },
-  status: {
+  story: {
     type: String,
-    enum: ['Draft', 'Published'],
-    default: 'Draft'
+    required: false
   },
   createdAt: {
     type: Date,
@@ -108,16 +89,6 @@ const profileSchema = new mongoose.Schema({
 profileSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
-});
-
-// Format dates when converting to JSON
-profileSchema.set('toJSON', {
-  transform: function(doc, ret, options) {
-    if (ret.dateOfBirth) {
-      ret.dateOfBirth = ret.dateOfBirth.toISOString().split('T')[0];
-    }
-    return ret;
-  }
 });
 
 module.exports = mongoose.model('Profile', profileSchema); 
