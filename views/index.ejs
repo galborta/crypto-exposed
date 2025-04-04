@@ -98,20 +98,51 @@
             color: #20201d;
         }
 
-        /* Update modal text colors */
+        /* Modal photo and name container */
+        .modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Modal photo styling */
+        #modalPhoto {
+            transition: opacity 0.2s ease-in-out;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem auto;
+            border-width: 4px;
+            border-color: rgba(254, 226, 226, 1);
+            border-radius: 9999px;
+            object-fit: cover;
+        }
+        
+        #modalPhoto:not([src]), 
+        #modalPhoto[src=""] {
+            opacity: 0;
+        }
+
+        /* Modal name styling */
         #modalName {
             color: #20201d;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             line-height: 1.4;
-            margin-bottom: 1rem;
             font-weight: 600;
             white-space: normal;
+            text-align: center;
+            margin: 0;
         }
 
         @media screen and (max-width: 768px) {
+            #modalPhoto {
+                width: 100px;
+                height: 100px;
+            }
+            
             #modalName {
-                font-size: 1rem;
-                margin-bottom: 0.75rem;
+                font-size: 1.25rem;
             }
         }
 
@@ -120,101 +151,112 @@
         }
 
         .section-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
             color: #20201d;
+            transition: transform 0.2s ease;
+        }
+
+        .section-button svg.rotated {
+            transform: rotate(180deg);
         }
 
         /* Modal styles */
         #profileModal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 50;
-            padding: 1rem;
-            transition: opacity 0.2s ease-in-out;
         }
         
         #profileModal.hidden {
-            opacity: 0;
-            pointer-events: none;
+            display: none;
         }
-        
-        #profileModal:not(.hidden) {
-            opacity: 1;
-        }
-        
-        /* Modal content transition */
+
         #profileModal > div {
-            transition: transform 0.2s ease-in-out;
-            transform: scale(0.95);
+            background: white;
+            border-radius: 0.5rem;
+            max-width: 64rem;
+            width: calc(100% - 2rem);
+            margin: 1rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
         }
-        
-        #profileModal:not(.hidden) > div {
-            transform: scale(1);
-        }
-        
-        /* Prevent body scroll when modal is open */
-        body.modal-open {
-            overflow: hidden;
-        }
-        
-        /* Smooth image loading */
-        #modalPhoto {
-            transition: opacity 0.2s ease-in-out;
-        }
-        
-        #modalPhoto:not([src]), 
-        #modalPhoto[src=""] {
-            opacity: 0;
-        }
-        
-        /* Add smooth transitions for collapsible sections */
+
+        /* Section styling */
         .section-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.2s ease-out;
-            opacity: 0;
-            margin-top: 0;
+            display: none;
+            margin-top: 1rem;
+            position: relative;
+            background: white;
         }
         
         .section-content.open {
-            max-height: none;
-            opacity: 1;
-            margin-top: 1rem;
+            display: block;
         }
 
-        /* Add max height to content containers with scrolling */
         .section-content .bg-gray-50 {
-            max-height: 400px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+            background: white;
             padding: 1.25rem;
             border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            max-height: none;
+            overflow: visible;
         }
 
-        .section-content .bg-gray-50::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-thumb {
-            background-color: rgba(156, 163, 175, 0.5);
-            border-radius: 3px;
-        }
-
-        .section-content .bg-gray-50::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(156, 163, 175, 0.7);
-        }
-        
-        #overviewArrow,
-        #basicInfoArrow,
-        #methodologyArrow,
-        #storyArrow {
-            transition: transform 0.3s ease-in-out;
+        /* Section buttons */
+        .section-button {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            transition: background-color 0.2s ease;
         }
 
         .section-button:hover {
             background-color: #f3f4f6;
+        }
+
+        .section-button span {
+            color: #20201d;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .section-button:focus {
+            outline: none;
+            ring: 2px solid #e5e7eb;
+        }
+
+        /* Content sections spacing */
+        #overviewContent,
+        #basicInfoContent,
+        #storyContent,
+        #methodologyContent {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Ensure content areas have proper spacing */
+        .section-content .bg-gray-50 {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -256,112 +298,110 @@
     </main>
 
     <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full" onclick="handleModalClick(event)">
-        <div class="relative mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white mt-10">
-            <!-- Close button - moved to top right corner with more padding -->
-            <div class="flex justify-end mb-4">
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" onclick="handleModalClick(event)">
+        <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <!-- Close button -->
+                <button onclick="closeModal()" class="float-right text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
-            </div>
 
-            <!-- Profile Header -->
-            <div class="flex items-start space-x-4 mb-6">
-                <img id="modalPhoto" class="w-24 h-24 rounded-full object-cover border-4 border-red-100" src="" alt="">
-                <div class="flex-1">
-                    <h3 class="text-2xl font-bold" id="modalName"></h3>
+                <!-- Profile header with centered photo and name -->
+                <div class="modal-header">
+                    <img id="modalPhoto" src="" alt="">
+                    <h3 id="modalName"></h3>
                     <div class="mt-1 text-sm text-gray-600" id="modalProjects"></div>
                     <div class="mt-3" style="background-color: rgba(158, 42, 43, 0.1); border-radius: 0.5rem; padding: 0.5rem 1rem;">
                         <p style="color: #9e2a2b" class="text-xs font-medium uppercase tracking-wide">Financial Impact</p>
                         <p style="color: #9e2a2b" class="text-lg font-bold" id="modalAmount"></p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Overview Section -->
-            <div class="mb-6">
-                <button onclick="toggleOverview()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                    <span class="text-lg font-semibold">Overview</span>
-                    <svg id="overviewArrow" class="w-5 h-5 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="overviewContent" class="section-content open">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-700 whitespace-pre-wrap" id="modalOverview"></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Basic Information Section -->
-            <div class="mb-6">
-                <button onclick="toggleBasicInfo()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                    <span class="text-lg font-semibold">Basic Information</span>
-                    <svg id="basicInfoArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="basicInfoContent" class="section-content">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Nationality</p>
-                            <p class="font-medium" style="color: #20201D" id="modalNationality"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Date of Birth</p>
-                            <p class="font-medium" style="color: #20201D" id="modalDOB"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Age</p>
-                            <p class="font-medium" style="color: #20201D" id="modalAge"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Place of Birth</p>
-                            <p class="font-medium" style="color: #20201D" id="modalPlaceOfBirth"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Height</p>
-                            <p class="font-medium" style="color: #20201D" id="modalHeight"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Weight</p>
-                            <p class="font-medium" style="color: #20201D" id="modalWeight"></p>
+                <!-- Overview Section -->
+                <div class="mb-6">
+                    <button onclick="toggleOverview()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <span class="text-lg font-semibold">Overview</span>
+                        <svg id="overviewArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="overviewContent" class="section-content">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700 whitespace-pre-wrap" id="modalOverview"></p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Story Section -->
-            <div class="mb-6">
-                <button onclick="toggleStory()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                    <span class="text-lg font-semibold">Story</span>
-                    <svg id="storyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="storyContent" class="section-content">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-700 whitespace-pre-wrap" id="modalStory"></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Methodology Section -->
-            <div class="mb-8">
-                <button onclick="toggleMethodology()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                    <span class="text-lg font-semibold">Methodology</span>
-                    <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="methodologyContent" class="section-content">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-gray-700 whitespace-pre-wrap" id="modalMethodology"></p>
+                <!-- Basic Information Section -->
+                <div class="mb-6">
+                    <button onclick="toggleBasicInfo()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <span class="text-lg font-semibold">Basic Information</span>
+                        <svg id="basicInfoArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="basicInfoContent" class="section-content">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Nationality</p>
+                                <p class="font-medium" style="color: #20201D" id="modalNationality"></p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Date of Birth</p>
+                                <p class="font-medium" style="color: #20201D" id="modalDOB"></p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Age</p>
+                                <p class="font-medium" style="color: #20201D" id="modalAge"></p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Place of Birth</p>
+                                <p class="font-medium" style="color: #20201D" id="modalPlaceOfBirth"></p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Height</p>
+                                <p class="font-medium" style="color: #20201D" id="modalHeight"></p>
                                 </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">Weight</p>
+                                <p class="font-medium" style="color: #20201D" id="modalWeight"></p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Story Section -->
+                <div class="mb-6">
+                    <button onclick="toggleStory()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <span class="text-lg font-semibold">Story</span>
+                        <svg id="storyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="storyContent" class="section-content">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700 whitespace-pre-wrap" id="modalStory"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methodology Section -->
+                <div class="mb-8">
+                    <button onclick="toggleMethodology()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <span class="text-lg font-semibold">Methodology</span>
+                        <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="methodologyContent" class="section-content">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-700 whitespace-pre-wrap" id="modalMethodology"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -447,40 +487,61 @@
 
         function showProfileDetails(id) {
             const profile = profiles.find(p => p._id === id);
-            if (profile) {
-                document.getElementById('modalName').textContent = profile.name;
-                document.getElementById('modalPhoto').src = profile.photoUrl || '/default-avatar.svg';
-                document.getElementById('modalDOB').textContent = new Date(profile.dateOfBirth).toLocaleDateString();
-                document.getElementById('modalAge').textContent = profile.age;
-                document.getElementById('modalHeight').textContent = profile.height;
-                document.getElementById('modalWeight').textContent = profile.weight;
-                document.getElementById('modalNationality').textContent = profile.nationality;
-                document.getElementById('modalPlaceOfBirth').textContent = profile.placeOfBirth;
-                document.getElementById('modalAmount').textContent = formatCurrency(profile.totalScammedUSD);
-                document.getElementById('modalOverview').textContent = profile.overview || '';
-                document.getElementById('modalProjects').textContent = profile.associatedProjects || 'Unknown project';
-                document.getElementById('modalStory').textContent = profile.story || 'No story available';
-                document.getElementById('modalMethodology').textContent = profile.methodology || '';
-                
-                // Reset all sections
-                ['overview', 'basicInfo', 'story', 'methodology'].forEach(section => {
-                    const content = document.getElementById(`${section}Content`);
-                    const arrow = document.getElementById(`${section}Arrow`);
+            if (!profile) return;
+
+            // Update modal content
+            const elements = {
+                'modalName': profile.name,
+                'modalPhoto': profile.photoUrl || '/default-avatar.svg',
+                'modalDOB': new Date(profile.dateOfBirth).toLocaleDateString(),
+                'modalAge': profile.age,
+                'modalHeight': profile.height,
+                'modalWeight': profile.weight,
+                'modalNationality': profile.nationality,
+                'modalPlaceOfBirth': profile.placeOfBirth,
+                'modalAmount': formatCurrency(profile.totalScammedUSD),
+                'modalOverview': profile.overview || '',
+                'modalProjects': profile.associatedProjects || 'Unknown project',
+                'modalStory': profile.story || 'No story available',
+                'modalMethodology': profile.methodology || ''
+            };
+
+            // Safely update all elements
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (id === 'modalPhoto') {
+                        element.src = value;
+                    } else {
+                        element.textContent = value;
+                    }
+                }
+            });
+
+            // Reset all sections
+            sections.forEach(section => {
+                const content = document.getElementById(`${section}Content`);
+                const arrow = document.getElementById(`${section}Arrow`);
+                if (content && arrow) {
                     content.classList.remove('open');
-                    arrow.classList.remove('rotate-180');
-                });
-                
-                // Show overview by default
-                document.getElementById('overviewContent').classList.add('open');
-                document.getElementById('overviewArrow').classList.add('rotate-180');
-                
-                document.getElementById('profileModal').classList.remove('hidden');
-                document.body.classList.add('modal-open');
+                    arrow.classList.remove('rotated');
+                }
+            });
+
+            // Show overview by default
+            const overviewContent = document.getElementById('overviewContent');
+            const overviewArrow = document.getElementById('overviewArrow');
+            if (overviewContent && overviewArrow) {
+                overviewContent.classList.add('open');
+                overviewArrow.classList.add('rotated');
             }
+
+            // Show modal
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
         }
 
         function handleModalClick(event) {
-            // Close modal only if clicking the overlay (not the modal content)
             if (event.target.id === 'profileModal') {
                 closeModal();
             }
@@ -489,6 +550,16 @@
         function closeModal() {
             document.getElementById('profileModal').classList.add('hidden');
             document.body.classList.remove('modal-open');
+            
+            // Reset all sections when closing
+            sections.forEach(section => {
+                const content = document.getElementById(`${section}Content`);
+                const arrow = document.getElementById(`${section}Arrow`);
+                if (content && arrow) {
+                    content.classList.remove('open');
+                    arrow.classList.remove('rotated');
+                }
+            });
         }
 
         function searchProfiles() {
@@ -521,34 +592,28 @@
             return sections[(currentIndex + 1) % sections.length];
         }
         
-        function closeAllSections() {
-            sections.forEach(section => {
-                const content = document.getElementById(`${section}Content`);
-                const arrow = document.getElementById(`${section}Arrow`);
-                content.classList.remove('open');
-                arrow.classList.remove('rotate-180');
-            });
-        }
-        
-        function openSection(section) {
-            const content = document.getElementById(`${section}Content`);
-            const arrow = document.getElementById(`${section}Arrow`);
-            content.classList.add('open');
-            arrow.classList.add('rotate-180');
-        }
-
         function toggleSection(section) {
             const content = document.getElementById(`${section}Content`);
             const arrow = document.getElementById(`${section}Arrow`);
             
-            if (!content.classList.contains('open')) {
-                // Opening this section
-                closeAllSections();
-                openSection(section);
-            } else {
-                // Closing this section, open next one
-                closeAllSections();
-                openSection(getNextSection(section));
+            if (!content || !arrow) return;
+
+            const isCurrentlyOpen = content.classList.contains('open');
+            
+            // Close all sections first
+            sections.forEach(s => {
+                const sContent = document.getElementById(`${s}Content`);
+                const sArrow = document.getElementById(`${s}Arrow`);
+                if (sContent && sArrow) {
+                    sContent.classList.remove('open');
+                    sArrow.classList.remove('rotated');
+                }
+            });
+
+            // If the clicked section wasn't open, open it
+            if (!isCurrentlyOpen) {
+                content.classList.add('open');
+                arrow.classList.add('rotated');
             }
         }
 
