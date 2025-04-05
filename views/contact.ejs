@@ -99,9 +99,9 @@
 
                     <div id="attachments-field" class="hidden field-section">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
-                        <input type="file" multiple
+                        <input type="file" id="suggestion-attachments" name="attachments" multiple accept="image/*,.pdf,.doc,.docx"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <p class="mt-1 text-sm text-gray-500">Screenshots, documents, or other evidence</p>
+                        <p class="mt-1 text-sm text-gray-500">Accepted formats: Images, PDF, DOC (Max 5MB per file)</p>
                     </div>
 
                     <div id="message-field" class="hidden field-section">
@@ -144,6 +144,14 @@
             }
         }
 
+        // Check URL parameters on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('form') === 'submit') {
+                switchForm('suggestion');
+            }
+        });
+
         function toggleField(fieldName) {
             const button = event.target;
             const fieldSection = document.getElementById(`${fieldName}-field`);
@@ -164,26 +172,65 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData.entries());
+                const isSubmitEntry = e.target.id === 'suggestionForm';
                 
                 try {
-                    const response = await fetch('/api/contact', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            ...data,
-                            type: e.target.id === 'contactForm' ? 'contact' : 'suggestion'
-                        })
-                    });
+                    if (isSubmitEntry) {
+                        // Create FormData object to handle files
+                        const formData = new FormData();
+                        formData.append('type', 'suggestion');
 
-                    if (response.ok) {
-                        alert('Message sent successfully!');
-                        e.target.reset();
-                        // Reset toggle buttons if it's the suggestion form
-                        if (e.target.id === 'suggestionForm') {
+                        // Add text fields
+                        const subjectValue = document.getElementById('suggestion-subject')?.value || '';
+                        const twitterValue = document.getElementById('suggestion-twitter')?.value || '';
+                        const walletsValue = document.getElementById('suggestion-wallets')?.value || '';
+                        const messageValue = document.getElementById('suggestion-message')?.value || '';
+
+                        formData.append('suggestion-subject', subjectValue);
+                        formData.append('suggestion-twitter', twitterValue);
+                        formData.append('suggestion-wallets', walletsValue);
+                        formData.append('suggestion-message', messageValue);
+
+                        // Add files if any
+                        const fileInput = document.getElementById('suggestion-attachments');
+                        if (fileInput && fileInput.files.length > 0) {
+                            Array.from(fileInput.files).forEach((file, index) => {
+                                // Validate file size (5MB limit)
+                                if (file.size > 5 * 1024 * 1024) {
+                                    throw new Error(`File ${file.name} exceeds 5MB limit`);
+                                }
+                                formData.append(`attachments`, file);
+                            });
+                        }
+
+                        // Check if at least one field has content or files are attached
+                        const hasContent = subjectValue.trim() !== '' || 
+                                         twitterValue.trim() !== '' || 
+                                         walletsValue.trim() !== '' || 
+                                         messageValue.trim() !== '' ||
+                                         (fileInput && fileInput.files.length > 0);
+
+                        if (!hasContent) {
+                            throw new Error('Please provide at least one piece of information (Subject Name, Twitter Handle, Wallet Addresses, Additional Information, or Attachments)');
+                        }
+
+                        // Send the submission data
+                        const response = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: {
+                                'CSRF-Token': '<%= csrfToken %>'
+                                // Remove Content-Type header to let browser set it with boundary for multipart/form-data
+                            },
+                            credentials: 'same-origin',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert(result.message || 'Entry submitted successfully!');
+                            e.target.reset();
+                            // Reset toggle buttons and hide fields
                             document.querySelectorAll('.info-toggle').forEach(button => {
                                 button.classList.remove('bg-blue-500', 'text-white');
                                 button.classList.add('bg-gray-200');
@@ -191,12 +238,38 @@
                             document.querySelectorAll('.field-section').forEach(section => {
                                 section.classList.add('hidden');
                             });
+                        } else {
+                            throw new Error(result.error || 'Failed to submit entry');
                         }
                     } else {
-                        throw new Error('Failed to send message');
+                        // Handle Contact Us form submission
+                        const formData = new FormData(e.target);
+                        const data = Object.fromEntries(formData.entries());
+                        
+                        const response = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': '<%= csrfToken %>'
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({
+                                ...data,
+                                type: 'contact'
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert(result.message || 'Message sent successfully!');
+                            e.target.reset();
+                        } else {
+                            throw new Error(result.error || 'Failed to send message');
+                        }
                     }
                 } catch (error) {
-                    alert('Error sending message. Please try again later.');
+                    alert(error.message || 'Error sending message. Please try again later.');
                     console.error('Error:', error);
                 }
             });

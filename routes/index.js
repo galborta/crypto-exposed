@@ -4,6 +4,8 @@ const path = require('path');
 const Post = require('../models/Post');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+const fs = require('fs');
 
 // Print all registered routes when the router is initialized
 const routes = router.stack
@@ -138,6 +140,34 @@ router.get('/contribute', (req, res) => {
     }
 });
 
+// Configure multer for handling file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/') // Make sure this directory exists
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only images, PDFs, and DOC files are allowed!'));
+        }
+    }
+});
+
 // Create a transporter using Gmail SMTP settings
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -163,52 +193,109 @@ transporter.verify(function(error, success) {
 });
 
 // Contact form submission
-router.post('/api/contact', async (req, res) => {
+router.post('/api/contact', upload.array('attachments', 5), async (req, res) => {
     console.log('[CONTACT] Received form submission:', {
         type: req.body.type,
-        name: req.body.name,
-        hasContact: !!req.body.contact,
-        hasMessage: !!req.body.message
+        hasAttachments: req.files?.length > 0
     });
 
     try {
-        const { name, contact, subject, message, type } = req.body;
-        const isSubmitEntry = type === 'suggestion';
+        const isSubmitEntry = req.body.type === 'suggestion';
 
-        // Validate required fields
-        if (!name || !contact || !message) {
-            console.log('[CONTACT] Missing required fields');
-            return res.status(400).json({ error: 'Name, contact information, and message are required' });
+        // Different validation for Contact Us vs Submit Entry
+        if (!isSubmitEntry) {
+            // Contact Us form requires all fields
+            if (!req.body.name || !req.body.contact || !req.body.message) {
+                console.log('[CONTACT] Missing required fields for Contact form');
+                return res.status(400).json({ error: 'Name, contact information, and message are required for Contact form' });
+            }
+        } else {
+            // Submit Entry form requires at least one field or attachments
+            const hasSubjectName = !!req.body['suggestion-subject'];
+            const hasTwitter = !!req.body['suggestion-twitter'];
+            const hasWallets = !!req.body['suggestion-wallets'];
+            const hasMessage = !!req.body['suggestion-message'];
+            const hasAttachments = req.files?.length > 0;
+
+            if (!hasSubjectName && !hasTwitter && !hasWallets && !hasMessage && !hasAttachments) {
+                console.log('[CONTACT] No information provided for Entry submission');
+                return res.status(400).json({ error: 'Please provide at least one piece of information (Subject Name, Twitter Handle, Wallet Addresses, Additional Information, or Attachments)' });
+            }
         }
 
-        // Send email
+        // Prepare email content based on form type
+        let emailText = '';
+        let emailHtml = '';
+
+        if (isSubmitEntry) {
+            // Build content for Submit Entry form
+            const sections = [];
+            if (req.body['suggestion-subject']) sections.push(`Subject Name: ${req.body['suggestion-subject']}`);
+            if (req.body['suggestion-twitter']) sections.push(`Twitter Handle: ${req.body['suggestion-twitter']}`);
+            if (req.body['suggestion-wallets']) sections.push(`Wallet Addresses:\n${req.body['suggestion-wallets']}`);
+            if (req.body['suggestion-message']) sections.push(`Additional Information:\n${req.body['suggestion-message']}`);
+            if (req.files?.length > 0) {
+                sections.push(`Attachments: ${req.files.map(f => f.originalname).join(', ')}`);
+            }
+
+            emailText = `
+Type: Entry Submission
+${sections.join('\n\n')}
+            `;
+
+            emailHtml = `
+<h2>New Entry Submission</h2>
+${sections.map(section => `<p>${section.replace(/\n/g, '<br>')}</p>`).join('\n')}
+            `;
+        } else {
+            // Build content for Contact Us form
+            emailText = `
+Type: Contact Form
+Name: ${req.body.name}
+Contact: ${req.body.contact}
+${req.body.subject ? `Subject: ${req.body.subject}\n` : ''}
+Message:
+${req.body.message}
+            `;
+
+            emailHtml = `
+<h2>New Contact Form Submission</h2>
+<p><strong>Type:</strong> Contact Form</p>
+<p><strong>Name:</strong> ${req.body.name}</p>
+<p><strong>Contact:</strong> ${req.body.contact}</p>
+${req.body.subject ? `<p><strong>Subject:</strong> ${req.body.subject}</p>` : ''}
+<p><strong>Message:</strong></p>
+<p>${req.body.message ? req.body.message.replace(/\n/g, '<br>') : ''}</p>
+            `;
+        }
+
+        // Send email with attachments
         try {
             const mailOptions = {
                 from: `"EXP0S3D Contact Form" <${process.env.EMAIL_USER}>`,
-                to: process.env.CONTACT_EMAIL || process.env.EMAIL_USER, // Use CONTACT_EMAIL if set, fallback to EMAIL_USER
-                replyTo: contact, // Set reply-to as the contact's email
-                subject: `[EXP0S3D] ${isSubmitEntry ? 'New Entry Submission' : subject || 'Contact Form'} - from ${name}`,
-                text: `
-Type: ${isSubmitEntry ? 'Entry Submission' : 'Contact Form'}
-Name: ${name}
-Contact: ${contact}
-${!isSubmitEntry && subject ? `Subject: ${subject}\n` : ''}
-Message:
-${message}
-                `,
-                html: `
-<h2>New ${isSubmitEntry ? 'Entry Submission' : 'Contact Form Submission'}</h2>
-<p><strong>Type:</strong> ${isSubmitEntry ? 'Entry Submission' : 'Contact Form'}</p>
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Contact:</strong> ${contact}</p>
-${!isSubmitEntry && subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
-<p><strong>Message:</strong></p>
-<p>${message ? message.replace(/\n/g, '<br>') : ''}</p>
-                `
+                to: process.env.CONTACT_EMAIL || process.env.EMAIL_USER,
+                replyTo: req.body.contact || process.env.EMAIL_USER,
+                subject: `[EXP0S3D] ${isSubmitEntry ? 'New Entry Submission' : (req.body.subject || 'Contact Form')}${req.body.name ? ` - from ${req.body.name}` : ''}`,
+                text: emailText,
+                html: emailHtml,
+                attachments: req.files?.map(file => ({
+                    filename: file.originalname,
+                    path: file.path
+                })) || []
             };
 
             const info = await transporter.sendMail(mailOptions);
             console.log('[CONTACT] Email sent successfully');
+            
+            // Clean up uploaded files after sending
+            if (req.files?.length > 0) {
+                req.files.forEach(file => {
+                    fs.unlink(file.path, (err) => {
+                        if (err) console.error('[CONTACT] Error deleting file:', file.path, err);
+                    });
+                });
+            }
+            
             res.status(200).json({ message: 'Message sent successfully' });
         } catch (emailError) {
             console.error('[CONTACT] Error sending email:', {
@@ -219,6 +306,15 @@ ${!isSubmitEntry && subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''
             throw emailError;
         }
     } catch (error) {
+        // Clean up uploaded files in case of error
+        if (req.files?.length > 0) {
+            req.files.forEach(file => {
+                fs.unlink(file.path, (err) => {
+                    if (err) console.error('[CONTACT] Error deleting file:', file.path, err);
+                });
+            });
+        }
+        
         console.error('[CONTACT] Error processing form:', error);
         res.status(500).json({ error: `Failed to send message: ${error.message}` });
     }
