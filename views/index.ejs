@@ -289,10 +289,23 @@
         </div>
 
         <!-- Stats Section -->
-        <div class="grid grid-cols-1 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-gray-500 text-sm font-medium">Total Amount Scammed</h3>
+                <h3 class="text-gray-500 text-sm font-medium">Total Financial Impact</h3>
                 <p class="text-2xl font-bold mt-2" style="color: #9e2a2b" id="totalScammed">$0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-gray-500 text-sm font-medium">Total Subjects Listed</h3>
+                        <p class="text-2xl font-bold mt-2" style="color: #9e2a2b" id="totalSubjects">0</p>
+                    </div>
+                    <a href="/contact?form=submit" title="Submit New Entry" class="inline-flex items-center justify-center p-2 text-white rounded-full hover:opacity-90 transition-opacity" style="background-color: #20201D">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </main>
@@ -415,7 +428,7 @@
                 <a href="/contribute" class="text-white hover:text-gray-300 transition-colors">Contribute</a>
             </nav>
             <p class="text-center text-white text-sm" style="transform: rotate(180deg)">
-                Fiat justitia ruat caelum.
+                We must hold them accountable.
             </p>
         </div>
     </footer>
@@ -430,7 +443,7 @@
                 const statsResponse = await fetch('/api/profiles/stats');
                 const stats = await statsResponse.json();
                 
-                // Update only total scammed amount
+                // Update stats display
                 document.getElementById('totalScammed').textContent = formatCurrency(stats.totalScammedUSD || 0);
                 
                 // Fetch profiles
@@ -450,6 +463,9 @@
                 const publishedProfiles = profiles
                     .filter(p => p.status === 'Published')
                     .sort((a, b) => b.totalScammedUSD - a.totalScammedUSD);
+                
+                // Update total subjects count
+                document.getElementById('totalSubjects').textContent = publishedProfiles.length;
                 
                 renderProfiles(publishedProfiles);
             } catch (error) {
