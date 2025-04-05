@@ -13,6 +13,7 @@
         <h1 class="text-xl font-bold">EXP0S3D Admin</h1>
         <div class="flex items-center space-x-4">
           <a href="/admin/profiles" class="hover:text-gray-300">Profiles</a>
+          <a href="/admin/submissions" class="hover:text-gray-300">Submissions</a>
           <form action="/api/auth/logout" method="POST" class="inline">
             <button type="submit" class="hover:text-gray-300">Logout</button>
           </form>
@@ -29,7 +30,7 @@
         
         <h2 class="text-2xl font-bold mb-6">Welcome to EXP0S3D</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <!-- Quick Stats -->
           <div class="bg-blue-100 p-6 rounded-lg">
             <h3 class="text-lg font-semibold text-blue-800 mb-2">Total Profiles</h3>
@@ -45,6 +46,11 @@
             <h3 class="text-lg font-semibold text-red-800 mb-2">Total Amount Scammed</h3>
             <p class="text-3xl font-bold text-red-900" id="totalScammed">$0</p>
           </div>
+
+          <div class="bg-purple-100 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold text-purple-800 mb-2">New Submissions</h3>
+            <p class="text-3xl font-bold text-purple-900" id="newSubmissions">0</p>
+          </div>
         </div>
 
         <div class="mt-8">
@@ -53,8 +59,8 @@
             <a href="/admin/profiles" class="bg-blue-500 text-white p-4 rounded-lg text-center hover:bg-blue-600 transition-colors">
               Manage Profiles
             </a>
-            <a href="/admin/profiles#new" class="bg-green-500 text-white p-4 rounded-lg text-center hover:bg-green-600 transition-colors">
-              Add New Profile
+            <a href="/admin/submissions" class="bg-purple-500 text-white p-4 rounded-lg text-center hover:bg-purple-600 transition-colors">
+              Review Submissions
             </a>
           </div>
         </div>
@@ -66,18 +72,27 @@
     // Fetch dashboard statistics
     async function fetchStats() {
       try {
-        const response = await fetch('/api/profiles/stats');
-        const data = await response.json();
-        console.log('Stats data:', data); // Debug log
+        const [profilesResponse, submissionsResponse] = await Promise.all([
+          fetch('/api/profiles/stats'),
+          fetch('/api/admin/submissions/stats')
+        ]);
         
-        document.getElementById('totalProfiles').textContent = data.total || 0;
-        document.getElementById('publishedProfiles').textContent = data.publishedProfiles || 0;
+        const profilesData = await profilesResponse.json();
+        console.log('Profile stats:', profilesData); // Debug log
+        
+        document.getElementById('totalProfiles').textContent = profilesData.total || 0;
+        document.getElementById('publishedProfiles').textContent = profilesData.publishedProfiles || 0;
         document.getElementById('totalScammed').textContent = new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
           minimumFractionDigits: 0,
           maximumFractionDigits: 0
-        }).format(data.totalScammedUSD || 0);
+        }).format(profilesData.totalScammedUSD || 0);
+
+        if (submissionsResponse.ok) {
+          const submissionsData = await submissionsResponse.json();
+          document.getElementById('newSubmissions').textContent = submissionsData.newSubmissions || 0;
+        }
       } catch (error) {
         console.error('Error fetching stats:', error);
       }
