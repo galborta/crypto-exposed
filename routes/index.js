@@ -138,49 +138,89 @@ router.get('/contribute', (req, res) => {
     }
 });
 
-// Create a transporter using Tutanota SMTP settings
+// Create a transporter using Gmail SMTP settings
 const transporter = nodemailer.createTransport({
-    host: 'smtp.tutanota.com',
-    port: 587,
-    secure: false,
+    service: 'gmail',
     auth: {
-        user: 'zenith-zephyr@tutamail.com',
-        pass: process.env.EMAIL_PASSWORD // Add this to your .env file
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+// Verify transporter configuration on startup
+transporter.verify(function(error, success) {
+    if (error) {
+        console.error('[EMAIL] Transporter verification failed:', {
+            error: error.message,
+            code: error.code,
+            command: error.command,
+            responseCode: error.responseCode,
+            response: error.response
+        });
+    } else {
+        console.log('[EMAIL] Server is ready to send messages');
     }
 });
 
 // Contact form submission
 router.post('/api/contact', async (req, res) => {
+    console.log('[CONTACT] Received form submission:', {
+        type: req.body.type,
+        name: req.body.name,
+        hasContact: !!req.body.contact,
+        hasMessage: !!req.body.message
+    });
+
     try {
-        const { name, email, subject, message } = req.body;
+        const { name, contact, subject, message, type } = req.body;
+        const isSubmitEntry = type === 'suggestion';
+
+        // Validate required fields
+        if (!name || !contact || !message) {
+            console.log('[CONTACT] Missing required fields');
+            return res.status(400).json({ error: 'Name, contact information, and message are required' });
+        }
 
         // Send email
-        await transporter.sendMail({
-            from: '"EXP0S3D Contact Form" <zenith-zephyr@tutamail.com>',
-            to: 'zenith-zephyr@tutamail.com',
-            subject: `[EXP0S3D] ${subject} - from ${name}`,
-            text: `
+        try {
+            const mailOptions = {
+                from: `"EXP0S3D Contact Form" <${process.env.EMAIL_USER}>`,
+                to: process.env.CONTACT_EMAIL || process.env.EMAIL_USER, // Use CONTACT_EMAIL if set, fallback to EMAIL_USER
+                replyTo: contact, // Set reply-to as the contact's email
+                subject: `[EXP0S3D] ${isSubmitEntry ? 'New Entry Submission' : subject || 'Contact Form'} - from ${name}`,
+                text: `
+Type: ${isSubmitEntry ? 'Entry Submission' : 'Contact Form'}
 Name: ${name}
-Email: ${email}
-Subject: ${subject}
-
+Contact: ${contact}
+${!isSubmitEntry && subject ? `Subject: ${subject}\n` : ''}
 Message:
 ${message}
-            `,
-            html: `
-<h2>New Contact Form Submission</h2>
+                `,
+                html: `
+<h2>New ${isSubmitEntry ? 'Entry Submission' : 'Contact Form Submission'}</h2>
+<p><strong>Type:</strong> ${isSubmitEntry ? 'Entry Submission' : 'Contact Form'}</p>
 <p><strong>Name:</strong> ${name}</p>
-<p><strong>Email:</strong> ${email}</p>
-<p><strong>Subject:</strong> ${subject}</p>
+<p><strong>Contact:</strong> ${contact}</p>
+${!isSubmitEntry && subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
 <p><strong>Message:</strong></p>
-<p>${message.replace(/\n/g, '<br>')}</p>
-            `
-        });
+<p>${message ? message.replace(/\n/g, '<br>') : ''}</p>
+                `
+            };
 
-        res.status(200).json({ message: 'Message sent successfully' });
+            const info = await transporter.sendMail(mailOptions);
+            console.log('[CONTACT] Email sent successfully');
+            res.status(200).json({ message: 'Message sent successfully' });
+        } catch (emailError) {
+            console.error('[CONTACT] Error sending email:', {
+                error: emailError.message,
+                code: emailError.code,
+                command: emailError.command
+            });
+            throw emailError;
+        }
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).json({ error: 'Failed to send message' });
+        console.error('[CONTACT] Error processing form:', error);
+        res.status(500).json({ error: `Failed to send message: ${error.message}` });
     }
 });
 
