@@ -141,6 +141,11 @@ router.get('/contribute', (req, res) => {
     }
 });
 
+// Transparency page route
+router.get('/transparency', (req, res) => {
+    res.render('transparency');
+});
+
 // Configure multer for handling file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
