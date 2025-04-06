@@ -79,3 +79,10 @@ echo "----------------------------------------"
 # Keep script running and show only important logs
 echo -e "${BLUE}Monitoring logs (showing only important messages):${NC}"
 tail -f ~/.pm2/logs/app-out.log | grep -v -E "CSRF|\.identity|favicon" 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

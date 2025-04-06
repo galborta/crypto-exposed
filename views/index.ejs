@@ -410,7 +410,7 @@
                     </button>
                     <div id="methodologyContent" class="section-content">
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-700 whitespace-pre-wrap" id="modalMethodology"></p>
+                            <div class="text-gray-700" id="modalMethodology"></div>
                         </div>
                     </div>
                 </div>
@@ -427,7 +427,7 @@
                 <a href="/contact" class="text-white hover:text-gray-300 transition-colors">Contact</a>
                 <a href="/contribute" class="text-white hover:text-gray-300 transition-colors">Contribute</a>
             </nav>
-            <p class="text-center text-white text-sm" style="transform: rotate(180deg)">
+            <p class="text-center text-white text-sm">
                 We must hold them accountable.
             </p>
         </div>
@@ -518,8 +518,7 @@
                 'modalAmount': formatCurrency(profile.totalScammedUSD),
                 'modalOverview': profile.overview || '',
                 'modalProjects': profile.associatedProjects || 'Unknown project',
-                'modalStory': profile.story || 'No story available',
-                'modalMethodology': profile.methodology || ''
+                'modalStory': profile.story || 'No story available'
             };
 
             // Safely update all elements
@@ -533,6 +532,40 @@
                     }
                 }
             });
+
+            // Special handling for methodology to render as HTML list
+            const modalMethodology = document.getElementById('modalMethodology');
+            if (modalMethodology) {
+                if (Array.isArray(profile.methodology)) {
+                    // If it's already an array, create list items
+                    const list = document.createElement('ul');
+                    list.className = 'list-disc pl-6 space-y-2';
+                    profile.methodology.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        list.appendChild(li);
+                    });
+                    modalMethodology.innerHTML = '';
+                    modalMethodology.appendChild(list);
+                } else if (typeof profile.methodology === 'string' && profile.methodology.includes('<li>')) {
+                    // If it's HTML string, parse it into an array first
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = profile.methodology;
+                    const items = Array.from(tempDiv.querySelectorAll('li')).map(li => li.textContent.trim());
+                    
+                    const list = document.createElement('ul');
+                    list.className = 'list-disc pl-6 space-y-2';
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        list.appendChild(li);
+                    });
+                    modalMethodology.innerHTML = '';
+                    modalMethodology.appendChild(list);
+                } else {
+                    modalMethodology.textContent = profile.methodology || '';
+                }
+            }
 
             // Reset all sections
             sections.forEach(section => {

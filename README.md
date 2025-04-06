@@ -309,13 +309,18 @@ Crypto Exposed is a web-based platform that maintains a database of verified cry
 ## Environment Variables
 
 Required environment variables:
-```
+```bash
 MONGODB_URI=your_mongodb_uri
 PORT=3000
 NODE_ENV=development
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRE=24h
 COOKIE_SECRET=your_cookie_secret
+
+# Email Configuration (Gmail SMTP)
+EMAIL_USER=your_gmail_address
+EMAIL_PASSWORD=your_gmail_app_password
+CONTACT_EMAIL=destination_email_address # Optional: For email forwarding
 ```
 
 ## Contributing
@@ -330,6 +335,55 @@ This is a private project. Please contact the repository owner for contribution 
   - Admin dashboard
   - Search functionality
   - Basic statistics
+
+### v0.9.8
+- Added file upload support for entry submissions (images, PDFs, DOCs)
+
+### v0.9.7
+- Implemented email forwarding from Gmail to ProtonMail for contact forms
+
+### v0.9.6
+- Improved image cropping and upload functionality in admin profiles
+
+### v0.9.5
+- Updated Profile model schema
+- Removed deprecated fields (evidence, description)
+- Added new required fields (methodology, overview)
+- Made story field optional
+
+### v0.9.4
+- Improved modal sections UI
+- Fixed arrow rotation animations
+- Enhanced section collapsing functionality
+- Improved user experience with modal interactions
+
+### v0.9.3
+- Added database management documentation
+- Implemented automated backup system
+- Added backup scheduling configuration
+- Enhanced system reliability and data safety
+
+## Recent Improvements
+
+### UI/UX Enhancements
+- Improved mobile text readability
+- Enhanced modal UX with click-outside-to-close
+- Updated footer and text styling
+- Optimized color scheme for better contrast
+- Added Bianzhidai font to logo
+
+### Technical Improvements
+- Implemented image cropping with aspect ratio control
+- Enhanced form validation and error handling
+- Improved data persistence and state management
+- Added comprehensive backup solutions
+- Optimized database schema
+
+### Security Updates
+- Enhanced CSRF protection
+- Improved session handling
+- Secure image upload process
+- Protected API endpoints
 
 ## Database Management
 
@@ -388,3 +442,20 @@ curl -o restore.gz [cloudinary-url] && mongorestore --gzip --archive=restore.gz
 - Error logs in `logs/backup-error.log`
 - Cloudinary upload confirmations
 - Automatic cleanup of old backups
+
+### Contact System
+- **Contact Form**
+  - Required fields: Name, Contact Info, Message
+  - Optional subject field
+  - Email notifications via Gmail SMTP
+  
+- **Entry Submission**
+  - Flexible form with optional fields:
+    - Subject Name
+    - Twitter Handle
+    - Wallet Addresses
+    - Additional Information
+    - File Attachments (up to 5 files, 5MB each)
+  - Supported file types: Images (JPEG, PNG, GIF), PDF, DOC/DOCX
+  - Automatic file cleanup after email sending
+

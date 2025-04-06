@@ -18,6 +18,35 @@ router.get('/test', agentAuth, (req, res) => {
     });
 });
 
+// Helper function to parse HTML list into array
+const parseHtmlList = (html) => {
+    if (!html) return null;
+    if (Array.isArray(html)) return html;
+    
+    // If it's already a string array, return it
+    if (typeof html === 'string' && html.startsWith('[') && html.endsWith(']')) {
+        try {
+            const parsed = JSON.parse(html);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+            // Continue with HTML parsing if JSON parse fails
+        }
+    }
+
+    const items = [];
+    const matches = html.match(/<li>(.*?)<\/li>/g);
+    if (matches) {
+        matches.forEach(match => {
+            // Extract text between <li> tags and clean it
+            const text = match.replace(/<\/?li>/g, '')  // Remove li tags
+                             .replace(/<br>/g, '')      // Remove br tags
+                             .trim();                   // Remove whitespace
+            if (text) items.push(text);
+        });
+    }
+    return items.length > 0 ? items : null;
+};
+
 // Validation middleware
 const validateProfileData = (data) => {
     const errors = [];
@@ -71,6 +100,14 @@ const validateProfileData = (data) => {
         errors.push('totalScammedUSD must be positive');
     }
 
+    // Validate methodology array
+    if (data.methodology) {
+        const methodologyArray = parseHtmlList(data.methodology);
+        if (!methodologyArray || methodologyArray.length === 0) {
+            errors.push('methodology must be a non-empty array or HTML list');
+        }
+    }
+
     return errors;
 };
 
@@ -85,7 +122,15 @@ router.post('/', agentAuth, async (req, res) => {
     console.log('[AGENT API] Body:', req.body);
 
     try {
-        const profileData = req.body;
+        const profileData = { ...req.body };
+
+        // Parse methodology if it's HTML
+        if (profileData.methodology) {
+            const methodologyArray = parseHtmlList(profileData.methodology);
+            if (methodologyArray) {
+                profileData.methodology = methodologyArray;
+            }
+        }
 
         // Validate input
         const validationErrors = validateProfileData(profileData);

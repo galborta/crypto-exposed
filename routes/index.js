@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const fs = require('fs');
+const Contact = require('../models/Contact');
 
 // Print all registered routes when the router is initialized
 const routes = router.stack
@@ -227,6 +228,34 @@ router.post('/api/contact', upload.array('attachments', 5), async (req, res) => 
         let emailText = '';
         let emailHtml = '';
 
+        // Create database entry
+        const contactData = {
+            type: isSubmitEntry ? 'suggestion' : 'contact',
+            // Contact form fields
+            name: req.body.name,
+            contact: req.body.contact,
+            subject: req.body.subject,
+            message: req.body.message,
+            // Entry submission fields
+            suggestionSubject: req.body['suggestion-subject'],
+            suggestionTwitter: req.body['suggestion-twitter'],
+            suggestionWallets: req.body['suggestion-wallets'],
+            suggestionMessage: req.body['suggestion-message'],
+            // Attachment information
+            attachments: req.files?.map(file => ({
+                filename: file.filename,
+                originalname: file.originalname,
+                path: file.path,
+                mimetype: file.mimetype,
+                size: file.size
+            })) || []
+        };
+
+        // Save to database
+        const contact = new Contact(contactData);
+        await contact.save();
+        console.log('[CONTACT] Saved to database with ID:', contact._id);
+
         if (isSubmitEntry) {
             // Build content for Submit Entry form
             const sections = [];
@@ -240,17 +269,20 @@ router.post('/api/contact', upload.array('attachments', 5), async (req, res) => 
 
             emailText = `
 Type: Entry Submission
+Reference ID: ${contact._id}
 ${sections.join('\n\n')}
             `;
 
             emailHtml = `
 <h2>New Entry Submission</h2>
+<p><strong>Reference ID:</strong> ${contact._id}</p>
 ${sections.map(section => `<p>${section.replace(/\n/g, '<br>')}</p>`).join('\n')}
             `;
         } else {
             // Build content for Contact Us form
             emailText = `
 Type: Contact Form
+Reference ID: ${contact._id}
 Name: ${req.body.name}
 Contact: ${req.body.contact}
 ${req.body.subject ? `Subject: ${req.body.subject}\n` : ''}
@@ -260,6 +292,7 @@ ${req.body.message}
 
             emailHtml = `
 <h2>New Contact Form Submission</h2>
+<p><strong>Reference ID:</strong> ${contact._id}</p>
 <p><strong>Type:</strong> Contact Form</p>
 <p><strong>Name:</strong> ${req.body.name}</p>
 <p><strong>Contact:</strong> ${req.body.contact}</p>
@@ -287,6 +320,10 @@ ${req.body.subject ? `<p><strong>Subject:</strong> ${req.body.subject}</p>` : ''
             const info = await transporter.sendMail(mailOptions);
             console.log('[CONTACT] Email sent successfully');
             
+            // Update database record to mark email as sent
+            contact.emailSent = true;
+            await contact.save();
+            
             // Clean up uploaded files after sending
             if (req.files?.length > 0) {
                 req.files.forEach(file => {
@@ -296,7 +333,7 @@ ${req.body.subject ? `<p><strong>Subject:</strong> ${req.body.subject}</p>` : ''
                 });
             }
             
-            res.status(200).json({ message: 'Message sent successfully' });
+            res.status(200).json({ message: 'Message sent successfully', referenceId: contact._id });
         } catch (emailError) {
             console.error('[CONTACT] Error sending email:', {
                 error: emailError.message,

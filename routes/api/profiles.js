@@ -20,7 +20,6 @@ const storage = new CloudinaryStorage({
         folder: 'scammer-profiles',
         allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         transformation: [
-            { width: 500, height: 500, crop: 'fill' },
             { quality: 'auto' },
             { fetch_format: 'auto' }
         ],
@@ -159,16 +158,16 @@ router.post('/', protect, async (req, res) => {
 });
 
 // Update profile - protected
-router.put('/:id', protect, upload.single('photo'), async (req, res) => {
+router.put('/:id', protect, async (req, res) => {
     try {
         console.log('Updating profile:', req.params.id);
         console.log('Update data:', req.body);
         
         const updateData = { ...req.body };
         
-        // If a new photo was uploaded, use its URL
-        if (req.file) {
-            updateData.photoUrl = req.file.path;
+        // Ensure photoUrl is included in the update if it exists
+        if (req.body.photoUrl) {
+            updateData.photoUrl = req.body.photoUrl;
         }
 
         const profile = await Profile.findByIdAndUpdate(
@@ -227,6 +226,13 @@ router.post('/:id/photo', protect, upload.single('photo'), async (req, res) => {
             return res.status(400).json({ error: 'No photo file provided' });
         }
 
+        // If id is 'new', just return the photo URL without updating any profile
+        if (req.params.id === 'new') {
+            console.log('New profile photo uploaded:', req.file.path);
+            return res.json({ photoUrl: req.file.path });
+        }
+
+        // For existing profiles, update the photoUrl
         const profile = await Profile.findByIdAndUpdate(
             req.params.id,
             { photoUrl: req.file.path },
@@ -237,7 +243,7 @@ router.post('/:id/photo', protect, upload.single('photo'), async (req, res) => {
             return res.status(404).json({ error: 'Profile not found' });
         }
 
-        console.log('Photo uploaded successfully:', req.file.path);
+        console.log('Photo uploaded and profile updated successfully:', req.file.path);
         res.json({ photoUrl: req.file.path });
     } catch (error) {
         console.error('Error uploading photo:', error);

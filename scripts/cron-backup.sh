@@ -21,3 +21,10 @@ if [ $? -eq 0 ]; then
 else
     echo "Backup failed at $(date)" >> logs/backup.log
 fi 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

@@ -68,8 +68,14 @@ const profileSchema = new mongoose.Schema({
     required: [true, 'Associated projects are required']
   },
   methodology: {
-    type: String,
-    required: [true, 'Methodology is required']
+    type: [String],
+    required: [true, 'Methodology is required'],
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v) && v.length > 0;
+      },
+      message: 'Methodology must be a non-empty array of strings'
+    }
   },
   story: {
     type: String,

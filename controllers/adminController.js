@@ -114,10 +114,10 @@ exports.loginAdmin = async (req, res) => {
     
     // Set cookie options
     const cookieOptions = {
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      // Remove expires to make cookie session-based
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'lax'
     };
     
     // Remove password from response
@@ -133,9 +133,23 @@ exports.loginAdmin = async (req, res) => {
       });
   } catch (error) {
     console.error('[ADMIN] Login error:', error);
+    // Check for specific types of errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid input data'
+      });
+    }
+    if (error.name === 'MongoError' && error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Database error'
+      });
+    }
     res.status(500).json({
       success: false,
-      message: 'Error logging in'
+      message: 'Error logging in',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

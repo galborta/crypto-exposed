@@ -62,9 +62,8 @@ AdminSchema.pre('save', async function(next) {
 
 // Sign JWT and return
 AdminSchema.methods.getSignedJwtToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+  // Sign token without expiration
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET);
 };
 
 // Match user entered password to hashed password in database

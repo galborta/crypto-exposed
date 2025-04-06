@@ -58,34 +58,39 @@ app.use(express.urlencoded({ extended: true }));
 
 // CSRF protection
 const csrfProtection = csrf({
-  cookie: true,
-  value: (req) => {
-    return (
-      req.headers['x-csrf-token'] ||
-      req.headers['x-xsrf-token'] ||
-      req.cookies['XSRF-TOKEN']
-    );
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
   }
 });
 
-// Apply CSRF protection to all routes except /api/admin/login, /.identity, and /api/agent/*
+// Apply CSRF protection to all routes except /api/admin/login and specified paths
 app.use((req, res, next) => {
-  // Debug logging for all requests
+  // Debug logging
   console.log('\n[CSRF] Request path:', req.path);
   console.log('[CSRF] Request method:', req.method);
-  
-  if (req.path.startsWith('/api/agent/')) {
-    console.log('[CSRF] Skipping CSRF for agent route');
-    return next();
-  }
-  
-  if (req.path === '/api/admin/login' && req.method === 'POST' ||
-      req.path === '/.identity') {
-    console.log('[CSRF] Skipping CSRF for excluded route');
+  console.log('[CSRF] Headers:', req.headers);
+
+  // Exclude paths from CSRF
+  const excludedPaths = [
+    '/api/admin/login',
+    '/.identity',
+    '/api/agent'
+  ];
+
+  // Check if the current path should be excluded
+  const shouldExclude = excludedPaths.some(path => 
+    req.path === path || req.path.startsWith(path + '/')
+  );
+
+  if (shouldExclude) {
+    console.log('[CSRF] Path excluded from CSRF protection:', req.path);
     return next();
   }
 
-  console.log('[CSRF] Applying CSRF protection');
+  // Apply CSRF protection
+  console.log('[CSRF] Applying CSRF protection to:', req.path);
   csrfProtection(req, res, next);
 });
 
@@ -97,6 +102,9 @@ app.use((req, res, next) => {
   
   if (req.path === '/api/admin/login' && req.method === 'POST' ||
       req.path === '/.identity') {
+    if (req.path === '/.identity') {
+      return res.status(200).json({ status: 'ok' });
+    }
     return next();
   }
 
@@ -152,33 +160,22 @@ app.use((req, res, next) => {
   res.status(404).render('404');
 });
 
-// Global Error Handler
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('[ERROR]', err);
+  console.error('[ERROR] Unhandled error:', err);
   
   if (err.code === 'EBADCSRFTOKEN') {
-    console.error('[CSRF Error]', {
-      message: err.message,
-      path: req.path,
-      method: req.method,
-      headers: req.headers,
-      cookies: req.cookies,
-      body: req.body
-    });
-    
+    console.log('[CSRF] Invalid CSRF token');
     return res.status(403).json({
       success: false,
-      message: 'Invalid CSRF token',
-      debug: {
-        headers: req.headers,
-        cookies: req.cookies
-      }
+      message: 'Invalid CSRF token'
     });
   }
 
   res.status(500).json({
     success: false,
-    message: err.message
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
