@@ -7,11 +7,38 @@
     <%- include('partials/styles') %>
     <style>
         @font-face {
-            font-family: 'Satoshi';
-            src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
-                 url('/fonts/Satoshi-Regular.woff') format('woff');
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-Regular.woff2') format('woff2'),
+                 url('/fonts/SpaceMono-Regular.woff') format('woff');
             font-weight: normal;
             font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-Bold.woff2') format('woff2'),
+                 url('/fonts/SpaceMono-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-Italic.woff2') format('woff2'),
+                 url('/fonts/SpaceMono-Italic.woff') format('woff');
+            font-weight: normal;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-BoldItalic.woff2') format('woff2'),
+                 url('/fonts/SpaceMono-BoldItalic.woff') format('woff');
+            font-weight: bold;
+            font-style: italic;
             font-display: swap;
         }
 
@@ -32,7 +59,7 @@
         #modalOverview,
         #modalStory,
         #modalMethodology {
-            font-family: 'Satoshi', sans-serif;
+            font-family: 'SpaceMono', monospace;
             font-size: 1.125rem; /* 18px base size for better readability */
             line-height: 1.5;
             color: #20201d;
@@ -45,6 +72,44 @@
             word-wrap: normal;
             overflow-wrap: normal;
             hyphens: none;
+        }
+
+        /* HTML formatting for modal content */
+        #modalOverview strong,
+        #modalStory strong,
+        #modalMethodology strong,
+        #modalOverview b,
+        #modalStory b,
+        #modalMethodology b {
+            font-family: 'SpaceMono', monospace;
+            font-weight: bold;
+        }
+
+        #modalOverview em,
+        #modalStory em,
+        #modalMethodology em,
+        #modalOverview i,
+        #modalStory i,
+        #modalMethodology i {
+            font-family: 'SpaceMono', monospace;
+            font-style: italic;
+        }
+
+        #modalOverview strong em,
+        #modalStory strong em,
+        #modalMethodology strong em,
+        #modalOverview b i,
+        #modalStory b i,
+        #modalMethodology b i,
+        #modalOverview em strong,
+        #modalStory em strong,
+        #modalMethodology em strong,
+        #modalOverview i b,
+        #modalStory i b,
+        #modalMethodology i b {
+            font-family: 'SpaceMono', monospace;
+            font-weight: bold;
+            font-style: italic;
         }
 
         /* Paragraph spacing */
@@ -258,6 +323,20 @@
             margin-top: 0.5rem;
             margin-bottom: 1rem;
         }
+
+        /* Basic Information section styling */
+        #basicInfoContent .bg-gray-50 p {
+            font-family: 'SpaceMono', monospace;
+        }
+
+        #basicInfoContent .text-sm {
+            font-size: 0.875rem;
+        }
+
+        #basicInfoContent .font-medium {
+            font-family: 'SpaceMono', monospace;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="text-gray-100">
@@ -267,7 +346,6 @@
         <!-- Search Section -->
         <div class="mb-8">
             <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4 text-black">Search Scammers</h2>
                 <div class="flex gap-4">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
                            class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white">
@@ -281,7 +359,6 @@
         <!-- Main List Section -->
         <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
             <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-black">Wall of Shame</h2>
             </div>
             <div id="profilesGrid" class="divide-y divide-gray-200">
                 <!-- Profiles will be rendered here -->
