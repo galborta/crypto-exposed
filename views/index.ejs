@@ -40,26 +40,33 @@
         #modalStory,
         #modalMethodology {
             font-family: 'SpaceMono', monospace;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-size: 0.9375rem;
+            line-height: 1.75;
             color: #20201d;
             text-align: left;
-            max-width: 65ch;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
             padding: 1rem 1.5rem 1.5rem 1.5rem;
             white-space: pre-wrap;
             word-break: normal;
             word-wrap: normal;
             overflow-wrap: normal;
             hyphens: none;
+            letter-spacing: -0.01em;
         }
 
         /* Paragraph spacing */
         #modalOverview p,
         #modalStory p,
         #modalMethodology p {
-            margin-bottom: 1.5em; /* Space between paragraphs */
-            font-weight: 400; /* Regular weight for body text */
+            margin: 0;
+            padding: 0;
+        }
+
+        #modalOverview p + p,
+        #modalStory p + p,
+        #modalMethodology p + p {
+            margin-top: 1.5em;
         }
 
         /* Mobile-specific adjustments */
@@ -67,29 +74,47 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 0.875rem;
-                line-height: 1.6;
+                font-size: 0.9375rem;
+                line-height: 1.75;
                 padding: 1rem 1.25rem 1.25rem 1.25rem;
-                max-width: 100%;
+                width: 100%;
+                white-space: pre-wrap;
+                word-break: normal;
+                word-wrap: normal;
+                overflow-wrap: normal;
+                hyphens: none;
+                text-align: left;
+                letter-spacing: -0.01em;
             }
 
-            .section-content > div {
-                padding: 1rem;
+            #modalOverview p + p,
+            #modalStory p + p,
+            #modalMethodology p + p {
+                margin-top: 1.25em;
             }
 
-            /* Remove margin for mobile sections */
-            #storySection.section-content.open,
-            #methodologySection.section-content.open,
-            #overviewSection.section-content.open {
-                margin-top: -1px;
+            /* Methodology list styling for mobile */
+            #modalMethodology ul {
+                padding-left: 1.25rem;
+                margin: 0;
             }
 
-            .section button {
-                padding: 0.875rem 1rem;
+            #modalMethodology li {
+                margin-bottom: 1rem;
+                padding-left: 1.25rem;
+                position: relative;
+                line-height: 1.75;
             }
 
-            .section + .section {
-                margin-top: 1rem;
+            #modalMethodology li:last-child {
+                margin-bottom: 0;
+            }
+
+            #modalMethodology li::before {
+                content: '→';
+                position: absolute;
+                left: -0.25rem;
+                color: #20201D;
             }
         }
 
@@ -98,12 +123,20 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 0.8125rem;
                 padding: 0.875rem 1rem 1rem 1rem;
             }
 
-            .section-content > div {
-                padding: 0.875rem;
+            #modalMethodology ul {
+                padding-left: 1rem;
+            }
+
+            #modalMethodology li {
+                padding-left: 1rem;
+                margin-bottom: 0.875rem;
+            }
+
+            #modalMethodology li:last-child {
+                margin-bottom: 0;
             }
         }
 
@@ -321,7 +354,7 @@
 
         /* Content styling */
         .section-content > div {
-            padding: 1.25rem;
+            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
         }
 
         /* Story section specific styling */
@@ -346,18 +379,19 @@
         }
 
         /* Basic Information Cards */
+        #basicInfoSection .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+        }
+
         #basicInfoSection .grid > div {
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
             padding: 1rem;
             transition: all 0.3s ease;
-        }
-
-        #basicInfoSection .grid > div:hover {
-            border-color: #20201D;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         #basicInfoSection .text-sm {
@@ -421,6 +455,55 @@
         #socialsSection::-webkit-scrollbar,
         #knownWalletsSection::-webkit-scrollbar {
             display: none;
+        }
+
+        /* Mobile-specific adjustments */
+        @media screen and (max-width: 768px) {
+            .section-content > div {
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #basicInfoSection .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.875rem;
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #socialsSection .grid,
+            #knownWalletsSection .space-y-4 {
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                font-size: 0.875rem;
+                line-height: 1.6;
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+                max-width: 100%;
+            }
+        }
+
+        /* Even smaller screens */
+        @media screen and (max-width: 480px) {
+            .section-content > div {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #basicInfoSection .grid {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #socialsSection .grid,
+            #knownWalletsSection .space-y-4 {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
         }
     </style>
 </head>
