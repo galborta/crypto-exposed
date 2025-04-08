@@ -247,7 +247,7 @@
             position: relative;
         }
 
-        /* File number styling */
+        /* File number styling with typewriter effect */
         #modalFileNumber {
             position: absolute;
             top: 1.5rem;
@@ -256,6 +256,22 @@
             font-weight: normal;
             color: #20201D;
             font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #20201D;
+            width: 0;
+            animation: typing 1s steps(40, end) forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: var(--file-number-width, fit-content); }
+        }
+
+        #modalFileNumber.typing-done {
+            border-right-color: transparent;
+            width: var(--file-number-width, fit-content);
         }
 
         @media screen and (max-width: 768px) {
@@ -503,6 +519,51 @@
             #modalStory,
             #modalMethodology {
                 padding: 0.875rem 1rem 1rem 1rem;
+            }
+        }
+
+        /* Logo styling */
+        .logo {
+            font-family: 'Wallpoet', monospace;
+            font-size: 2rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+            animation: neonGlow 1.5s infinite alternate;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5),
+                        0 0 4px rgba(255, 255, 255, 0.5),
+                        0 0 8px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes neonGlow {
+            0% {
+                color: rgba(255, 255, 255, 0.7);
+                text-shadow: 0 0 1px rgba(255, 255, 255, 0.2),
+                            0 0 2px rgba(255, 255, 255, 0.2),
+                            0 0 3px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                color: rgba(255, 255, 255, 1);
+                text-shadow: 0 0 2px rgba(255, 255, 255, 0.95),
+                            0 0 4px rgba(255, 255, 255, 0.95),
+                            0 0 8px rgba(255, 255, 255, 0.95);
+            }
+        }
+
+        /* Mobile logo adjustments */
+        @media screen and (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .logo {
+                font-size: 1.25rem;
             }
         }
     </style>
@@ -804,7 +865,32 @@
             const profile = profiles.find(p => p._id === id);
             if (!profile) return;
 
-            // Update modal content
+            // Reset and prepare file number for animation
+            const fileNumberElement = document.getElementById('modalFileNumber');
+            if (fileNumberElement) {
+                fileNumberElement.style.animation = 'none';
+                fileNumberElement.classList.remove('typing-done');
+                fileNumberElement.offsetHeight; // Trigger reflow
+                fileNumberElement.style.animation = null;
+                fileNumberElement.textContent = 'File #: ' + (profile.fileNumber || 'No file number');
+                
+                // Calculate the width needed for the text with extra padding
+                const tempSpan = document.createElement('span');
+                tempSpan.style.visibility = 'hidden';
+                tempSpan.style.font = window.getComputedStyle(fileNumberElement).font;
+                tempSpan.textContent = fileNumberElement.textContent;
+                document.body.appendChild(tempSpan);
+                const width = tempSpan.offsetWidth + 4; // Add 4px padding for the last letter
+                document.body.removeChild(tempSpan);
+                document.documentElement.style.setProperty('--file-number-width', width + 'px');
+                
+                // Add event listener for animation end
+                fileNumberElement.addEventListener('animationend', function() {
+                    this.classList.add('typing-done');
+                }, { once: true });
+            }
+
+            // Update other modal content
             const elements = {
                 'modalName': profile.name,
                 'modalPhoto': profile.photoUrl || '/default-avatar.svg',
@@ -816,7 +902,6 @@
                 'modalPlaceOfBirth': profile.placeOfBirth,
                 'modalAmount': formatCurrency(profile.totalScammedUSD),
                 'modalProjects': profile.associatedProjects || 'Unknown project',
-                'modalFileNumber': 'File #: ' + (profile.fileNumber || 'No file number')
             };
 
             // Safely update all elements
