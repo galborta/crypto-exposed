@@ -2,38 +2,13 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
+const connectDB = require('./db-config');
 const seedAdmin = require('./utils/seedAdmin');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 
 // Load environment variables
 dotenv.config();
-
-// Connect to database with enhanced logging
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blog');
-        console.log('\n[DATABASE] MongoDB Connected:');
-        console.log('Host:', conn.connection.host);
-        console.log('Database:', conn.connection.name);
-        console.log('State:', conn.connection.readyState);
-        
-        // Check for posts immediately after connection
-        const Post = require('./models/Post');
-        const postCount = await Post.countDocuments();
-        const publishedCount = await Post.countDocuments({ published: true });
-        
-        console.log('\n[DATABASE] Post Statistics:');
-        console.log('Total Posts:', postCount);
-        console.log('Published Posts:', publishedCount);
-        
-        return conn;
-    } catch (error) {
-        console.error('\n[DATABASE] Error:', error.message);
-        process.exit(1);
-    }
-};
 
 // Initialize database connection
 connectDB();

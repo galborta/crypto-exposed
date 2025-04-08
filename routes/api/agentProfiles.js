@@ -33,17 +33,27 @@ const parseHtmlList = (html) => {
         }
     }
 
+    // First try to parse as HTML list
     const items = [];
-    const matches = html.match(/<li>(.*?)<\/li>/g);
-    if (matches) {
-        matches.forEach(match => {
-            // Extract text between <li> tags and clean it
-            const text = match.replace(/<\/?li>/g, '')  // Remove li tags
-                             .replace(/<br>/g, '')      // Remove br tags
-                             .trim();                   // Remove whitespace
-            if (text) items.push(text);
-        });
+    if (typeof html === 'string') {
+        if (html.includes('<li>')) {
+            const matches = html.match(/<li>(.*?)<\/li>/g);
+            if (matches) {
+                matches.forEach(match => {
+                    // Extract text between <li> tags and clean it
+                    const text = match.replace(/<\/?li>/g, '')  // Remove li tags
+                                     .replace(/<br>/g, '')      // Remove br tags
+                                     .trim();                   // Remove whitespace
+                    if (text) items.push(text);
+                });
+            }
+        } else {
+            // If not HTML, try splitting by commas or newlines
+            const lines = html.split(/[,\n]/).map(line => line.trim()).filter(line => line);
+            items.push(...lines);
+        }
     }
+    
     return items.length > 0 ? items : null;
 };
 
@@ -102,9 +112,35 @@ const validateProfileData = (data) => {
 
     // Validate methodology array
     if (data.methodology) {
-        const methodologyArray = parseHtmlList(data.methodology);
+        let methodologyArray;
+        if (Array.isArray(data.methodology)) {
+            methodologyArray = data.methodology
+                .map(item => item.trim())
+                .filter(item => item.length > 0)
+                .map(item => item.endsWith('.') ? item : item + '.');
+        } else if (typeof data.methodology === 'string') {
+            // Handle HTML list
+            if (data.methodology.includes('<li>')) {
+                methodologyArray = data.methodology
+                    .match(/<li>(.*?)<\/li>/g)
+                    ?.map(match => match.replace(/<\/?li>/g, '').trim())
+                    .filter(item => item.length > 0)
+                    .map(item => item.endsWith('.') ? item : item + '.');
+            } else {
+                // Handle plain text with periods or line breaks
+                methodologyArray = data.methodology
+                    .split(/\.(?=[A-Z])|[\n\r]/)
+                    .map(item => item.trim())
+                    .filter(item => item.length > 0)
+                    .map(item => item.endsWith('.') ? item : item + '.');
+            }
+        }
+        
         if (!methodologyArray || methodologyArray.length === 0) {
-            errors.push('methodology must be a non-empty array or HTML list');
+            errors.push('methodology must be a non-empty array or properly formatted text');
+        } else {
+            // Update the data with processed array
+            data.methodology = methodologyArray;
         }
     }
 

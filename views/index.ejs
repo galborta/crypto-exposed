@@ -7,10 +7,17 @@
     <%- include('partials/styles') %>
     <style>
         @font-face {
-            font-family: 'Satoshi';
-            src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
-                 url('/fonts/Satoshi-Regular.woff') format('woff');
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-Regular.ttf') format('truetype');
             font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SpaceMono';
+            src: url('/fonts/SpaceMono-Bold.ttf') format('truetype');
+            font-weight: bold;
             font-style: normal;
             font-display: swap;
         }
@@ -32,15 +39,15 @@
         #modalOverview,
         #modalStory,
         #modalMethodology {
-            font-family: 'Satoshi', sans-serif;
-            font-size: 1.125rem; /* 18px base size for better readability */
-            line-height: 1.5;
+            font-family: 'SpaceMono', monospace;
+            font-size: 1rem; /* Adjusted for monospace font */
+            line-height: 1.6;
             color: #20201d;
             text-align: left;
-            max-width: 65ch; /* Optimal line length */
+            max-width: 65ch;
             margin: 0 auto;
             padding: 0 1rem;
-            white-space: pre-wrap; /* Preserve paragraph structure */
+            white-space: pre-wrap;
             word-break: normal;
             word-wrap: normal;
             overflow-wrap: normal;
@@ -60,8 +67,8 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 1rem; /* 16px on mobile */
-                line-height: 1.5;
+                font-size: 0.875rem; /* 14px on mobile */
+                line-height: 1.6;
                 padding: 0 0.75rem;
             }
 
@@ -77,8 +84,8 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 0.9375rem; /* 15px on very small screens */
-                line-height: 1.5;
+                font-size: 0.8125rem; /* 13px on very small screens */
+                line-height: 1.6;
             }
         }
 
@@ -266,13 +273,14 @@
     <main class="container mx-auto px-4 py-8">
         <!-- Search Section -->
         <div class="mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4 text-black">Search Scammers</h2>
-                <div class="flex gap-4">
+            <div class="bg-white rounded-lg shadow">
+                <div class="flex">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
-                           class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white">
-                    <button onclick="searchProfiles()" style="background-color: #20201D" class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity">
-                        Search
+                           class="flex-1 p-2 border-0 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white; color: #20201D">
+                    <button onclick="searchProfiles()" style="background-color: white; color: #20201D; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-left: 1px solid #e5e7eb;" class="px-4 py-2 rounded-r-lg hover:bg-gray-50 transition-all font-medium hover:shadow-md active:bg-gray-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -281,7 +289,7 @@
         <!-- Main List Section -->
         <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
             <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-black">Wall of Shame</h2>
+                <h2 class="text-xl font-semibold text-black"></h2>
             </div>
             <div id="profilesGrid" class="divide-y divide-gray-200">
                 <!-- Profiles will be rendered here -->
@@ -359,27 +367,27 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Nationality</p>
-                                <p class="font-medium" style="color: #20201D" id="modalNationality"></p>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalNationality"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Date of Birth</p>
-                                <p class="font-medium" style="color: #20201D" id="modalDOB"></p>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalDOB"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Age</p>
-                                <p class="font-medium" style="color: #20201D" id="modalAge"></p>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalAge"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Place of Birth</p>
-                                <p class="font-medium" style="color: #20201D" id="modalPlaceOfBirth"></p>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalPlaceOfBirth"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Height</p>
-                                <p class="font-medium" style="color: #20201D" id="modalHeight"></p>
-                                </div>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalHeight"></p>
+                            </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Weight</p>
-                                <p class="font-medium" style="color: #20201D" id="modalWeight"></p>
+                                <p class="font-medium" style="color: #20201D; font-family: 'SpaceMono'; font-weight: bold;" id="modalWeight"></p>
                             </div>
                         </div>
                     </div>
@@ -536,35 +544,51 @@
             // Special handling for methodology to render as HTML list
             const modalMethodology = document.getElementById('modalMethodology');
             if (modalMethodology) {
-                if (Array.isArray(profile.methodology)) {
-                    // If it's already an array, create list items
-                    const list = document.createElement('ul');
-                    list.className = 'list-disc pl-6 space-y-2';
-                    profile.methodology.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        list.appendChild(li);
-                    });
-                    modalMethodology.innerHTML = '';
-                    modalMethodology.appendChild(list);
-                } else if (typeof profile.methodology === 'string' && profile.methodology.includes('<li>')) {
-                    // If it's HTML string, parse it into an array first
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = profile.methodology;
-                    const items = Array.from(tempDiv.querySelectorAll('li')).map(li => li.textContent.trim());
+                // Function to process methodology into array
+                const processMethodology = (methodology) => {
+                    if (Array.isArray(methodology)) {
+                        return methodology;
+                    }
                     
-                    const list = document.createElement('ul');
-                    list.className = 'list-disc pl-6 space-y-2';
-                    items.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        list.appendChild(li);
-                    });
-                    modalMethodology.innerHTML = '';
-                    modalMethodology.appendChild(list);
-                } else {
-                    modalMethodology.textContent = profile.methodology || '';
-                }
+                    if (typeof methodology === 'string') {
+                        // If it's HTML, extract content from li tags
+                        if (methodology.includes('<li>')) {
+                            const matches = methodology.match(/<li>(.*?)<\/li>/g);
+                            if (matches) {
+                                return matches.map(match => 
+                                    match.replace(/<\/?li>/g, '')
+                                         .replace(/<br>/g, '')
+                                         .trim()
+                                ).filter(item => item.length > 0);
+                            }
+                        }
+                        
+                        // Split by periods followed by capital letters or line breaks
+                        return methodology
+                            .split(/\.(?=[A-Z])|[\n\r]/)
+                            .map(item => item.trim())
+                            .filter(item => item.length > 0)
+                            .map(item => item.endsWith('.') ? item : item + '.');
+                    }
+                    
+                    return [];
+                };
+
+                // Process the methodology into an array
+                const methodologyItems = processMethodology(profile.methodology);
+                
+                // Create and populate the list
+                const list = document.createElement('ul');
+                list.className = 'list-disc pl-6 space-y-2';
+                
+                methodologyItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    list.appendChild(li);
+                });
+                
+                modalMethodology.innerHTML = '';
+                modalMethodology.appendChild(list);
             }
 
             // Reset all sections

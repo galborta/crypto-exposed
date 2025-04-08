@@ -53,6 +53,20 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Overview is required']
   },
+  story: {
+    type: String,
+    required: false
+  },
+  methodology: {
+    type: [String],
+    required: [true, 'Methodology is required'],
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v) && v.length > 0;
+      },
+      message: 'Methodology must be a non-empty array of strings'
+    }
+  },
   totalScammedUSD: {
     type: Number,
     required: [true, 'Total amount scammed is required'],
@@ -67,20 +81,6 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Associated projects are required']
   },
-  methodology: {
-    type: [String],
-    required: [true, 'Methodology is required'],
-    validate: {
-      validator: function(v) {
-        return Array.isArray(v) && v.length > 0;
-      },
-      message: 'Methodology must be a non-empty array of strings'
-    }
-  },
-  story: {
-    type: String,
-    required: false
-  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -91,8 +91,50 @@ const profileSchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt timestamp before saving
+// Helper function to process methodology text into array
+function processMethodologyText(text) {
+  if (Array.isArray(text)) return text;
+  
+  if (typeof text === 'string') {
+    // If it's HTML, extract content from li tags
+    if (text.includes('<li>')) {
+      const matches = text.match(/<li>(.*?)<\/li>/g);
+      if (matches) {
+        return matches.map(match => 
+          match.replace(/<\/?li>/g, '')
+               .replace(/<br>/g, '')
+               .trim()
+        ).filter(item => item.length > 0);
+      }
+    }
+    
+    // Split by periods followed by capital letters or line breaks
+    return text
+      .split(/\.(?=[A-Z])|[\n\r]/)
+      .map(item => item.trim())
+      .filter(item => item.length > 0)
+      .map(item => item.endsWith('.') ? item : item + '.');
+  }
+  
+  return [];
+}
+
+// Pre-save middleware to process methodology
 profileSchema.pre('save', function(next) {
+  // Process methodology if it's changed
+  if (this.isModified('methodology')) {
+    if (!Array.isArray(this.methodology)) {
+      // If it's a single string, process it
+      this.methodology = processMethodologyText(this.methodology);
+    } else {
+      // If it's already an array, ensure each item is properly formatted
+      this.methodology = this.methodology
+        .map(item => item.trim())
+        .filter(item => item.length > 0)
+        .map(item => item.endsWith('.') ? item : item + '.');
+    }
+  }
+  
   this.updatedAt = Date.now();
   next();
 });

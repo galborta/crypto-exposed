@@ -671,7 +671,11 @@
                     placeOfBirth: document.getElementById('placeOfBirth').value,
                     totalScammedUSD: parseInt(document.getElementById('totalScammedUSD').value),
                     overview: document.getElementById('overview').value,
-                    methodology: document.getElementById('methodology').value,
+                    methodology: document.getElementById('methodology').value
+                        .split(/\.(?=[A-Z])|[\n\r]/)
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0)
+                        .map(item => item.endsWith('.') ? item : item + '.'),
                     associatedProjects: document.getElementById('associatedProjects').value,
                     story: document.getElementById('story').value || '',
                     status: document.getElementById('status').value,
