@@ -3,9 +3,10 @@ const sanitizeHtml = require('sanitize-html');
 
 // Configure sanitizeHtml options to allow specific HTML tags and their attributes
 const sanitizeOptions = {
-  allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
+  allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'a'],
   allowedAttributes: {
-    '*': ['style', 'class']  // Allow style and class attributes on all allowed tags
+    '*': ['style', 'class'],
+    'a': ['href', 'target']
   },
   allowedStyles: {
     '*': {
@@ -115,6 +116,54 @@ const profileSchema = new mongoose.Schema({
   associatedProjects: {
     type: String,
     required: [true, 'Associated projects are required']
+  },
+  socials: {
+    type: [{
+      platform: {
+        type: String,
+        required: true,
+        enum: ['Twitter', 'Telegram', 'Discord', 'LinkedIn', 'Instagram', 'Facebook', 'Other']
+      },
+      username: {
+        type: String,
+        required: true
+      },
+      url: {
+        type: String,
+        required: false
+      }
+    }],
+    default: [],
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v);
+      },
+      message: 'Socials must be an array'
+    }
+  },
+  knownWallets: {
+    type: [{
+      address: {
+        type: String,
+        required: true
+      },
+      blockchain: {
+        type: String,
+        required: true,
+        enum: ['Bitcoin', 'Ethereum', 'BNB Chain', 'Polygon', 'Solana', 'Other']
+      },
+      description: {
+        type: String,
+        required: false
+      }
+    }],
+    default: [],
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v);
+      },
+      message: 'Known wallets must be an array'
+    }
   },
   createdAt: {
     type: Date,
