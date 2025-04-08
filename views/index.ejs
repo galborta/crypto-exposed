@@ -524,9 +524,7 @@
                 'modalNationality': profile.nationality,
                 'modalPlaceOfBirth': profile.placeOfBirth,
                 'modalAmount': formatCurrency(profile.totalScammedUSD),
-                'modalOverview': profile.overview || '',
-                'modalProjects': profile.associatedProjects || 'Unknown project',
-                'modalStory': profile.story || 'No story available'
+                'modalProjects': profile.associatedProjects || 'Unknown project'
             };
 
             // Safely update all elements
@@ -541,51 +539,31 @@
                 }
             });
 
-            // Special handling for methodology to render as HTML list
+            // Handle HTML content for overview
+            const modalOverview = document.getElementById('modalOverview');
+            if (modalOverview) {
+                modalOverview.innerHTML = profile.overview || 'No overview available';
+            }
+
+            // Handle HTML content for story
+            const modalStory = document.getElementById('modalStory');
+            if (modalStory) {
+                modalStory.innerHTML = profile.story || 'No story available';
+            }
+
+            // Special handling for methodology to render as HTML list with formatting
             const modalMethodology = document.getElementById('modalMethodology');
             if (modalMethodology) {
-                // Function to process methodology into array
-                const processMethodology = (methodology) => {
-                    if (Array.isArray(methodology)) {
-                        return methodology;
-                    }
-                    
-                    if (typeof methodology === 'string') {
-                        // If it's HTML, extract content from li tags
-                        if (methodology.includes('<li>')) {
-                            const matches = methodology.match(/<li>(.*?)<\/li>/g);
-                            if (matches) {
-                                return matches.map(match => 
-                                    match.replace(/<\/?li>/g, '')
-                                         .replace(/<br>/g, '')
-                                         .trim()
-                                ).filter(item => item.length > 0);
-                            }
-                        }
-                        
-                        // Split by periods followed by capital letters or line breaks
-                        return methodology
-                            .split(/\.(?=[A-Z])|[\n\r]/)
-                            .map(item => item.trim())
-                            .filter(item => item.length > 0)
-                            .map(item => item.endsWith('.') ? item : item + '.');
-                    }
-                    
-                    return [];
-                };
-
-                // Process the methodology into an array
-                const methodologyItems = processMethodology(profile.methodology);
-                
-                // Create and populate the list
                 const list = document.createElement('ul');
                 list.className = 'list-disc pl-6 space-y-2';
                 
-                methodologyItems.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    list.appendChild(li);
-                });
+                if (Array.isArray(profile.methodology)) {
+                    profile.methodology.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = item; // Use innerHTML to render HTML formatting
+                        list.appendChild(li);
+                    });
+                }
                 
                 modalMethodology.innerHTML = '';
                 modalMethodology.appendChild(list);

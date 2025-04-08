@@ -1,4 +1,27 @@
 const mongoose = require('mongoose');
+const sanitizeHtml = require('sanitize-html');
+
+// Configure sanitizeHtml options to allow specific HTML tags and their attributes
+const sanitizeOptions = {
+  allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
+  allowedAttributes: {
+    '*': ['style', 'class']  // Allow style and class attributes on all allowed tags
+  },
+  allowedStyles: {
+    '*': {
+      'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+      'text-align': [/^left$/, /^right$/, /^center$/],
+      'font-size': [/^\d+(?:px|em|%)$/]
+    }
+  },
+  selfClosing: ['br'],
+  allowedSchemes: ['http', 'https', 'ftp', 'mailto'],
+  allowedSchemesByTag: {},
+  allowedSchemesAppliedToAttributes: ['href', 'src', 'cite'],
+  allowProtocolRelative: true,
+  enforceHtmlBoundary: false,
+  parseStyleAttributes: true
+};
 
 const profileSchema = new mongoose.Schema({
   fileNumber: {
@@ -51,11 +74,17 @@ const profileSchema = new mongoose.Schema({
   },
   overview: {
     type: String,
-    required: [true, 'Overview is required']
+    required: [true, 'Overview is required'],
+    set: function(content) {
+      return content ? sanitizeHtml(content, sanitizeOptions) : content;
+    }
   },
   story: {
     type: String,
-    required: false
+    required: false,
+    set: function(content) {
+      return content ? sanitizeHtml(content, sanitizeOptions) : content;
+    }
   },
   methodology: {
     type: [String],
@@ -65,6 +94,12 @@ const profileSchema = new mongoose.Schema({
         return Array.isArray(v) && v.length > 0;
       },
       message: 'Methodology must be a non-empty array of strings'
+    },
+    set: function(content) {
+      if (Array.isArray(content)) {
+        return content.map(item => sanitizeHtml(item, sanitizeOptions));
+      }
+      return content;
     }
   },
   totalScammedUSD: {
@@ -91,50 +126,8 @@ const profileSchema = new mongoose.Schema({
   }
 });
 
-// Helper function to process methodology text into array
-function processMethodologyText(text) {
-  if (Array.isArray(text)) return text;
-  
-  if (typeof text === 'string') {
-    // If it's HTML, extract content from li tags
-    if (text.includes('<li>')) {
-      const matches = text.match(/<li>(.*?)<\/li>/g);
-      if (matches) {
-        return matches.map(match => 
-          match.replace(/<\/?li>/g, '')
-               .replace(/<br>/g, '')
-               .trim()
-        ).filter(item => item.length > 0);
-      }
-    }
-    
-    // Split by periods followed by capital letters or line breaks
-    return text
-      .split(/\.(?=[A-Z])|[\n\r]/)
-      .map(item => item.trim())
-      .filter(item => item.length > 0)
-      .map(item => item.endsWith('.') ? item : item + '.');
-  }
-  
-  return [];
-}
-
-// Pre-save middleware to process methodology
+// Update the updatedAt timestamp before saving
 profileSchema.pre('save', function(next) {
-  // Process methodology if it's changed
-  if (this.isModified('methodology')) {
-    if (!Array.isArray(this.methodology)) {
-      // If it's a single string, process it
-      this.methodology = processMethodologyText(this.methodology);
-    } else {
-      // If it's already an array, ensure each item is properly formatted
-      this.methodology = this.methodology
-        .map(item => item.trim())
-        .filter(item => item.length > 0)
-        .map(item => item.endsWith('.') ? item : item + '.');
-    }
-  }
-  
   this.updatedAt = Date.now();
   next();
 });
