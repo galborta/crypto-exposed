@@ -95,15 +95,17 @@
 
             /* Methodology list styling for mobile */
             #modalMethodology ul {
-                padding-left: 1.25rem;
+                list-style: none !important;
+                padding: 0;
                 margin: 0;
             }
 
             #modalMethodology li {
-                margin-bottom: 1rem;
                 padding-left: 1.25rem;
+                margin-bottom: 1rem;
                 position: relative;
                 line-height: 1.75;
+                list-style-type: none !important;
             }
 
             #modalMethodology li:last-child {
@@ -113,7 +115,7 @@
             #modalMethodology li::before {
                 content: '→';
                 position: absolute;
-                left: -0.25rem;
+                left: 0;
                 color: #20201D;
             }
         }
@@ -127,7 +129,7 @@
             }
 
             #modalMethodology ul {
-                padding-left: 1rem;
+                padding: 0;
             }
 
             #modalMethodology li {
@@ -473,15 +475,22 @@
 
         /* Methodology List Styling */
         #modalMethodology ul {
-            list-style: none;
+            list-style: none !important;
             padding: 0;
+            margin: 0;
         }
 
         #modalMethodology li {
             position: relative;
             padding-left: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             line-height: 1.6;
+            color: #20201D;
+            list-style-type: none !important;
+        }
+
+        #modalMethodology li:last-child {
+            margin-bottom: 0;
         }
 
         #modalMethodology li::before {
@@ -490,6 +499,11 @@
             left: 0;
             color: #20201D;
             font-weight: bold;
+        }
+
+        #modalMethodology li b {
+            color: #9e2a2b;
+            font-weight: 600;
         }
 
         /* Story and Methodology sections */
@@ -534,6 +548,11 @@
                 padding: 1rem 1.25rem 1.25rem 1.25rem;
                 max-width: 100%;
             }
+
+            #modalMethodology li {
+                padding-left: 1.25rem;
+            margin-bottom: 1rem;
+            }
         }
 
         /* Even smaller screens */
@@ -555,6 +574,11 @@
             #modalStory,
             #modalMethodology {
                 padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #modalMethodology li {
+                padding-left: 1rem;
+                margin-bottom: 0.875rem;
             }
         }
 
@@ -902,7 +926,7 @@
             fetch(`/api/profiles/${id}`)
                 .then(response => response.json())
                 .then(profile => {
-                    if (!profile) return;
+            if (!profile) return;
 
                     // Reset and prepare file number for animation
                     const fileNumberElement = document.getElementById('modalFileNumber');
@@ -929,59 +953,44 @@
                     }
 
                     // Update other modal content
-                    const elements = {
-                        'modalName': profile.name,
-                        'modalPhoto': profile.photoUrl || '/default-avatar.svg',
-                        'modalDOB': new Date(profile.dateOfBirth).toLocaleDateString(),
-                        'modalAge': profile.age,
-                        'modalHeight': profile.height,
-                        'modalWeight': profile.weight,
-                        'modalNationality': profile.nationality,
-                        'modalPlaceOfBirth': profile.placeOfBirth,
-                        'modalAmount': formatCurrency(profile.totalScammedUSD),
-                        'modalProjects': profile.associatedProjects || 'Unknown project',
-                        'modalOverview': profile.overview || 'No overview available',
-                        'modalStory': profile.story || 'No story available'
-                    };
+            const elements = {
+                'modalName': profile.name,
+                'modalPhoto': profile.photoUrl || '/default-avatar.svg',
+                'modalDOB': new Date(profile.dateOfBirth).toLocaleDateString(),
+                'modalAge': profile.age,
+                'modalHeight': profile.height,
+                'modalWeight': profile.weight,
+                'modalNationality': profile.nationality,
+                'modalPlaceOfBirth': profile.placeOfBirth,
+                'modalAmount': formatCurrency(profile.totalScammedUSD),
+                'modalProjects': profile.associatedProjects || 'Unknown project',
+                'modalOverview': profile.overview || 'No overview available',
+                'modalStory': profile.story || 'No story available',
+                'modalMethodology': profile.methodology ? profile.methodology.map(item => `<li>${item}</li>`).join('') : 'No methodology available'
+            };
 
-                    Object.entries(elements).forEach(([id, value]) => {
-                        const element = document.getElementById(id);
-                        if (element) {
-                            if (id === 'modalPhoto') {
-                                element.src = value;
-                            } else if (id === 'modalOverview' || id === 'modalStory') {
-                                element.innerHTML = value;
-                            } else {
-                                element.textContent = value;
-                            }
-                        }
-                    });
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (id === 'modalPhoto') {
+                        element.src = value;
+                    } else if (id === 'modalOverview' || id === 'modalStory' || id === 'modalMethodology') {
+                        element.innerHTML = value;
+                    } else {
+                        element.textContent = value;
+                    }
+                }
+            });
 
                     // Update social profiles section
                     const socialsContainer = document.getElementById('modalSocials');
                     socialsContainer.innerHTML = '';
                     
-                    // Sample social profiles for testing
-                    const socialProfiles = [
-                        {
-                            platform: 'Twitter/X',
-                            username: 'rujaignatova',
-                            description: 'Official Twitter account of Dr. Ruja Ignatova, founder of OneCoin.',
-                            url: 'https://twitter.com/rujaignatova'
-                        },
-                        {
-                            platform: 'LinkedIn',
-                            username: 'Dr. Ruja Ignatova',
-                            description: 'Founder and CEO of OneCoin, OneLife Network Ltd.',
-                            url: 'https://linkedin.com/in/rujaignatova'
-                        }
-                    ];
-                    
-                    if (socialProfiles && socialProfiles.length > 0) {
+                    if (profile.socialProfiles && profile.socialProfiles.length > 0) {
                         const socialsList = document.createElement('div');
                         socialsList.className = 'space-y-3';
                         
-                        socialProfiles.forEach(social => {
+                        profile.socialProfiles.forEach(social => {
                             const socialItem = document.createElement('div');
                             socialItem.className = 'flex items-start space-x-3 p-4 bg-gray-50 rounded-lg';
                             
@@ -1016,15 +1025,15 @@
                             usernameDiv.textContent = `@${social.username}`;
                             
                             // Description if available
-                            const descriptionDiv = document.createElement('div');
-                            descriptionDiv.className = 'text-sm text-gray-500 mt-2';
-                            descriptionDiv.textContent = social.description || '';
+                            if (social.description) {
+                                const descriptionDiv = document.createElement('div');
+                                descriptionDiv.className = 'text-sm text-gray-500 mt-2';
+                                descriptionDiv.textContent = social.description;
+                                socialInfo.appendChild(descriptionDiv);
+                            }
                             
                             socialInfo.appendChild(headerDiv);
                             socialInfo.appendChild(usernameDiv);
-                            if (social.description) {
-                                socialInfo.appendChild(descriptionDiv);
-                            }
                             
                             socialItem.appendChild(platformIcon);
                             socialItem.appendChild(socialInfo);
@@ -1040,34 +1049,14 @@
                     const walletsContainer = document.getElementById('modalKnownWallets');
                     walletsContainer.innerHTML = '';
                     
-                    // Sample blockchain addresses for testing
-                    const blockchainAddresses = [
-                        {
-                            chain: 'Bitcoin',
-                            address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-                            description: 'Main Bitcoin wallet associated with OneCoin operations.',
-                            scannerUrl: 'https://www.blockchain.com/btc/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-                            source: 'Blockchain analysis report, 2018',
-                            sourceUrl: 'https://www.blockchain.com/explorer/reports/onecoin-2018'
-                        },
-                        {
-                            chain: 'Ethereum',
-                            address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                            description: 'Ethereum wallet linked to OneCoin fund transfers.',
-                            scannerUrl: 'https://etherscan.io/address/0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                            source: 'FBI investigation documents',
-                            sourceUrl: 'https://www.justice.gov/usao-sdny/onecoin-investigation'
-                        }
-                    ];
-                    
-                    if (blockchainAddresses && blockchainAddresses.length > 0) {
+                    if (profile.blockchainAddresses && profile.blockchainAddresses.length > 0) {
                         const walletsList = document.createElement('div');
                         walletsList.className = 'space-y-4';
                         
-                        blockchainAddresses.forEach(wallet => {
+                        profile.blockchainAddresses.forEach(wallet => {
                             const walletItem = document.createElement('div');
                             walletItem.className = 'p-4 bg-gray-50 rounded-lg space-y-3';
-                            
+
                             // Chain name and actions
                             const headerDiv = document.createElement('div');
                             headerDiv.className = 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2';
@@ -1098,15 +1087,30 @@
                                 actionsDiv.appendChild(explorerLink);
                             }
                             
-                            // Copy button
+                            // Copy Address button
                             const copyButton = document.createElement('button');
-                            copyButton.onclick = () => copyToClipboard(wallet.address);
-                            copyButton.className = 'text-sm text-blue-600 hover:text-blue-700 flex items-center bg-white px-2 py-1 rounded border border-gray-200';
+                            copyButton.className = 'text-sm text-gray-600 hover:text-gray-700 flex items-center bg-white px-2 py-1 rounded border border-gray-200';
+                            copyButton.onclick = () => {
+                                navigator.clipboard.writeText(wallet.address);
+                                copyButton.innerHTML = `
+                                    Copied!
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                `;
+                                setTimeout(() => {
+                                    copyButton.innerHTML = `
+                                        Copy Address
+                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                        </svg>
+                                    `;
+                                }, 2000);
+                            };
                             copyButton.innerHTML = `
                                 Copy Address
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
                                 </svg>
                             `;
                             actionsDiv.appendChild(copyButton);
@@ -1117,11 +1121,11 @@
                             
                             // Address
                             const addressDiv = document.createElement('div');
-                            addressDiv.className = 'text-sm text-gray-600 font-mono break-all bg-white p-2 rounded border border-gray-200';
+                            addressDiv.className = 'font-mono text-sm text-gray-600 break-all bg-white p-2 rounded border border-gray-200';
                             addressDiv.textContent = wallet.address;
                             walletItem.appendChild(addressDiv);
                             
-                            // Description
+                            // Description if available
                             if (wallet.description) {
                                 const descriptionDiv = document.createElement('div');
                                 descriptionDiv.className = 'text-sm text-gray-500';
@@ -1129,23 +1133,22 @@
                                 walletItem.appendChild(descriptionDiv);
                             }
                             
-                            // Source with link
+                            // Source if available
                             if (wallet.source) {
                                 const sourceDiv = document.createElement('div');
-                                sourceDiv.className = 'text-xs text-gray-400 flex items-center gap-1';
+                                sourceDiv.className = 'text-xs text-gray-500 flex items-center justify-between';
                                 sourceDiv.innerHTML = `
-                                    Source: ${wallet.sourceUrl ? `
-                                        <a href="${wallet.sourceUrl}" 
-                                           target="_blank" 
-                                           rel="noopener noreferrer" 
-                                           class="text-blue-600 hover:text-blue-700 hover:underline flex items-center">
-                                            ${wallet.source}
-                                            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span>Source: ${wallet.source}</span>
+                                    ${wallet.sourceUrl ? `
+                                        <a href="${wallet.sourceUrl}" target="_blank" rel="noopener noreferrer" 
+                                           class="text-blue-600 hover:text-blue-700 flex items-center">
+                                            View Source
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                                       d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                             </svg>
                                         </a>
-                                    ` : wallet.source}
+                                    ` : ''}
                                 `;
                                 walletItem.appendChild(sourceDiv);
                             }
@@ -1155,12 +1158,12 @@
                         
                         walletsContainer.appendChild(walletsList);
                     } else {
-                        walletsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No known wallets available</p>';
-                    }
+                        walletsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No known wallet addresses</p>';
+            }
 
-                    // Show modal
-                    document.getElementById('profileModal').classList.remove('hidden');
-                    document.body.classList.add('modal-open');
+            // Show modal
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
 
                     // Add click handler to photo
                     const modalPhoto = document.getElementById('modalPhoto');

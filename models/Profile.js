@@ -1,28 +1,4 @@
 const mongoose = require('mongoose');
-const sanitizeHtml = require('sanitize-html');
-
-// Configure sanitizeHtml options to allow specific HTML tags and their attributes
-const sanitizeOptions = {
-  allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'a'],
-  allowedAttributes: {
-    '*': ['style', 'class'],
-    'a': ['href', 'target']
-  },
-  allowedStyles: {
-    '*': {
-      'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-      'text-align': [/^left$/, /^right$/, /^center$/],
-      'font-size': [/^\d+(?:px|em|%)$/]
-    }
-  },
-  selfClosing: ['br'],
-  allowedSchemes: ['http', 'https', 'ftp', 'mailto'],
-  allowedSchemesByTag: {},
-  allowedSchemesAppliedToAttributes: ['href', 'src', 'cite'],
-  allowProtocolRelative: true,
-  enforceHtmlBoundary: false,
-  parseStyleAttributes: true
-};
 
 const profileSchema = new mongoose.Schema({
   fileNumber: {
@@ -75,33 +51,55 @@ const profileSchema = new mongoose.Schema({
   },
   overview: {
     type: String,
-    required: [true, 'Overview is required'],
-    set: function(content) {
-      return content ? sanitizeHtml(content, sanitizeOptions) : content;
-    }
+    required: [true, 'Overview is required']
   },
   story: {
     type: String,
-    required: false,
-    set: function(content) {
-      return content ? sanitizeHtml(content, sanitizeOptions) : content;
-    }
+    required: false
   },
   methodology: {
     type: [String],
     required: [true, 'Methodology is required'],
     validate: {
       validator: function(v) {
-        return Array.isArray(v) && v.length > 0;
+        return v && v.length > 0;
       },
-      message: 'Methodology must be a non-empty array of strings'
-    },
-    set: function(content) {
-      if (Array.isArray(content)) {
-        return content.map(item => sanitizeHtml(item, sanitizeOptions));
-      }
-      return content;
+      message: 'Methodology must have at least one entry'
     }
+  },
+  blockchainAddresses: {
+    type: [{
+      chain: {
+        type: String,
+        required: true,
+        enum: ['Bitcoin', 'Ethereum', 'BNB Chain', 'Polygon', 'Solana', 'Other']
+      },
+      address: {
+        type: String,
+        required: true
+      },
+      description: String,
+      scannerUrl: String,
+      source: String,
+      sourceUrl: String
+    }],
+    default: []
+  },
+  socialProfiles: {
+    type: [{
+      platform: {
+        type: String,
+        required: true,
+        enum: ['Twitter', 'LinkedIn', 'Facebook', 'Instagram', 'Telegram', 'Discord', 'Other']
+      },
+      username: {
+        type: String,
+        required: true
+      },
+      description: String,
+      url: String
+    }],
+    default: []
   },
   totalScammedUSD: {
     type: Number,
@@ -117,53 +115,9 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Associated projects are required']
   },
-  socials: {
-    type: [{
-      platform: {
-        type: String,
-        required: true,
-        enum: ['Twitter', 'Telegram', 'Discord', 'LinkedIn', 'Instagram', 'Facebook', 'Other']
-      },
-      username: {
-        type: String,
-        required: true
-      },
-      url: {
-        type: String,
-        required: false
-      }
-    }],
-    default: [],
-    validate: {
-      validator: function(v) {
-        return Array.isArray(v);
-      },
-      message: 'Socials must be an array'
-    }
-  },
-  knownWallets: {
-    type: [{
-      address: {
-        type: String,
-        required: true
-      },
-      blockchain: {
-        type: String,
-        required: true,
-        enum: ['Bitcoin', 'Ethereum', 'BNB Chain', 'Polygon', 'Solana', 'Other']
-      },
-      description: {
-        type: String,
-        required: false
-      }
-    }],
-    default: [],
-    validate: {
-      validator: function(v) {
-        return Array.isArray(v);
-      },
-      message: 'Known wallets must be an array'
-    }
+  evidence: {
+    type: String,
+    required: [true, 'Evidence is required']
   },
   createdAt: {
     type: Date,
