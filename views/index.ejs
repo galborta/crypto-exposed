@@ -176,11 +176,47 @@
             border-color: rgba(254, 226, 226, 1);
             border-radius: 9999px;
             object-fit: cover;
+            cursor: pointer;
         }
         
         #modalPhoto:not([src]), 
         #modalPhoto[src=""] {
             opacity: 0;
+        }
+
+        /* Fullscreen photo overlay */
+        #photoOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 60;
+            cursor: pointer;
+        }
+
+        #photoOverlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        #enlargedPhoto {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            animation: scaleIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); }
+            to { transform: scale(1); }
         }
 
         /* Modal name styling */
@@ -761,6 +797,11 @@
         </div>
     </div>
 
+    <!-- Fullscreen photo overlay -->
+    <div id="photoOverlay" onclick="closePhotoOverlay()">
+        <img id="enlargedPhoto" src="" alt="Enlarged photo" onclick="event.stopPropagation()">
+    </div>
+
     <!-- Footer -->
     <footer style="background-color: #20201D">
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -963,6 +1004,10 @@
             // Show modal
             document.getElementById('profileModal').classList.remove('hidden');
             document.body.classList.add('modal-open');
+
+            // Add click handler to photo
+            const modalPhoto = document.getElementById('modalPhoto');
+            modalPhoto.onclick = showEnlargedPhoto;
         }
 
         function handleModalClick(event) {
@@ -1144,6 +1189,23 @@
         function truncateAddress(address) {
             if (!address) return '';
             return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        }
+
+        function showEnlargedPhoto(event) {
+            event.stopPropagation();
+            const photoUrl = document.getElementById('modalPhoto').src;
+            const overlay = document.getElementById('photoOverlay');
+            const enlargedPhoto = document.getElementById('enlargedPhoto');
+            
+            enlargedPhoto.src = photoUrl;
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoOverlay() {
+            const overlay = document.getElementById('photoOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
         }
     </script>
 </body>
