@@ -638,6 +638,23 @@
             transition: all 0.3s ease;
         }
 
+        /* Menu and footer links styling */
+        nav a, footer a {
+            font-family: 'SpaceMono', monospace;
+            font-weight: normal;
+            letter-spacing: -0.01em;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover, footer a:hover {
+            opacity: 0.8;
+        }
+
+        footer p {
+            font-family: 'SpaceMono', monospace;
+            letter-spacing: -0.01em;
+        }
+
         @keyframes neonGlow {
             0% {
                 color: rgba(255, 255, 255, 0.7);
@@ -867,45 +884,45 @@
 
                 <!-- Sections -->
                 <div class="space-y-6">
-                <!-- Overview Section -->
+                    <!-- Overview Section -->
                     <div class="section">
                         <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('overview')">
                             <span class="text-lg font-medium text-gray-900">Overview</span>
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            </svg>
+                        </button>
                         <div id="overviewSection" class="section-content mt-2 px-4">
                             <div id="modalOverview" class="prose max-w-none text-gray-700"></div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Basic Information Section -->
+                    <!-- Basic Information Section -->
                     <div class="section">
                         <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('basicInfo')">
                             <span class="text-lg font-medium text-gray-900">Basic Information</span>
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            </svg>
+                        </button>
                         <div id="basicInfoSection" class="section-content mt-2 px-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Date of Birth</p>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Date of Birth</p>
                                     <p id="modalDOB" class="font-medium"></p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Age</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Age</p>
                                     <p id="modalAge" class="font-medium"></p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Height</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Height</p>
                                     <p id="modalHeight" class="font-medium"></p>
                                 </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Weight</p>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Weight</p>
                                     <p id="modalWeight" class="font-medium"></p>
-                            </div>
+                                </div>
                                 <div class="bg-gray-50 p-3 rounded-lg">
                                     <p class="text-sm text-gray-500">Nationality</p>
                                     <p id="modalNationality" class="font-medium"></p>
@@ -914,31 +931,35 @@
                                     <p class="text-sm text-gray-500">Place of Birth</p>
                                     <p id="modalPlaceOfBirth" class="font-medium"></p>
                                 </div>
+                                <div class="bg-gray-50 p-3 rounded-lg md:col-span-2">
+                                    <p class="text-sm text-gray-500">Last Known Location</p>
+                                    <p id="modalLastKnownLocation" class="font-medium"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Story Section -->
+                    <!-- Story Section -->
                     <div class="section">
                         <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('story')">
                             <span class="text-lg font-medium text-gray-900">Story</span>
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            </svg>
+                        </button>
                         <div id="storySection" class="section-content mt-2 px-4">
                             <div id="modalStory" class="prose max-w-none text-gray-700"></div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Methodology Section -->
+                    <!-- Methodology Section -->
                     <div class="section">
                         <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('methodology')">
                             <span class="text-lg font-medium text-gray-900">Methodology</span>
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            </svg>
+                        </button>
                         <div id="methodologySection" class="section-content mt-2 px-4">
                             <div id="modalMethodology" class="prose max-w-none text-gray-700"></div>
                         </div>
@@ -955,9 +976,9 @@
                         <div id="socialsSection" class="section-content mt-2 px-4">
                             <div id="modalSocials" class="text-gray-700">
                                 <!-- Social profiles will be dynamically inserted here -->
-                </div>
-            </div>
-        </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Known Wallets Section -->
                     <div class="section">
@@ -1102,7 +1123,7 @@
             fetch(`/api/profiles/${id}`)
                 .then(response => response.json())
                 .then(profile => {
-            if (!profile) return;
+                    if (!profile) return;
 
                     // Reset and prepare file number for animation
                     const fileNumberElement = document.getElementById('modalFileNumber');
@@ -1112,7 +1133,7 @@
                         fileNumberElement.offsetHeight; // Trigger reflow
                         fileNumberElement.style.animation = null;
                         fileNumberElement.textContent = 'File #: ' + (profile.fileNumber || 'No file number');
-                        
+
                         // Calculate the width needed for the text with extra padding
                         const tempSpan = document.createElement('span');
                         tempSpan.style.visibility = 'hidden';
@@ -1128,35 +1149,89 @@
                         }, { once: true });
                     }
 
-                    // Update other modal content
-            const elements = {
-                'modalName': profile.name,
-                'modalPhoto': profile.photoUrl || '/default-avatar.svg',
-                'modalDOB': new Date(profile.dateOfBirth).toLocaleDateString(),
-                'modalAge': profile.age,
-                'modalHeight': profile.height,
-                'modalWeight': profile.weight,
-                'modalNationality': profile.nationality,
-                'modalPlaceOfBirth': profile.placeOfBirth,
-                'modalAmount': formatCurrency(profile.totalScammedUSD),
-                'modalProjects': profile.associatedProjects || 'Unknown project',
-                'modalOverview': profile.overview || 'No overview available',
-                'modalStory': profile.story || 'No story available',
-                'modalMethodology': profile.methodology ? profile.methodology.map(item => `<li>${item}</li>`).join('') : 'No methodology available'
-            };
+                    // Update basic profile information
+                    const elements = {
+                        'modalName': profile.name,
+                        'modalPhoto': profile.photoUrl || '/default-avatar.svg',
+                        'modalDOB': new Date(profile.dateOfBirth).toLocaleDateString(),
+                        'modalAge': profile.age,
+                        'modalHeight': profile.height,
+                        'modalWeight': profile.weight,
+                        'modalNationality': profile.nationality,
+                        'modalPlaceOfBirth': profile.placeOfBirth,
+                        'modalLastKnownLocation': profile.lastKnownLocation || 'Unknown',
+                        'modalAmount': formatCurrency(profile.totalScammedUSD),
+                        'modalProjects': profile.associatedProjects || 'Unknown project',
+                        'modalOverview': profile.overview || 'No overview available',
+                        'modalStory': profile.story || 'No story available',
+                        'modalMethodology': profile.methodology ? profile.methodology.map(item => `<li>${item}</li>`).join('') : 'No methodology available'
+                    };
 
-            Object.entries(elements).forEach(([id, value]) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    if (id === 'modalPhoto') {
-                        element.src = value;
-                    } else if (id === 'modalOverview' || id === 'modalStory' || id === 'modalMethodology') {
-                        element.innerHTML = value;
-                    } else {
-                        element.textContent = value;
-                    }
-                }
-            });
+                    Object.entries(elements).forEach(([id, value]) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            if (id === 'modalPhoto') {
+                                element.src = value;
+                            } else if (id === 'modalOverview' || id === 'modalStory' || id === 'modalMethodology') {
+                                element.innerHTML = value;
+                            } else {
+                                element.textContent = value;
+                            }
+                        }
+                    });
+
+                    // Get the container for dynamic sections
+                    const dynamicSectionsContainer = document.querySelector('.space-y-6');
+                    
+                    // Create array of dynamic sections with their content status
+                    const dynamicSections = [
+                        {
+                            id: 'socials',
+                            title: 'Social Profiles',
+                            hasContent: profile.socialProfiles && profile.socialProfiles.length > 0
+                        },
+                        {
+                            id: 'knownWallets',
+                            title: 'Known Wallets',
+                            hasContent: profile.blockchainAddresses && profile.blockchainAddresses.length > 0
+                        },
+                        {
+                            id: 'activitiesStatus',
+                            title: 'Activities and Status',
+                            hasContent: profile.chronology && profile.chronology.length > 0
+                        }
+                    ];
+
+                    // Sort dynamic sections based on content
+                    dynamicSections.sort((a, b) => {
+                        if (a.hasContent && !b.hasContent) return -1;
+                        if (!a.hasContent && b.hasContent) return 1;
+                        return 0;
+                    });
+
+                    // Remove dynamic sections from the container
+                    const dynamicElements = Array.from(dynamicSectionsContainer.children).slice(4);
+                    dynamicElements.forEach(el => el.remove());
+                    
+                    // Add sorted dynamic sections back
+                    dynamicSections.forEach(section => {
+                        const sectionHTML = `
+                            <div class="section">
+                                <button onclick="toggleSection('${section.id}')" class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between">
+                                    <span class="text-lg font-medium text-gray-900">${section.title}</span>
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div id="${section.id}Section" class="section-content mt-2 px-4">
+                                    <div id="modal${section.id.charAt(0).toUpperCase() + section.id.slice(1)}" class="text-gray-700">
+                                        <!-- Content will be dynamically inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        dynamicSectionsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+                    });
 
                     // Update social profiles section
                     const socialsContainer = document.getElementById('modalSocials');
@@ -1224,7 +1299,7 @@
                     // Update known wallets section
                     const walletsContainer = document.getElementById('modalKnownWallets');
                     walletsContainer.innerHTML = '';
-                    
+
                     if (profile.blockchainAddresses && profile.blockchainAddresses.length > 0) {
                         const walletsList = document.createElement('div');
                         walletsList.className = 'space-y-4';
@@ -1353,7 +1428,7 @@
                         sortedChronology.forEach((event, index) => {
                             const eventItem = document.createElement('div');
                             eventItem.className = 'timeline-item';
-
+                            
                             // Date without step number
                             const dateDiv = document.createElement('div');
                             dateDiv.className = 'timeline-date';
@@ -1363,13 +1438,13 @@
                                 day: 'numeric'
                             });
                             eventItem.appendChild(dateDiv);
-
+                            
                             // Description
                             const descriptionDiv = document.createElement('div');
                             descriptionDiv.className = 'timeline-description';
                             descriptionDiv.textContent = event.description;
                             eventItem.appendChild(descriptionDiv);
-
+                            
                             // Source if available
                             if (event.source) {
                                 const sourceDiv = document.createElement('div');
