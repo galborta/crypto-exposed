@@ -1,6 +1,6 @@
 {
   "name": "first-project-with-claude",
-  "version": "1.4.4",
+  "version": "2.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
