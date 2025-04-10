@@ -231,10 +231,44 @@
                     </div>
                     <div class="col-span-6">
                         <label class="block text-sm font-medium text-gray-700">Methodology</label>
-                        <textarea id="methodology" required minlength="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm whitespace-pre-wrap" 
-                        rows="4" placeholder="Describe the scam methodology used (minimum 50 characters)..."></textarea>
-                        <div class="text-xs text-gray-500 mt-1">
-                            <span id="methodologyCount">0</span>/50 characters minimum
+                        <div class="mt-1 space-y-2">
+                            <div id="methodologyList" class="space-y-2">
+                                <!-- Methodology items will be added here -->
+                            </div>
+                            <button type="button" onclick="addMethodologyItem()" class="text-sm text-blue-600 hover:text-blue-700 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Add Methodology Item
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium text-gray-700">Known Wallets</label>
+                        <div class="mt-1 space-y-2">
+                            <div id="walletsList" class="space-y-4">
+                                <!-- Wallet items will be added here -->
+                            </div>
+                            <button type="button" onclick="addWalletItem()" class="text-sm text-blue-600 hover:text-blue-700 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Add Wallet
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium text-gray-700">Social Profiles</label>
+                        <div class="mt-1 space-y-2">
+                            <div id="socialsList" class="space-y-4">
+                                <!-- Social profile items will be added here -->
+                            </div>
+                            <button type="button" onclick="addSocialItem()" class="text-sm text-blue-600 hover:text-blue-700 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Add Social Profile
+                            </button>
                         </div>
                     </div>
                     <div>
@@ -470,14 +504,29 @@
                     photoInput.value = ''; // Clear file input
                     document.getElementById('totalScammedUSD').value = profile.totalScammedUSD || 0;
                     document.getElementById('overview').value = profile.overview || '';
-                    document.getElementById('methodology').value = profile.methodology || '';
-                    document.getElementById('associatedProjects').value = profile.associatedProjects || '';
                     document.getElementById('story').value = profile.story || '';
                     document.getElementById('status').value = profile.status || 'Draft';
                     
                     // Safely update character counts
                     document.getElementById('overviewCount').textContent = (profile.overview || '').length;
-                    document.getElementById('methodologyCount').textContent = (profile.methodology || '').length;
+                    
+                    // Clear and populate methodology items
+                    document.getElementById('methodologyList').innerHTML = '';
+                    if (profile.methodology && Array.isArray(profile.methodology)) {
+                        profile.methodology.forEach(item => addMethodologyItem(item));
+                    }
+                    
+                    // Clear and populate wallet items
+                    document.getElementById('walletsList').innerHTML = '';
+                    if (profile.blockchainAddresses && Array.isArray(profile.blockchainAddresses)) {
+                        profile.blockchainAddresses.forEach(wallet => addWalletItem(wallet));
+                    }
+                    
+                    // Clear and populate social items
+                    document.getElementById('socialsList').innerHTML = '';
+                    if (profile.socialProfiles && Array.isArray(profile.socialProfiles)) {
+                        profile.socialProfiles.forEach(social => addSocialItem(social));
+                    }
                 }
             } else {
                 // Add new mode
@@ -489,7 +538,11 @@
                 document.getElementById('photoUrl').value = '';
                 // Reset character counts
                 document.getElementById('overviewCount').textContent = '0';
-                document.getElementById('methodologyCount').textContent = '0';
+                
+                // Clear methodology, wallets, and socials
+                document.getElementById('methodologyList').innerHTML = '';
+                document.getElementById('walletsList').innerHTML = '';
+                document.getElementById('socialsList').innerHTML = '';
             }
 
             modal.classList.remove('hidden');
@@ -660,6 +713,36 @@
             let photoUrl = document.getElementById('photoUrl').value;
 
             try {
+                // Get methodology items
+                const methodologyItems = Array.from(document.getElementById('methodologyList').children).map(div => {
+                    const textarea = div.querySelector('textarea');
+                    return textarea.value.trim();
+                }).filter(item => item.length > 0);
+                
+                // Get wallet items
+                const walletItems = Array.from(document.getElementById('walletsList').children).map(div => {
+                    const inputs = div.querySelectorAll('input, select, textarea');
+                    return {
+                        chain: inputs[0].value,
+                        address: inputs[1].value,
+                        description: inputs[2].value || undefined,
+                        scannerUrl: inputs[3].value || undefined,
+                        source: inputs[4].value || undefined,
+                        sourceUrl: inputs[5].value || undefined
+                    };
+                });
+                
+                // Get social items
+                const socialItems = Array.from(document.getElementById('socialsList').children).map(div => {
+                    const inputs = div.querySelectorAll('input, select, textarea');
+                    return {
+                        platform: inputs[0].value,
+                        username: inputs[1].value,
+                        description: inputs[2].value || undefined,
+                        url: inputs[3].value || undefined
+                    };
+                });
+                
                 // Create profile data object with photo URL
                 const profileData = {
                     name: document.getElementById('name').value,
@@ -671,8 +754,9 @@
                     placeOfBirth: document.getElementById('placeOfBirth').value,
                     totalScammedUSD: parseInt(document.getElementById('totalScammedUSD').value),
                     overview: document.getElementById('overview').value,
-                    methodology: document.getElementById('methodology').value,
-                    associatedProjects: document.getElementById('associatedProjects').value,
+                    methodology: methodologyItems,
+                    blockchainAddresses: walletItems,
+                    socialProfiles: socialItems,
                     story: document.getElementById('story').value || '',
                     status: document.getElementById('status').value,
                     photoUrl: photoUrl || '/default-avatar.svg'
@@ -737,15 +821,164 @@
             }
         });
 
-        document.getElementById('methodology').addEventListener('input', function() {
-            const count = this.value.length;
-            document.getElementById('methodologyCount').textContent = count;
-            if (count < 50) {
-                document.getElementById('methodologyCount').classList.add('text-red-500');
-            } else {
-                document.getElementById('methodologyCount').classList.remove('text-red-500');
-            }
-        });
+        function addMethodologyItem(value = '') {
+            const methodologyList = document.getElementById('methodologyList');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'flex items-start gap-2';
+            
+            const input = document.createElement('textarea');
+            input.className = 'flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500';
+            input.rows = 2;
+            input.value = value;
+            input.placeholder = 'Enter methodology item...';
+            
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'mt-2 text-red-600 hover:text-red-700';
+            removeButton.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            `;
+            removeButton.onclick = () => itemDiv.remove();
+            
+            itemDiv.appendChild(input);
+            itemDiv.appendChild(removeButton);
+            methodologyList.appendChild(itemDiv);
+        }
+
+        function addWalletItem(wallet = {}) {
+            const walletsList = document.getElementById('walletsList');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'p-4 bg-gray-50 rounded-lg space-y-3';
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between';
+            
+            const title = document.createElement('h4');
+            title.className = 'text-sm font-medium text-gray-900';
+            title.textContent = 'Wallet Details';
+            
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'text-red-600 hover:text-red-700';
+            removeButton.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            `;
+            removeButton.onclick = () => itemDiv.remove();
+            
+            headerDiv.appendChild(title);
+            headerDiv.appendChild(removeButton);
+            
+            const form = document.createElement('div');
+            form.className = 'grid grid-cols-1 gap-3';
+            form.innerHTML = `
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Chain</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                        <option value="">Select chain...</option>
+                        <option value="Bitcoin" ${wallet.chain === 'Bitcoin' ? 'selected' : ''}>Bitcoin</option>
+                        <option value="Ethereum" ${wallet.chain === 'Ethereum' ? 'selected' : ''}>Ethereum</option>
+                        <option value="BNB Chain" ${wallet.chain === 'BNB Chain' ? 'selected' : ''}>BNB Chain</option>
+                        <option value="Polygon" ${wallet.chain === 'Polygon' ? 'selected' : ''}>Polygon</option>
+                        <option value="Solana" ${wallet.chain === 'Solana' ? 'selected' : ''}>Solana</option>
+                        <option value="Other" ${wallet.chain === 'Other' ? 'selected' : ''}>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Address</label>
+                    <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${wallet.address || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Description (optional)</label>
+                    <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="2">${wallet.description || ''}</textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Block Explorer URL (optional)</label>
+                    <input type="url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${wallet.scannerUrl || ''}">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Source (optional)</label>
+                    <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${wallet.source || ''}">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Source URL (optional)</label>
+                    <input type="url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${wallet.sourceUrl || ''}">
+                </div>
+            `;
+            
+            itemDiv.appendChild(headerDiv);
+            itemDiv.appendChild(form);
+            walletsList.appendChild(itemDiv);
+        }
+
+        function addSocialItem(social = {}) {
+            const socialsList = document.getElementById('socialsList');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'p-4 bg-gray-50 rounded-lg space-y-3';
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between';
+            
+            const title = document.createElement('h4');
+            title.className = 'text-sm font-medium text-gray-900';
+            title.textContent = 'Social Profile';
+            
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'text-red-600 hover:text-red-700';
+            removeButton.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            `;
+            removeButton.onclick = () => itemDiv.remove();
+            
+            headerDiv.appendChild(title);
+            headerDiv.appendChild(removeButton);
+            
+            const form = document.createElement('div');
+            form.className = 'grid grid-cols-1 gap-3';
+            form.innerHTML = `
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Platform</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                        <option value="">Select platform...</option>
+                        <option value="Twitter" ${social.platform === 'Twitter' ? 'selected' : ''}>Twitter</option>
+                        <option value="LinkedIn" ${social.platform === 'LinkedIn' ? 'selected' : ''}>LinkedIn</option>
+                        <option value="Facebook" ${social.platform === 'Facebook' ? 'selected' : ''}>Facebook</option>
+                        <option value="Instagram" ${social.platform === 'Instagram' ? 'selected' : ''}>Instagram</option>
+                        <option value="Telegram" ${social.platform === 'Telegram' ? 'selected' : ''}>Telegram</option>
+                        <option value="Discord" ${social.platform === 'Discord' ? 'selected' : ''}>Discord</option>
+                        <option value="Other" ${social.platform === 'Other' ? 'selected' : ''}>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Username</label>
+                    <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${social.username || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Description (optional)</label>
+                    <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="2">${social.description || ''}</textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700">Profile URL (optional)</label>
+                    <input type="url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                           value="${social.url || ''}">
+                </div>
+            `;
+            
+            itemDiv.appendChild(headerDiv);
+            itemDiv.appendChild(form);
+            socialsList.appendChild(itemDiv);
+        }
 
         // Load profiles when page loads
         document.addEventListener('DOMContentLoaded', () => fetchProfiles(1));

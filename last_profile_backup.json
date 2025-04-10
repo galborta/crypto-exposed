@@ -1,0 +1,61 @@
+[
+  {
+    _id: ObjectId('67f4a888c94442f100184dc6'),
+    name: 'Gerald William Cotten',
+    dateOfBirth: ISODate('1988-05-11T00:00:00.000Z'),
+    age: 30,
+    height: 'Unknown',
+    weight: 'Unknown',
+    nationality: 'Canadian',
+    placeOfBirth: 'Canada',
+    photoUrl: '',
+    overview: "Founder and CEO of QuadrigaCX, Canada's largest cryptocurrency exchange, who orchestrated a massive fraud that resulted in the loss of <b>$169 million</b> in customer funds. Following his suspicious death in India, it was revealed that he had been operating a <i>Ponzi scheme</i>, using new deposits to fulfill withdrawal requests while diverting client funds for personal use.",
+    story: "The death announcement shocked the cryptocurrency world. On <b>January 14, 2019</b>, QuadrigaCX, Canada's largest cryptocurrency exchange, revealed devastating news. Its founder and CEO Gerald William Cotten had died more than a month earlier while traveling in India. The company now faced an unprecedented crisis: approximately <b>$169 million</b> in customer funds were allegedly locked away forever, sealed in cold wallets only Cotten could access.\n" +
+      '\n' +
+      "Born <b>May 11, 1988</b>, Cotten was just thirty years old when he died. He had established QuadrigaCX in <b>2013</b>, riding the early wave of cryptocurrency expansion. The Vancouver-based exchange flourished quickly. Soon it became Canada's preeminent platform for trading Bitcoin and other digital assets, with Cotten positioning himself as a pioneer in this emerging industry. He spoke at conferences. He advocated for widespread cryptocurrency adoption. <i>He built trust.</i>\n" +
+      '\n' +
+      '<b>Behind the professional facade, a deception was taking shape.</b>\n' +
+      '\n' +
+      'Cotten had begun constructing an elaborate fraud between <b>2016 and 2018</b>, creating multiple accounts on his own exchange under various aliases. These shadow accounts existed nowhere on any blockchain. They lived only as database entries, credited with fictitious currency and cryptocurrency balances that he controlled completely.\n' +
+      '\n' +
+      'Using these phantom funds, Cotten traded against actual customers on his platform, executing thousands of fraudulent trades that created artificial market activity while steadily accumulating real cryptocurrency from unsuspecting clients. When customers attempted to withdraw funds, the scheme continued. Cotten simply used deposits from newer clients to fulfill these requests—<i>the classic architecture of a Ponzi structure that would eventually collapse</i>.\n' +
+      '\n' +
+      '<b>The fraud expanded. It grew tentacles.</b>\n' +
+      '\n' +
+      'Cotten diverted significant customer funds to personal accounts at other cryptocurrency exchanges, where he traded these misappropriated assets with reckless abandon. He often incurred substantial losses through high-risk margin trading while millions disappeared into luxury properties, vehicles, and even a private aircraft that satisfied his growing appetite for wealth.\n' +
+      '\n' +
+      "<b>Death came suddenly in Jaipur, India.</b> On <b>December 8, 2018</b>, Cotten reportedly died from complications related to Crohn's disease—a circumstance that immediately raised questions among those who knew the operation's inner workings. Just <b>twelve days before his death</b>, Cotten had filed a detailed will. This document left all assets to his wife, Jennifer Robertson, and made careful provisions for his multiple properties and even the care of his two chihuahuas.\n" +
+      '\n' +
+      "The exchange continued operating in silence for more than a month before announcing Cotten's death.\n" +
+      '\n' +
+      'When the news finally broke in <b>January 2019</b>, QuadrigaCX claimed most customer funds were now inaccessible. The company painted a picture of assets trapped in cold wallets that only Cotten could access. By <b>February 5, 2019</b>, the company sought creditor protection as the walls closed in.\n' +
+      '\n' +
+      "<b>Forensic investigation revealed a more disturbing truth.</b> In <b>June 2020</b>, the Ontario Securities Commission published a devastating report confirming what many had suspected—the exchange had been operating fraudulently from the beginning. The allegedly inaccessible cold wallets were found empty. Blockchain analysis showed customer funds had been systematically diverted to Cotten's personal accounts at competing exchanges, leaving nothing but digital dust.\n" +
+      '\n' +
+      '<i>The human cost was staggering.</i>\n' +
+      '\n' +
+      "Approximately <b>76,000 customers</b> from Canada and around the world had lost a combined <b>$169 million CAD</b>. In a bizarre twist that underscored the chaos, QuadrigaCX staff accidentally transferred 103 Bitcoin to the supposedly inaccessible cold wallets during the initial phases of the company's restructuring in February 2019. This error further complicated recovery efforts that were already nearly impossible.\n" +
+      '\n' +
+      "Many affected customers remained skeptical about Cotten's death itself. They questioned everything. The recently updated will. The suspicious delay in announcing his passing. His convenient death abroad. The too-perfect explanation of inaccessible funds. All fueled speculation about an elaborate exit scam, with some victims demanding exhumation of Cotten's body to confirm his identity through DNA testing.\n" +
+      '\n' +
+      'QuadrigaCX entered bankruptcy proceedings in <b>April 2019</b>.\n' +
+      '\n' +
+      "<i>The case stands as one of the most significant collapses in cryptocurrency history</i>—a cautionary tale of insufficient oversight in a rapidly evolving digital asset industry that moved faster than regulations could follow. Whether Cotten's death was genuine or staged, the damage inflicted on thousands of investors remained painfully real, their life savings converted to nothing but entries in a database that no longer existed.",
+    methodology: [
+      '<b>Created multiple accounts under aliases</b> on his own exchange, crediting them with fictitious currency and cryptocurrency that existed only as database entries.',
+      '<b>Executed thousands of fraudulent trades</b> against actual customers using phantom funds, creating artificial market activity while accumulating real cryptocurrency.',
+      '<b>Operated a classic Ponzi scheme structure</b>, using new customer deposits to fulfill withdrawal requests from existing clients.',
+      '<b>Diverted significant customer funds</b> to personal accounts at other cryptocurrency exchanges for high-risk margin trading.',
+      '<b>Misappropriated client assets</b> to fund a lavish lifestyle including luxury properties, vehicles, and even a private aircraft.',
+      '<b>Claimed to be the sole person with access to cold wallet private keys</b>, which later investigations revealed were actually empty.',
+      '<b>Filed a detailed will</b> just twelve days before his reported death, making careful provisions for his assets.'
+    ],
+    totalScammedUSD: 169000000,
+    status: 'Published',
+    associatedProjects: 'QuadrigaCX cryptocurrency exchange',
+    fileNumber: 'CN-25R-27632',
+    createdAt: ISODate('2025-04-08T04:39:36.924Z'),
+    updatedAt: ISODate('2025-04-08T04:39:36.928Z'),
+    __v: 0
+  }
+]

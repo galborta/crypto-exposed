@@ -5,6 +5,7 @@ const csrf = require('csurf');
 const path = require('path');
 const profilesRouter = require('./routes/api/profiles');
 const agentProfilesRouter = require('./routes/api/agentProfiles');
+const profileExtrasRouter = require('./routes/api/profileExtras');
 const uploadRouter = require('./routes/api/upload');
 const logger = require('./utils/logger');
 
@@ -45,7 +46,7 @@ const csrfProtection = csrf({
 
 // Apply CSRF protection to all routes except /api/agent/*
 app.use((req, res, next) => {
-    if (req.path === '/.identity' || req.path === '/favicon.ico') {
+    if (req.path === '/.identity' || req.path === '/favicon.ico' || req.path.startsWith('/api/agent/')) {
         next();
     } else {
         csrfProtection(req, res, next);
@@ -68,6 +69,8 @@ app.use('/', viewRouter);
 // API Routes
 app.use('/api/profiles', profilesRouter);
 app.use('/api/agent/profiles', agentProfilesRouter);
+app.use('/api/profile-extras', profileExtrasRouter);
+app.use('/api/agent/profile-extras', profileExtrasRouter);
 app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
 

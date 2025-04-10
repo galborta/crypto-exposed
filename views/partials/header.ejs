@@ -1,26 +1,151 @@
 <!-- Header with Responsive Menu -->
 <style>
     @font-face {
-        font-family: 'RubikGlitch';
-        src: url('/fonts/RubikGlitch-Regular.ttf') format('truetype');
+        font-family: 'Wallpoet';
+        src: url('/fonts/Wallpoet-Regular.ttf') format('truetype');
         font-weight: normal;
         font-style: normal;
         font-display: swap;
     }
 
     .logo {
-        font-family: 'RubikGlitch', sans-serif;
-        font-size: 2.75rem;
-        letter-spacing: 0.02em;
+        font-family: 'Wallpoet', sans-serif;
+        font-size: 2.5rem;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: white;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        line-height: 1;
+        position: relative;
+        display: inline-block;
+        white-space: nowrap;
+        animation: neonGlow 1.5s infinite alternate;
+        text-shadow: 0 0 2px rgba(255, 255, 255, 0.5),
+                    0 0 4px rgba(255, 255, 255, 0.5),
+                    0 0 8px rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
     }
 
     .logo:hover {
         text-decoration: none;
         opacity: 0.9;
+    }
+
+    @keyframes neonGlow {
+        0% {
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 1px rgba(255, 255, 255, 0.2),
+                        0 0 2px rgba(255, 255, 255, 0.2),
+                        0 0 3px rgba(255, 255, 255, 0.2);
+        }
+        100% {
+            color: rgba(255, 255, 255, 1);
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.95),
+                        0 0 4px rgba(255, 255, 255, 0.95),
+                        0 0 8px rgba(255, 255, 255, 0.95);
+        }
+    }
+
+    /* Hamburger Menu Animation */
+    #menuButton {
+        width: 30px;
+        height: 24px;
+        position: relative;
+        margin: 0;
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+        -webkit-transition: .25s ease-in-out;
+        -moz-transition: .25s ease-in-out;
+        -o-transition: .25s ease-in-out;
+        transition: .25s ease-in-out;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    #menuButton span {
+        display: block;
+        position: absolute;
+        height: 2px;
+        width: 50%;
+        background: currentColor;
+        opacity: 1;
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+        -webkit-transition: .25s ease-in-out;
+        -moz-transition: .25s ease-in-out;
+        -o-transition: .25s ease-in-out;
+        transition: .25s ease-in-out;
+    }
+
+    #menuButton span:nth-child(even) {
+        left: 50%;
+        border-radius: 0 2px 2px 0;
+    }
+
+    #menuButton span:nth-child(odd) {
+        left: 0px;
+        border-radius: 2px 0 0 2px;
+    }
+
+    #menuButton span:nth-child(1), #menuButton span:nth-child(2) {
+        top: 0px;
+    }
+
+    #menuButton span:nth-child(3), #menuButton span:nth-child(4) {
+        top: 10px;
+    }
+
+    #menuButton span:nth-child(5), #menuButton span:nth-child(6) {
+        top: 20px;
+    }
+
+    #menuButton.open span:nth-child(1), #menuButton.open span:nth-child(6) {
+        -webkit-transform: rotate(45deg);
+        -moz-transform: rotate(45deg);
+        -o-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    #menuButton.open span:nth-child(2), #menuButton.open span:nth-child(5) {
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg);
+    }
+
+    #menuButton.open span:nth-child(1) {
+        left: 3px;
+        top: 5px;
+    }
+
+    #menuButton.open span:nth-child(2) {
+        left: calc(50% - 3px);
+        top: 5px;
+    }
+
+    #menuButton.open span:nth-child(3) {
+        left: -50%;
+        opacity: 0;
+    }
+
+    #menuButton.open span:nth-child(4) {
+        left: 100%;
+        opacity: 0;
+    }
+
+    #menuButton.open span:nth-child(5) {
+        left: 3px;
+        top: 17px;
+    }
+
+    #menuButton.open span:nth-child(6) {
+        left: calc(50% - 3px);
+        top: 17px;
     }
 </style>
 
@@ -31,10 +156,12 @@
             
             <!-- Mobile menu button -->
             <button id="menuButton" class="md:hidden text-white focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path class="block" id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    <path class="hidden" id="closeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
 
             <!-- Desktop menu -->
@@ -62,12 +189,9 @@
     // Mobile menu toggle
     const menuButton = document.getElementById('menuButton');
     const mobileMenu = document.getElementById('mobileMenu');
-    const menuIcon = document.getElementById('menuIcon');
-    const closeIcon = document.getElementById('closeIcon');
 
     menuButton.addEventListener('click', () => {
+        menuButton.classList.toggle('open');
         mobileMenu.classList.toggle('hidden');
-        menuIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
     });
 </script> 

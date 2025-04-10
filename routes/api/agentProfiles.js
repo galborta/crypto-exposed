@@ -33,17 +33,27 @@ const parseHtmlList = (html) => {
         }
     }
 
+    // First try to parse as HTML list
     const items = [];
-    const matches = html.match(/<li>(.*?)<\/li>/g);
-    if (matches) {
-        matches.forEach(match => {
-            // Extract text between <li> tags and clean it
-            const text = match.replace(/<\/?li>/g, '')  // Remove li tags
-                             .replace(/<br>/g, '')      // Remove br tags
-                             .trim();                   // Remove whitespace
-            if (text) items.push(text);
-        });
+    if (typeof html === 'string') {
+        if (html.includes('<li>')) {
+            const matches = html.match(/<li>(.*?)<\/li>/g);
+            if (matches) {
+                matches.forEach(match => {
+                    // Extract text between <li> tags and clean it
+                    const text = match.replace(/<\/?li>/g, '')  // Remove li tags
+                                     .replace(/<br>/g, '')      // Remove br tags
+                                     .trim();                   // Remove whitespace
+                    if (text) items.push(text);
+                });
+            }
+        } else {
+            // If not HTML, try splitting by commas or newlines
+            const lines = html.split(/[,\n]/).map(line => line.trim()).filter(line => line);
+            items.push(...lines);
+        }
     }
+    
     return items.length > 0 ? items : null;
 };
 
@@ -51,7 +61,7 @@ const parseHtmlList = (html) => {
 const validateProfileData = (data) => {
     const errors = [];
     
-    // Required fields
+    // Required fields for basic profile
     const requiredFields = [
         'name',
         'dateOfBirth',
@@ -60,18 +70,23 @@ const validateProfileData = (data) => {
         'weight',
         'nationality',
         'placeOfBirth',
+        'lastKnownLocation',
         'overview',
+        'story',
         'totalScammedUSD',
-        'associatedProjects',
+        'associatedProjects'
+    ];
+
+    // Optional fields
+    const optionalFields = [
+        'photoUrl',
+        'blockchainAddresses',
+        'socialProfiles',
+        'chronology',
         'methodology'
     ];
 
-    // Optional fields that don't need validation
-    const optionalFields = [
-        'photoUrl',
-        'story'
-    ];
-
+    // Check required fields
     requiredFields.forEach(field => {
         if (!data[field]) {
             errors.push(`${field} is required`);
@@ -100,12 +115,38 @@ const validateProfileData = (data) => {
         errors.push('totalScammedUSD must be positive');
     }
 
-    // Validate methodology array
-    if (data.methodology) {
-        const methodologyArray = parseHtmlList(data.methodology);
-        if (!methodologyArray || methodologyArray.length === 0) {
-            errors.push('methodology must be a non-empty array or HTML list');
-        }
+    // Optional array validations
+    if (data.blockchainAddresses && Array.isArray(data.blockchainAddresses)) {
+        data.blockchainAddresses.forEach((addr, index) => {
+            if (!addr.address) {
+                errors.push(`Blockchain address is required for entry ${index + 1}`);
+            }
+            if (!addr.blockchain) {
+                errors.push(`Blockchain type is required for entry ${index + 1}`);
+            }
+        });
+    }
+
+    if (data.socialProfiles && Array.isArray(data.socialProfiles)) {
+        data.socialProfiles.forEach((profile, index) => {
+            if (!profile.platform) {
+                errors.push(`Platform is required for social profile ${index + 1}`);
+            }
+            if (!profile.username) {
+                errors.push(`Username is required for social profile ${index + 1}`);
+            }
+        });
+    }
+
+    if (data.chronology && Array.isArray(data.chronology)) {
+        data.chronology.forEach((entry, index) => {
+            if (!entry.date || isNaN(Date.parse(entry.date))) {
+                errors.push(`Valid date is required for chronology entry ${index + 1}`);
+            }
+            if (!entry.description) {
+                errors.push(`Description is required for chronology entry ${index + 1}`);
+            }
+        });
     }
 
     return errors;

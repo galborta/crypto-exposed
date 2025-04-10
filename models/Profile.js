@@ -67,20 +67,6 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Associated projects are required']
   },
-  methodology: {
-    type: [String],
-    required: [true, 'Methodology is required'],
-    validate: {
-      validator: function(v) {
-        return Array.isArray(v) && v.length > 0;
-      },
-      message: 'Methodology must be a non-empty array of strings'
-    }
-  },
-  story: {
-    type: String,
-    required: false
-  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -88,6 +74,63 @@ const profileSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  methodology: {
+    type: [String],
+    default: []
+  },
+  blockchainAddresses: {
+    type: [{
+      address: {
+        type: String,
+        required: true
+      },
+      blockchain: {
+        type: String,
+        required: true
+      },
+      description: String,
+      source: String,
+      scannerUrl: String
+    }],
+    default: []
+  },
+  socialProfiles: {
+    type: [{
+      platform: {
+        type: String,
+        required: true,
+        enum: ['Twitter/X', 'LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'Telegram', 'Discord', 'Reddit', 'TikTok']
+      },
+      username: {
+        type: String,
+        required: true
+      },
+      profileUrl: {
+        type: String,
+        required: true
+      },
+      source: String
+    }],
+    default: []
+  },
+  story: {
+    type: String,
+    default: ''
+  },
+  chronology: {
+    type: [{
+      date: {
+        type: Date,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      source: String
+    }],
+    default: []
   }
 });
 

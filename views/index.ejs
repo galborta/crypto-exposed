@@ -8,8 +8,7 @@
     <style>
         @font-face {
             font-family: 'SpaceMono';
-            src: url('/fonts/SpaceMono-Regular.woff2') format('woff2'),
-                 url('/fonts/SpaceMono-Regular.woff') format('woff');
+            src: url('/fonts/SpaceMono-Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -17,28 +16,9 @@
 
         @font-face {
             font-family: 'SpaceMono';
-            src: url('/fonts/SpaceMono-Bold.woff2') format('woff2'),
-                 url('/fonts/SpaceMono-Bold.woff') format('woff');
+            src: url('/fonts/SpaceMono-Bold.ttf') format('truetype');
             font-weight: bold;
             font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: 'SpaceMono';
-            src: url('/fonts/SpaceMono-Italic.woff2') format('woff2'),
-                 url('/fonts/SpaceMono-Italic.woff') format('woff');
-            font-weight: normal;
-            font-style: italic;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: 'SpaceMono';
-            src: url('/fonts/SpaceMono-BoldItalic.woff2') format('woff2'),
-                 url('/fonts/SpaceMono-BoldItalic.woff') format('woff');
-            font-weight: bold;
-            font-style: italic;
             font-display: swap;
         }
 
@@ -58,20 +38,22 @@
         /* Modal content styling */
         #modalOverview,
         #modalStory,
-        #modalMethodology {
+        #modalMethodology,
+        #modalActivitiesStatus {
             font-family: 'SpaceMono', monospace;
-            font-size: 1.125rem; /* 18px base size for better readability */
-            line-height: 1.5;
+            font-size: 0.9375rem;
+            line-height: 1.75;
             color: #20201d;
             text-align: left;
-            max-width: 65ch; /* Optimal line length */
-            margin: 0 auto;
-            padding: 0 1rem;
-            white-space: pre-wrap; /* Preserve paragraph structure */
+            width: 100%;
+            margin: 0;
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
+            white-space: pre-wrap;
             word-break: normal;
             word-wrap: normal;
             overflow-wrap: normal;
             hyphens: none;
+            letter-spacing: -0.01em;
         }
 
         /* HTML formatting for modal content */
@@ -116,8 +98,14 @@
         #modalOverview p,
         #modalStory p,
         #modalMethodology p {
-            margin-bottom: 1.5em; /* Space between paragraphs */
-            font-weight: 400; /* Regular weight for body text */
+            margin: 0;
+            padding: 0;
+        }
+
+        #modalOverview p + p,
+        #modalStory p + p,
+        #modalMethodology p + p {
+            margin-top: 1.5em;
         }
 
         /* Mobile-specific adjustments */
@@ -125,15 +113,49 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 1rem; /* 16px on mobile */
-                line-height: 1.5;
-                padding: 0 0.75rem;
+                font-size: 0.9375rem;
+                line-height: 1.75;
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+                width: 100%;
+                white-space: pre-wrap;
+                word-break: normal;
+                word-wrap: normal;
+                overflow-wrap: normal;
+                hyphens: none;
+                text-align: left;
+                letter-spacing: -0.01em;
             }
 
-            /* Ensure modal content is properly padded */
-            .section-content .bg-gray-50 {
-                padding: 1rem;
-                max-height: 70vh; /* Limit height on mobile */
+            #modalOverview p + p,
+            #modalStory p + p,
+            #modalMethodology p + p {
+                margin-top: 1.25em;
+            }
+
+            /* Methodology list styling for mobile */
+            #modalMethodology ul {
+                list-style: none !important;
+                padding: 0;
+                margin: 0;
+            }
+
+            #modalMethodology li {
+                padding-left: 1.25rem;
+                margin-bottom: 1rem;
+                position: relative;
+                line-height: 1.75;
+                list-style-type: none !important;
+            }
+
+            #modalMethodology li:last-child {
+                margin-bottom: 0;
+            }
+
+            #modalMethodology li::before {
+                content: '→';
+                position: absolute;
+                left: 0;
+                color: #20201D;
             }
         }
 
@@ -142,8 +164,20 @@
             #modalOverview,
             #modalStory,
             #modalMethodology {
-                font-size: 0.9375rem; /* 15px on very small screens */
-                line-height: 1.5;
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #modalMethodology ul {
+                padding: 0;
+            }
+
+            #modalMethodology li {
+                padding-left: 1rem;
+                margin-bottom: 0.875rem;
+            }
+
+            #modalMethodology li:last-child {
+                margin-bottom: 0;
             }
         }
 
@@ -170,6 +204,7 @@
             align-items: center;
             text-align: center;
             margin-bottom: 2rem;
+            margin-top: 1.5rem;  /* Add space after the file number */
         }
 
         /* Modal photo styling */
@@ -182,11 +217,47 @@
             border-color: rgba(254, 226, 226, 1);
             border-radius: 9999px;
             object-fit: cover;
+            cursor: pointer;
         }
         
         #modalPhoto:not([src]), 
         #modalPhoto[src=""] {
             opacity: 0;
+        }
+
+        /* Fullscreen photo overlay */
+        #photoOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 60;
+            cursor: pointer;
+        }
+
+        #photoOverlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        #enlargedPhoto {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            animation: scaleIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); }
+            to { transform: scale(1); }
         }
 
         /* Modal name styling */
@@ -250,78 +321,458 @@
             max-height: 90vh;
             overflow-y: auto;
             padding: 1.5rem;
+            position: relative;
+        }
+
+        /* File number styling with typewriter effect */
+        #modalFileNumber {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            font-family: 'SpaceMono', monospace;
+            font-weight: normal;
+            color: #20201D;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #20201D;
+            width: 0;
+            animation: typing 1s steps(40, end) forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: var(--file-number-width, fit-content); }
+        }
+
+        #modalFileNumber.typing-done {
+            border-right-color: transparent;
+            width: var(--file-number-width, fit-content);
+        }
+
+        @media screen and (max-width: 768px) {
+            #modalFileNumber {
+                font-size: 0.75rem;
+            }
         }
 
         /* Section styling */
-        .section-content {
-            display: none;
-            margin-top: 1rem;
+        .section {
             position: relative;
-            background: white;
-        }
-        
-        .section-content.open {
-            display: block;
+            transition: all 0.3s ease;
         }
 
-        .section-content .bg-gray-50 {
-            background: white;
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
-            max-height: none;
-            overflow: visible;
-        }
-
-        /* Section buttons */
-        .section-button {
+        .section button {
+            position: relative;
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background-color: #f9fafb;
-            border-radius: 0.5rem;
-            cursor: pointer;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            background: white;
             border: 1px solid #e5e7eb;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
-            transition: background-color 0.2s ease;
-        }
-
-        .section-button:hover {
-            background-color: #f3f4f6;
-        }
-
-        .section-button span {
-            color: #20201d;
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        .section-button:focus {
-            outline: none;
-            ring: 2px solid #e5e7eb;
-        }
-
-        /* Content sections spacing */
-        #overviewContent,
-        #basicInfoContent,
-        #storyContent,
-        #methodologyContent {
-            margin-bottom: 1.5rem;
-        }
-
-        /* Prevent body scroll when modal is open */
-        body.modal-open {
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
             overflow: hidden;
         }
 
-        /* Ensure content areas have proper spacing */
-        .section-content .bg-gray-50 {
-            margin-top: 0.5rem;
+        .section button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(32, 32, 29, 0.2);
+        }
+
+        .section button:focus-visible {
+            outline: 2px solid #20201D;
+            outline-offset: 2px;
+        }
+
+        .section button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #20201D;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .section button.active {
+            border-color: #20201D;
+            background: linear-gradient(to right, rgba(32, 32, 29, 0.03), transparent);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .section button.active::before {
+            transform: scaleY(1);
+        }
+
+        .section button:hover {
+            border-color: #20201D;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .section button svg {
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .section button.active svg {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            border: 1px solid transparent;
+            border-top: none;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            transform: translateY(-10px);
+            margin-top: 0;
+        }
+        
+        .section-content.open {
+            max-height: none;
+            opacity: 1;
+            transform: translateY(0);
+            border-color: #20201D;
+            margin-top: -1px;
+        }
+
+        /* Content styling */
+        .section-content > div {
+            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        /* Story section specific styling */
+        #storySection.section-content.open {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #20201D transparent;
+        }
+
+        #storySection.section-content.open::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #storySection.section-content.open::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #storySection.section-content.open::-webkit-scrollbar-thumb {
+            background-color: #20201D;
+            border-radius: 2px;
+        }
+
+        /* Basic Information Cards */
+        #basicInfoSection .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        #basicInfoSection .grid > div {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #basicInfoSection .text-sm {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        #basicInfoSection .font-medium {
+            font-family: 'SpaceMono';
+            font-weight: bold;
+            color: #20201D;
+            font-size: 1rem;
+        }
+
+        /* Section Headers */
+        .section button span {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #20201D;
+            transition: all 0.3s ease;
+        }
+
+        .section button.active span {
+            transform: translateX(8px);
+        }
+
+        /* Methodology List Styling */
+        #modalMethodology ul {
+            list-style: none !important;
+            padding: 0;
+            margin: 0;
+        }
+
+        #modalMethodology li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+            color: #20201D;
+            list-style-type: none !important;
+        }
+
+        #modalMethodology li:last-child {
+            margin-bottom: 0;
+        }
+
+        #modalMethodology li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #20201D;
+            font-weight: bold;
+        }
+
+        #modalMethodology li b {
+            color: #9e2a2b;
+            font-weight: 600;
+        }
+
+        /* Story and Methodology sections */
+        #storySection .prose,
+        #methodologySection .prose {
+            padding-right: 1rem;
+        }
+
+        /* Remove scrollbar styles for other sections */
+        #modalOverview::-webkit-scrollbar,
+        #methodologySection .prose::-webkit-scrollbar,
+        #overviewSection::-webkit-scrollbar,
+        #methodologySection::-webkit-scrollbar,
+        #basicInfoSection::-webkit-scrollbar,
+        #socialsSection::-webkit-scrollbar,
+        #knownWalletsSection::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Mobile-specific adjustments */
+        @media screen and (max-width: 768px) {
+            .section-content > div {
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #basicInfoSection .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.875rem;
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #socialsSection .grid,
+            #knownWalletsSection .space-y-4 {
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+            }
+
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                font-size: 0.875rem;
+                line-height: 1.6;
+                padding: 1rem 1.25rem 1.25rem 1.25rem;
+                max-width: 100%;
+            }
+
+            #modalMethodology li {
+                padding-left: 1.25rem;
             margin-bottom: 1rem;
+            }
+        }
+
+        /* Even smaller screens */
+        @media screen and (max-width: 480px) {
+            .section-content > div {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #basicInfoSection .grid {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #socialsSection .grid,
+            #knownWalletsSection .space-y-4 {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #modalOverview,
+            #modalStory,
+            #modalMethodology {
+                padding: 0.875rem 1rem 1rem 1rem;
+            }
+
+            #modalMethodology li {
+                padding-left: 1rem;
+                margin-bottom: 0.875rem;
+            }
+        }
+
+        /* Logo styling */
+        .logo {
+            font-family: 'Wallpoet', monospace;
+            font-size: 2rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+            animation: neonGlow 1.5s infinite alternate;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5),
+                        0 0 4px rgba(255, 255, 255, 0.5),
+                        0 0 8px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes neonGlow {
+            0% {
+                color: rgba(255, 255, 255, 0.7);
+                text-shadow: 0 0 1px rgba(255, 255, 255, 0.2),
+                            0 0 2px rgba(255, 255, 255, 0.2),
+                            0 0 3px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                color: rgba(255, 255, 255, 1);
+                text-shadow: 0 0 2px rgba(255, 255, 255, 0.95),
+                            0 0 4px rgba(255, 255, 255, 0.95),
+                            0 0 8px rgba(255, 255, 255, 0.95);
+            }
+        }
+
+        /* Mobile logo adjustments */
+        @media screen and (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .logo {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Activities and Status specific styling */
+        #modalActivitiesStatus .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #modalActivitiesStatus .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: -1.5rem;
+            width: 2px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #e5e7eb 0,
+                #e5e7eb 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            background-size: 100% 8px;
+            animation: moveLines 1s linear infinite;
+        }
+
+        @keyframes moveLines {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 8px;
+            }
+        }
+
+        #modalActivitiesStatus .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #20201d;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px rgba(32, 32, 29, 0.1);
+        }
+
+        #modalActivitiesStatus .timeline-item:last-child::before {
+            display: none;
+        }
+
+        #modalActivitiesStatus .timeline-date {
+            font-family: 'SpaceMono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #20201d;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        #modalActivitiesStatus .timeline-description {
+            font-family: 'SpaceMono', monospace;
+            font-size: 0.9375rem;
+            line-height: 1.75;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        #modalActivitiesStatus .timeline-source {
+            font-family: 'SpaceMono', monospace;
+            font-size: 0.75rem;
+            color: #6b7280;
+            padding-left: 0.75rem;
+        }
+
+        #modalActivitiesStatus .timeline-source span {
+            color: #6b7280;
+        }
+
+        #modalActivitiesStatus .timeline-source a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            #modalActivitiesStatus .timeline-item {
+                padding-left: 2rem;
+            }
+
+            #modalActivitiesStatus .timeline-date {
+                font-size: 0.9375rem;
+            }
+
+            #modalActivitiesStatus .timeline-description {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            #modalActivitiesStatus .timeline-item {
+                padding-left: 1.75rem;
+            }
         }
 
         /* Basic Information section styling */
@@ -348,9 +799,11 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex gap-4">
                     <input type="text" id="searchInput" placeholder="Search by name or project..." 
-                           class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white">
-                    <button onclick="searchProfiles()" style="background-color: #20201D" class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity">
-                        Search
+                           class="flex-1 p-2 border-0 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: white; color: #20201D">
+                    <button onclick="searchProfiles()" style="background-color: white; color: #20201D; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-left: 1px solid #e5e7eb;" class="px-4 py-2 rounded-r-lg hover:bg-gray-50 transition-all font-medium hover:shadow-md active:bg-gray-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -391,6 +844,9 @@
     <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" onclick="handleModalClick(event)">
         <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div class="p-6">
+                <!-- File Number -->
+                <div id="modalFileNumber"></div>
+                
                 <!-- Close button -->
                 <button onclick="closeModal()" class="float-right text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -403,96 +859,143 @@
                     <img id="modalPhoto" src="" alt="">
                     <h3 id="modalName"></h3>
                     <div class="mt-1 text-sm text-gray-600" id="modalProjects"></div>
-                    <div class="mt-3" style="background-color: rgba(158, 42, 43, 0.1); border-radius: 0.5rem; padding: 0.5rem 1rem;">
-                        <p style="color: #9e2a2b" class="text-xs font-medium uppercase tracking-wide">Financial Impact</p>
-                        <p style="color: #9e2a2b" class="text-lg font-bold" id="modalAmount"></p>
+                    <div class="mt-3 w-full sm:w-3/4 md:w-2/3" style="background-color: rgba(158, 42, 43, 0.1); border-radius: 0.5rem; padding: 0.75rem 1.5rem;">
+                        <p style="color: #9e2a2b" class="text-xs font-medium uppercase tracking-wide text-center">Financial Impact</p>
+                        <p style="color: #9e2a2b" class="text-xl sm:text-2xl font-bold text-center" id="modalAmount"></p>
                     </div>
                 </div>
 
+                <!-- Sections -->
+                <div class="space-y-6">
                 <!-- Overview Section -->
-                <div class="mb-6">
-                    <button onclick="toggleOverview()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                        <span class="text-lg font-semibold">Overview</span>
-                        <svg id="overviewArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <div class="section">
+                        <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('overview')">
+                            <span class="text-lg font-medium text-gray-900">Overview</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div id="overviewContent" class="section-content">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <p class="text-gray-700 whitespace-pre-wrap" id="modalOverview"></p>
-                        </div>
+                        <div id="overviewSection" class="section-content mt-2 px-4">
+                            <div id="modalOverview" class="prose max-w-none text-gray-700"></div>
                     </div>
                 </div>
 
                 <!-- Basic Information Section -->
-                <div class="mb-6">
-                    <button onclick="toggleBasicInfo()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                        <span class="text-lg font-semibold">Basic Information</span>
-                        <svg id="basicInfoArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <div class="section">
+                        <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('basicInfo')">
+                            <span class="text-lg font-medium text-gray-900">Basic Information</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div id="basicInfoContent" class="section-content">
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Nationality</p>
-                                <p class="font-medium" style="color: #20201D" id="modalNationality"></p>
-                            </div>
+                        <div id="basicInfoSection" class="section-content mt-2 px-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Date of Birth</p>
-                                <p class="font-medium" style="color: #20201D" id="modalDOB"></p>
+                                    <p id="modalDOB" class="font-medium"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Age</p>
-                                <p class="font-medium" style="color: #20201D" id="modalAge"></p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">Place of Birth</p>
-                                <p class="font-medium" style="color: #20201D" id="modalPlaceOfBirth"></p>
+                                    <p id="modalAge" class="font-medium"></p>
                             </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Height</p>
-                                <p class="font-medium" style="color: #20201D" id="modalHeight"></p>
+                                    <p id="modalHeight" class="font-medium"></p>
                                 </div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-sm text-gray-500">Weight</p>
-                                <p class="font-medium" style="color: #20201D" id="modalWeight"></p>
+                                    <p id="modalWeight" class="font-medium"></p>
                             </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Nationality</p>
+                                    <p id="modalNationality" class="font-medium"></p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-500">Place of Birth</p>
+                                    <p id="modalPlaceOfBirth" class="font-medium"></p>
+                                </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Story Section -->
-                <div class="mb-6">
-                    <button onclick="toggleStory()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                        <span class="text-lg font-semibold">Story</span>
-                        <svg id="storyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <div class="section">
+                        <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('story')">
+                            <span class="text-lg font-medium text-gray-900">Story</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div id="storyContent" class="section-content">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <p class="text-gray-700 whitespace-pre-wrap" id="modalStory"></p>
-                        </div>
+                        <div id="storySection" class="section-content mt-2 px-4">
+                            <div id="modalStory" class="prose max-w-none text-gray-700"></div>
                     </div>
                 </div>
 
                 <!-- Methodology Section -->
-                <div class="mb-8">
-                    <button onclick="toggleMethodology()" class="section-button w-full flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                        <span class="text-lg font-semibold">Methodology</span>
-                        <svg id="methodologyArrow" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <div class="section">
+                        <button class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between" onclick="toggleSection('methodology')">
+                            <span class="text-lg font-medium text-gray-900">Methodology</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div id="methodologyContent" class="section-content">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="text-gray-700" id="modalMethodology"></div>
+                        <div id="methodologySection" class="section-content mt-2 px-4">
+                            <div id="modalMethodology" class="prose max-w-none text-gray-700"></div>
+                        </div>
+                    </div>
+
+                    <!-- Socials Section -->
+                    <div class="section">
+                        <button onclick="toggleSection('socials')" class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between">
+                            <span class="text-lg font-medium text-gray-900">Social Profiles</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="socialsSection" class="section-content mt-2 px-4">
+                            <div id="modalSocials" class="text-gray-700">
+                                <!-- Social profiles will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+                    <!-- Known Wallets Section -->
+                    <div class="section">
+                        <button onclick="toggleSection('knownWallets')" class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between">
+                            <span class="text-lg font-medium text-gray-900">Known Wallets</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="knownWalletsSection" class="section-content mt-2 px-4">
+                            <div id="modalKnownWallets" class="text-gray-700">
+                                <!-- Known wallets will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activities and Status Section -->
+                    <div class="section">
+                        <button onclick="toggleSection('activitiesStatus')" class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between">
+                            <span class="text-lg font-medium text-gray-900">Activities and Status</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="activitiesStatusSection" class="section-content mt-2 px-4">
+                            <div id="modalActivitiesStatus" class="text-gray-700">
+                                <!-- Chronology will be dynamically inserted here -->
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Fullscreen photo overlay -->
+    <div id="photoOverlay" onclick="closePhotoOverlay()">
+        <img id="enlargedPhoto" src="" alt="Enlarged photo" onclick="event.stopPropagation()">
     </div>
 
     <!-- Footer -->
@@ -545,6 +1048,9 @@
                 document.getElementById('totalSubjects').textContent = publishedProfiles.length;
                 
                 renderProfiles(publishedProfiles);
+
+                // Add resize event listener
+                window.addEventListener('resize', handleResize);
             } catch (error) {
                 console.error('Error initializing:', error);
             }
@@ -578,11 +1084,51 @@
             `).join('');
         }
 
+        function checkScrollable() {
+            const sections = ['story', 'methodology'];
+            sections.forEach(section => {
+                const content = document.querySelector(`#${section}Section .prose`);
+                if (content) {
+                    if (content.scrollHeight > content.clientHeight) {
+                        content.classList.add('scrollable');
+                    } else {
+                        content.classList.remove('scrollable');
+                    }
+                }
+            });
+        }
+
         function showProfileDetails(id) {
-            const profile = profiles.find(p => p._id === id);
+            fetch(`/api/profiles/${id}`)
+                .then(response => response.json())
+                .then(profile => {
             if (!profile) return;
 
-            // Update modal content
+                    // Reset and prepare file number for animation
+                    const fileNumberElement = document.getElementById('modalFileNumber');
+                    if (fileNumberElement) {
+                        fileNumberElement.style.animation = 'none';
+                        fileNumberElement.classList.remove('typing-done');
+                        fileNumberElement.offsetHeight; // Trigger reflow
+                        fileNumberElement.style.animation = null;
+                        fileNumberElement.textContent = 'File #: ' + (profile.fileNumber || 'No file number');
+                        
+                        // Calculate the width needed for the text with extra padding
+                        const tempSpan = document.createElement('span');
+                        tempSpan.style.visibility = 'hidden';
+                        tempSpan.style.font = window.getComputedStyle(fileNumberElement).font;
+                        tempSpan.textContent = fileNumberElement.textContent;
+                        document.body.appendChild(tempSpan);
+                        const width = tempSpan.offsetWidth + 4;
+                        document.body.removeChild(tempSpan);
+                        document.documentElement.style.setProperty('--file-number-width', width + 'px');
+                        
+                        fileNumberElement.addEventListener('animationend', function() {
+                            this.classList.add('typing-done');
+                        }, { once: true });
+                    }
+
+                    // Update other modal content
             const elements = {
                 'modalName': profile.name,
                 'modalPhoto': profile.photoUrl || '/default-avatar.svg',
@@ -593,78 +1139,285 @@
                 'modalNationality': profile.nationality,
                 'modalPlaceOfBirth': profile.placeOfBirth,
                 'modalAmount': formatCurrency(profile.totalScammedUSD),
-                'modalOverview': profile.overview || '',
                 'modalProjects': profile.associatedProjects || 'Unknown project',
-                'modalStory': profile.story || 'No story available'
+                'modalOverview': profile.overview || 'No overview available',
+                'modalStory': profile.story || 'No story available',
+                'modalMethodology': profile.methodology ? profile.methodology.map(item => `<li>${item}</li>`).join('') : 'No methodology available'
             };
 
-            // Safely update all elements
             Object.entries(elements).forEach(([id, value]) => {
                 const element = document.getElementById(id);
                 if (element) {
                     if (id === 'modalPhoto') {
                         element.src = value;
+                    } else if (id === 'modalOverview' || id === 'modalStory' || id === 'modalMethodology') {
+                        element.innerHTML = value;
                     } else {
                         element.textContent = value;
                     }
                 }
             });
 
-            // Special handling for methodology to render as HTML list
-            const modalMethodology = document.getElementById('modalMethodology');
-            if (modalMethodology) {
-                if (Array.isArray(profile.methodology)) {
-                    // If it's already an array, create list items
-                    const list = document.createElement('ul');
-                    list.className = 'list-disc pl-6 space-y-2';
-                    profile.methodology.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        list.appendChild(li);
-                    });
-                    modalMethodology.innerHTML = '';
-                    modalMethodology.appendChild(list);
-                } else if (typeof profile.methodology === 'string' && profile.methodology.includes('<li>')) {
-                    // If it's HTML string, parse it into an array first
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = profile.methodology;
-                    const items = Array.from(tempDiv.querySelectorAll('li')).map(li => li.textContent.trim());
+                    // Update social profiles section
+                    const socialsContainer = document.getElementById('modalSocials');
+                    socialsContainer.innerHTML = '';
                     
-                    const list = document.createElement('ul');
-                    list.className = 'list-disc pl-6 space-y-2';
-                    items.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item;
-                        list.appendChild(li);
-                    });
-                    modalMethodology.innerHTML = '';
-                    modalMethodology.appendChild(list);
-                } else {
-                    modalMethodology.textContent = profile.methodology || '';
-                }
-            }
+                    if (profile.socialProfiles && profile.socialProfiles.length > 0) {
+                        const socialsList = document.createElement('div');
+                        socialsList.className = 'space-y-3';
+                        
+                        profile.socialProfiles.forEach(social => {
+                            const socialItem = document.createElement('div');
+                            socialItem.className = 'flex items-start space-x-3 p-4 bg-gray-50 rounded-lg';
+                            
+                            const platformIcon = document.createElement('div');
+                            platformIcon.className = 'w-6 h-6 flex-shrink-0 text-gray-700 mt-1';
+                            platformIcon.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            </svg>`;
+                            
+                            const socialInfo = document.createElement('div');
+                            socialInfo.className = 'flex-1 space-y-1';
+                            
+                            // Platform and handle in the same line
+                            const headerDiv = document.createElement('div');
+                            headerDiv.className = 'flex items-center justify-between';
+                            headerDiv.innerHTML = `
+                                <div class="font-medium text-gray-900">${social.platform}</div>
+                                ${social.url ? `
+                                    <a href="${social.url}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-sm text-blue-600 hover:text-blue-700 flex items-center">
+                                        Visit Profile
+                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                        </svg>
+                                    </a>` : ''}
+                            `;
+                            
+                            // Username with @ symbol
+                            const usernameDiv = document.createElement('div');
+                            usernameDiv.className = 'text-sm text-gray-600 font-mono';
+                            usernameDiv.textContent = `@${social.username}`;
+                            
+                            // Description if available
+                            if (social.description) {
+                                const descriptionDiv = document.createElement('div');
+                                descriptionDiv.className = 'text-sm text-gray-500 mt-2';
+                                descriptionDiv.textContent = social.description;
+                                socialInfo.appendChild(descriptionDiv);
+                            }
+                            
+                            socialInfo.appendChild(headerDiv);
+                            socialInfo.appendChild(usernameDiv);
+                            
+                            socialItem.appendChild(platformIcon);
+                            socialItem.appendChild(socialInfo);
+                            socialsList.appendChild(socialItem);
+                        });
+                        
+                        socialsContainer.appendChild(socialsList);
+                    } else {
+                        socialsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No social profiles available</p>';
+                    }
+                    
+                    // Update known wallets section
+                    const walletsContainer = document.getElementById('modalKnownWallets');
+                    walletsContainer.innerHTML = '';
+                    
+                    if (profile.blockchainAddresses && profile.blockchainAddresses.length > 0) {
+                        const walletsList = document.createElement('div');
+                        walletsList.className = 'space-y-4';
+                        
+                        profile.blockchainAddresses.forEach(wallet => {
+                            const walletItem = document.createElement('div');
+                            walletItem.className = 'p-4 bg-gray-50 rounded-lg space-y-3';
 
-            // Reset all sections
-            sections.forEach(section => {
-                const content = document.getElementById(`${section}Content`);
-                const arrow = document.getElementById(`${section}Arrow`);
-                if (content && arrow) {
-                    content.classList.remove('open');
-                    arrow.classList.remove('rotated');
-                }
-            });
+                            // Chain name and actions
+                            const headerDiv = document.createElement('div');
+                            headerDiv.className = 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2';
+                            
+                            // Chain name
+                            const chainDiv = document.createElement('div');
+                            chainDiv.className = 'font-medium text-gray-900';
+                            chainDiv.textContent = wallet.chain;
+                            
+                            // Actions container
+                            const actionsDiv = document.createElement('div');
+                            actionsDiv.className = 'flex items-center gap-2 flex-wrap';
+                            
+                            // View on Explorer button
+                            if (wallet.scannerUrl) {
+                                const explorerLink = document.createElement('a');
+                                explorerLink.href = wallet.scannerUrl;
+                                explorerLink.target = '_blank';
+                                explorerLink.rel = 'noopener noreferrer';
+                                explorerLink.className = 'text-sm text-blue-600 hover:text-blue-700 flex items-center bg-white px-2 py-1 rounded border border-gray-200';
+                                explorerLink.innerHTML = `
+                                    View on Explorer
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                `;
+                                actionsDiv.appendChild(explorerLink);
+                            }
+                            
+                            // Copy Address button
+                            const copyButton = document.createElement('button');
+                            copyButton.className = 'text-sm text-gray-600 hover:text-gray-700 flex items-center bg-white px-2 py-1 rounded border border-gray-200';
+                            copyButton.onclick = () => {
+                                navigator.clipboard.writeText(wallet.address);
+                                copyButton.innerHTML = `
+                                    Copied!
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                `;
+                                setTimeout(() => {
+                                    copyButton.innerHTML = `
+                                        Copy Address
+                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                        </svg>
+                                    `;
+                                }, 2000);
+                            };
+                            copyButton.innerHTML = `
+                                Copy Address
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                </svg>
+                            `;
+                            actionsDiv.appendChild(copyButton);
+                            
+                            headerDiv.appendChild(chainDiv);
+                            headerDiv.appendChild(actionsDiv);
+                            walletItem.appendChild(headerDiv);
+                            
+                            // Address
+                            const addressDiv = document.createElement('div');
+                            addressDiv.className = 'font-mono text-sm text-gray-600 break-all bg-white p-2 rounded border border-gray-200';
+                            addressDiv.textContent = wallet.address;
+                            walletItem.appendChild(addressDiv);
+                            
+                            // Description if available
+                            if (wallet.description) {
+                                const descriptionDiv = document.createElement('div');
+                                descriptionDiv.className = 'text-sm text-gray-500';
+                                descriptionDiv.textContent = wallet.description;
+                                walletItem.appendChild(descriptionDiv);
+                            }
+                            
+                            // Source if available
+                            if (wallet.source) {
+                                const sourceDiv = document.createElement('div');
+                                sourceDiv.className = 'text-xs text-gray-500 flex items-center justify-between';
+                                sourceDiv.innerHTML = `
+                                    <span>Source: ${wallet.source}</span>
+                                    ${wallet.sourceUrl ? `
+                                        <a href="${wallet.sourceUrl}" target="_blank" rel="noopener noreferrer" 
+                                           class="text-blue-600 hover:text-blue-700 flex items-center">
+                                            View Source
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                            </svg>
+                                        </a>
+                                    ` : ''}
+                                `;
+                                walletItem.appendChild(sourceDiv);
+                            }
+                            
+                            walletsList.appendChild(walletItem);
+                        });
+                        
+                        walletsContainer.appendChild(walletsList);
+                    } else {
+                        walletsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No known wallet addresses</p>';
+                    }
 
-            // Show overview by default
-            const overviewContent = document.getElementById('overviewContent');
-            const overviewArrow = document.getElementById('overviewArrow');
-            if (overviewContent && overviewArrow) {
-                overviewContent.classList.add('open');
-                overviewArrow.classList.add('rotated');
-            }
+                    // Update activities and status section
+                    const activitiesContainer = document.getElementById('modalActivitiesStatus');
+                    activitiesContainer.innerHTML = '';
 
-            // Show modal
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.body.classList.add('modal-open');
+                    if (profile.chronology && profile.chronology.length > 0) {
+                        const timeline = document.createElement('div');
+                        timeline.className = 'space-y-4';
+
+                        // Sort chronology by date in ascending order (oldest first)
+                        const sortedChronology = [...profile.chronology].sort((a, b) => 
+                            new Date(a.date) - new Date(b.date)
+                        );
+
+                        sortedChronology.forEach((event, index) => {
+                            const eventItem = document.createElement('div');
+                            eventItem.className = 'timeline-item';
+
+                            // Date without step number
+                            const dateDiv = document.createElement('div');
+                            dateDiv.className = 'timeline-date';
+                            dateDiv.textContent = new Date(event.date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+                            eventItem.appendChild(dateDiv);
+
+                            // Description
+                            const descriptionDiv = document.createElement('div');
+                            descriptionDiv.className = 'timeline-description';
+                            descriptionDiv.textContent = event.description;
+                            eventItem.appendChild(descriptionDiv);
+
+                            // Source if available
+                            if (event.source) {
+                                const sourceDiv = document.createElement('div');
+                                sourceDiv.className = 'timeline-source';
+                                
+                                // Check if source is a URL
+                                const isUrl = event.source.startsWith('http://') || event.source.startsWith('https://');
+                                
+                                if (isUrl) {
+                                    const url = new URL(event.source);
+                                    sourceDiv.innerHTML = `<span>Source:</span> <a href="${event.source}" target="_blank" rel="noopener noreferrer">${url.hostname.replace('www.', '')}</a>`;
+                                } else {
+                                    sourceDiv.innerHTML = `<span>Source: ${event.source}</span>`;
+                                }
+                                
+                                eventItem.appendChild(sourceDiv);
+                            }
+
+                            timeline.appendChild(eventItem);
+                        });
+
+                        activitiesContainer.appendChild(timeline);
+                    } else {
+                        activitiesContainer.innerHTML = '<p class="text-gray-500 text-center py-4 font-mono">No activity history available</p>';
+                    }
+
+                    // Show modal
+                    document.getElementById('profileModal').classList.remove('hidden');
+                    document.body.classList.add('modal-open');
+
+                    // Add click handler to photo
+                    const modalPhoto = document.getElementById('modalPhoto');
+                    modalPhoto.onclick = showEnlargedPhoto;
+
+                    // Show overview section by default
+                    const overviewSection = document.getElementById('overviewSection');
+                    const overviewButton = document.querySelector('button[onclick="toggleSection(\'overview\')"]');
+                    if (overviewSection && overviewButton) {
+                        overviewSection.classList.add('open');
+                        overviewButton.classList.add('active');
+                    }
+
+                    // Check for scrollable content after content is loaded
+                    setTimeout(checkScrollable, 100);
+                })
+                .catch(error => {
+                    console.error('Error fetching profile:', error);
+                });
         }
 
         function handleModalClick(event) {
@@ -711,52 +1464,50 @@
             }).format(amount);
         }
 
-        const sections = ['overview', 'basicInfo', 'story', 'methodology'];
-        
-        function getNextSection(currentSection) {
-            const currentIndex = sections.indexOf(currentSection);
-            return sections[(currentIndex + 1) % sections.length];
-        }
+        const sections = ['overview', 'basicInfo', 'story', 'methodology', 'socials', 'knownWallets', 'activitiesStatus'];
         
         function toggleSection(section) {
-            const content = document.getElementById(`${section}Content`);
-            const arrow = document.getElementById(`${section}Arrow`);
+            const sectionElement = document.getElementById(`${section}Section`);
+            const button = document.querySelector(`button[onclick="toggleSection('${section}')"]`);
             
-            if (!content || !arrow) return;
+            if (!sectionElement || !button) return;
 
-            const isCurrentlyOpen = content.classList.contains('open');
+            // Toggle the clicked section
+            const isOpen = sectionElement.classList.contains('open');
             
             // Close all sections first
-            sections.forEach(s => {
-                const sContent = document.getElementById(`${s}Content`);
-                const sArrow = document.getElementById(`${s}Arrow`);
-                if (sContent && sArrow) {
-                    sContent.classList.remove('open');
-                    sArrow.classList.remove('rotated');
-                }
+            document.querySelectorAll('.section-content').forEach(content => {
+                content.classList.remove('open');
+            });
+            document.querySelectorAll('.section button').forEach(btn => {
+                btn.classList.remove('active');
             });
 
-            // If the clicked section wasn't open, open it
-            if (!isCurrentlyOpen) {
-                content.classList.add('open');
-                arrow.classList.add('rotated');
+            // If the section wasn't open, open it
+            if (!isOpen) {
+                sectionElement.classList.add('open');
+                button.classList.add('active');
+                // Check for scrollable content after opening
+                setTimeout(checkScrollable, 300);
             }
         }
 
-        function toggleOverview() {
-            toggleSection('overview');
-        }
-
-        function toggleBasicInfo() {
-            toggleSection('basicInfo');
-        }
-
-        function toggleStory() {
-            toggleSection('story');
-        }
-
-        function toggleMethodology() {
-            toggleSection('methodology');
+        // Handle resize events
+        let resizeTimer;
+        function handleResize() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // Re-initialize section states
+                document.querySelectorAll('.section-content').forEach(section => {
+                    if (section.classList.contains('open')) {
+                        const sectionId = section.id.replace('Section', '');
+                        const button = document.querySelector(`button[onclick="toggleSection('${sectionId}')"]`);
+                        if (button) {
+                            button.classList.add('active');
+                        }
+                    }
+                });
+            }, 250);
         }
 
         // Initialize when page loads
@@ -771,6 +1522,33 @@
                 closeModal();
             }
         });
+
+        function showEnlargedPhoto(event) {
+            event.stopPropagation();
+            const photoUrl = document.getElementById('modalPhoto').src;
+            const overlay = document.getElementById('photoOverlay');
+            const enlargedPhoto = document.getElementById('enlargedPhoto');
+            
+            enlargedPhoto.src = photoUrl;
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoOverlay() {
+            const overlay = document.getElementById('photoOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Add copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // You could add a toast notification here
+                console.log('Copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
     </script>
 </body>
 </html>
