@@ -38,7 +38,8 @@
         /* Modal content styling */
         #modalOverview,
         #modalStory,
-        #modalMethodology {
+        #modalMethodology,
+        #modalActivitiesStatus {
             font-family: 'SpaceMono', monospace;
             font-size: 0.9375rem;
             line-height: 1.75;
@@ -626,6 +627,115 @@
                 font-size: 1.25rem;
             }
         }
+
+        /* Activities and Status specific styling */
+        #modalActivitiesStatus .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #modalActivitiesStatus .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: -1.5rem;
+            width: 2px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #e5e7eb 0,
+                #e5e7eb 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            background-size: 100% 8px;
+            animation: moveLines 1s linear infinite;
+        }
+
+        @keyframes moveLines {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 8px;
+            }
+        }
+
+        #modalActivitiesStatus .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #20201d;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px rgba(32, 32, 29, 0.1);
+        }
+
+        #modalActivitiesStatus .timeline-item:last-child::before {
+            display: none;
+        }
+
+        #modalActivitiesStatus .timeline-date {
+            font-family: 'SpaceMono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #20201d;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        #modalActivitiesStatus .timeline-description {
+            font-family: 'SpaceMono', monospace;
+            font-size: 0.9375rem;
+            line-height: 1.75;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        #modalActivitiesStatus .timeline-source {
+            font-family: 'SpaceMono', monospace;
+            font-size: 0.75rem;
+            color: #6b7280;
+            padding-left: 0.75rem;
+        }
+
+        #modalActivitiesStatus .timeline-source span {
+            color: #6b7280;
+        }
+
+        #modalActivitiesStatus .timeline-source a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            #modalActivitiesStatus .timeline-item {
+                padding-left: 2rem;
+            }
+
+            #modalActivitiesStatus .timeline-date {
+                font-size: 0.9375rem;
+            }
+
+            #modalActivitiesStatus .timeline-description {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            #modalActivitiesStatus .timeline-item {
+                padding-left: 1.75rem;
+            }
+        }
     </style>
 </head>
 <body class="text-gray-100">
@@ -809,6 +919,21 @@
                         <div id="knownWalletsSection" class="section-content mt-2 px-4">
                             <div id="modalKnownWallets" class="text-gray-700">
                                 <!-- Known wallets will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activities and Status Section -->
+                    <div class="section">
+                        <button onclick="toggleSection('activitiesStatus')" class="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-between">
+                            <span class="text-lg font-medium text-gray-900">Activities and Status</span>
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="activitiesStatusSection" class="section-content mt-2 px-4">
+                            <div id="modalActivitiesStatus" class="text-gray-700">
+                                <!-- Chronology will be dynamically inserted here -->
                             </div>
                         </div>
                     </div>
@@ -1159,11 +1284,70 @@
                         walletsContainer.appendChild(walletsList);
                     } else {
                         walletsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No known wallet addresses</p>';
-            }
+                    }
 
-            // Show modal
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.body.classList.add('modal-open');
+                    // Update activities and status section
+                    const activitiesContainer = document.getElementById('modalActivitiesStatus');
+                    activitiesContainer.innerHTML = '';
+
+                    if (profile.chronology && profile.chronology.length > 0) {
+                        const timeline = document.createElement('div');
+                        timeline.className = 'space-y-4';
+
+                        // Sort chronology by date in ascending order (oldest first)
+                        const sortedChronology = [...profile.chronology].sort((a, b) => 
+                            new Date(a.date) - new Date(b.date)
+                        );
+
+                        sortedChronology.forEach((event, index) => {
+                            const eventItem = document.createElement('div');
+                            eventItem.className = 'timeline-item';
+
+                            // Date without step number
+                            const dateDiv = document.createElement('div');
+                            dateDiv.className = 'timeline-date';
+                            dateDiv.textContent = new Date(event.date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+                            eventItem.appendChild(dateDiv);
+
+                            // Description
+                            const descriptionDiv = document.createElement('div');
+                            descriptionDiv.className = 'timeline-description';
+                            descriptionDiv.textContent = event.description;
+                            eventItem.appendChild(descriptionDiv);
+
+                            // Source if available
+                            if (event.source) {
+                                const sourceDiv = document.createElement('div');
+                                sourceDiv.className = 'timeline-source';
+                                
+                                // Check if source is a URL
+                                const isUrl = event.source.startsWith('http://') || event.source.startsWith('https://');
+                                
+                                if (isUrl) {
+                                    const url = new URL(event.source);
+                                    sourceDiv.innerHTML = `<span>Source:</span> <a href="${event.source}" target="_blank" rel="noopener noreferrer">${url.hostname.replace('www.', '')}</a>`;
+                                } else {
+                                    sourceDiv.innerHTML = `<span>Source: ${event.source}</span>`;
+                                }
+                                
+                                eventItem.appendChild(sourceDiv);
+                            }
+
+                            timeline.appendChild(eventItem);
+                        });
+
+                        activitiesContainer.appendChild(timeline);
+                    } else {
+                        activitiesContainer.innerHTML = '<p class="text-gray-500 text-center py-4 font-mono">No activity history available</p>';
+                    }
+
+                    // Show modal
+                    document.getElementById('profileModal').classList.remove('hidden');
+                    document.body.classList.add('modal-open');
 
                     // Add click handler to photo
                     const modalPhoto = document.getElementById('modalPhoto');
@@ -1229,7 +1413,7 @@
             }).format(amount);
         }
 
-        const sections = ['overview', 'basicInfo', 'story', 'methodology', 'socials', 'knownWallets'];
+        const sections = ['overview', 'basicInfo', 'story', 'methodology', 'socials', 'knownWallets', 'activitiesStatus'];
         
         function toggleSection(section) {
             const sectionElement = document.getElementById(`${section}Section`);

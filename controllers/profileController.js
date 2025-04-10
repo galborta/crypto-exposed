@@ -52,14 +52,38 @@ exports.createProfile = async (req, res) => {
 // Update profile
 exports.updateProfile = async (req, res) => {
   try {
-    const profile = await Profile.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!profile) {
+    // First get the existing profile
+    const existingProfile = await Profile.findById(req.params.id);
+    if (!existingProfile) {
       return res.status(404).json({ error: 'Profile not found' });
     }
+
+    // Create update data by merging existing data with new data
+    const updateData = {
+      ...existingProfile.toObject(),  // Convert to plain object and spread existing data
+      ...req.body  // Spread new data on top
+    };
+
+    // Special handling for arrays - only update if new data is provided
+    if (!req.body.blockchainAddresses) {
+      updateData.blockchainAddresses = existingProfile.blockchainAddresses;
+    }
+    if (!req.body.socialProfiles) {
+      updateData.socialProfiles = existingProfile.socialProfiles;
+    }
+    if (!req.body.chronology) {
+      updateData.chronology = existingProfile.chronology;
+    }
+    if (!req.body.methodology) {
+      updateData.methodology = existingProfile.methodology;
+    }
+
+    const profile = await Profile.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+    
     res.json(profile);
   } catch (error) {
     console.error('[PROFILES] Error updating profile:', error);

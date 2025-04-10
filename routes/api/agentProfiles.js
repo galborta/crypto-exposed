@@ -61,7 +61,7 @@ const parseHtmlList = (html) => {
 const validateProfileData = (data) => {
     const errors = [];
     
-    // Required fields
+    // Required fields for basic profile
     const requiredFields = [
         'name',
         'dateOfBirth',
@@ -70,18 +70,23 @@ const validateProfileData = (data) => {
         'weight',
         'nationality',
         'placeOfBirth',
+        'lastKnownLocation',
         'overview',
+        'story',
         'totalScammedUSD',
-        'associatedProjects',
+        'associatedProjects'
+    ];
+
+    // Optional fields
+    const optionalFields = [
+        'photoUrl',
+        'blockchainAddresses',
+        'socialProfiles',
+        'chronology',
         'methodology'
     ];
 
-    // Optional fields that don't need validation
-    const optionalFields = [
-        'photoUrl',
-        'story'
-    ];
-
+    // Check required fields
     requiredFields.forEach(field => {
         if (!data[field]) {
             errors.push(`${field} is required`);
@@ -110,38 +115,38 @@ const validateProfileData = (data) => {
         errors.push('totalScammedUSD must be positive');
     }
 
-    // Validate methodology array
-    if (data.methodology) {
-        let methodologyArray;
-        if (Array.isArray(data.methodology)) {
-            methodologyArray = data.methodology
-                .map(item => item.trim())
-                .filter(item => item.length > 0)
-                .map(item => item.endsWith('.') ? item : item + '.');
-        } else if (typeof data.methodology === 'string') {
-            // Handle HTML list
-            if (data.methodology.includes('<li>')) {
-                methodologyArray = data.methodology
-                    .match(/<li>(.*?)<\/li>/g)
-                    ?.map(match => match.replace(/<\/?li>/g, '').trim())
-                    .filter(item => item.length > 0)
-                    .map(item => item.endsWith('.') ? item : item + '.');
-            } else {
-                // Handle plain text with periods or line breaks
-                methodologyArray = data.methodology
-                    .split(/\.(?=[A-Z])|[\n\r]/)
-                    .map(item => item.trim())
-                    .filter(item => item.length > 0)
-                    .map(item => item.endsWith('.') ? item : item + '.');
+    // Optional array validations
+    if (data.blockchainAddresses && Array.isArray(data.blockchainAddresses)) {
+        data.blockchainAddresses.forEach((addr, index) => {
+            if (!addr.address) {
+                errors.push(`Blockchain address is required for entry ${index + 1}`);
             }
-        }
-        
-        if (!methodologyArray || methodologyArray.length === 0) {
-            errors.push('methodology must be a non-empty array or properly formatted text');
-        } else {
-            // Update the data with processed array
-            data.methodology = methodologyArray;
-        }
+            if (!addr.blockchain) {
+                errors.push(`Blockchain type is required for entry ${index + 1}`);
+            }
+        });
+    }
+
+    if (data.socialProfiles && Array.isArray(data.socialProfiles)) {
+        data.socialProfiles.forEach((profile, index) => {
+            if (!profile.platform) {
+                errors.push(`Platform is required for social profile ${index + 1}`);
+            }
+            if (!profile.username) {
+                errors.push(`Username is required for social profile ${index + 1}`);
+            }
+        });
+    }
+
+    if (data.chronology && Array.isArray(data.chronology)) {
+        data.chronology.forEach((entry, index) => {
+            if (!entry.date || isNaN(Date.parse(entry.date))) {
+                errors.push(`Valid date is required for chronology entry ${index + 1}`);
+            }
+            if (!entry.description) {
+                errors.push(`Description is required for chronology entry ${index + 1}`);
+            }
+        });
     }
 
     return errors;

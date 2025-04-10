@@ -42,55 +42,79 @@ const csrfProtection = csrf({
 
 // Apply CSRF protection to all routes except /api/admin/login and specified paths
 app.use((req, res, next) => {
-  // Debug logging
-  console.log('\n[CSRF] Request path:', req.path);
-  console.log('[CSRF] Request method:', req.method);
-  console.log('[CSRF] Headers:', req.headers);
+  // Enhanced debug logging
+  console.log('\n[CSRF DEBUG] ==================');
+  console.log('[CSRF DEBUG] Request path:', req.path);
+  console.log('[CSRF DEBUG] Original URL:', req.originalUrl);
+  console.log('[CSRF DEBUG] Method:', req.method);
+  console.log('[CSRF DEBUG] Headers:', JSON.stringify(req.headers, null, 2));
 
+  // Decode the path for matching
+  const decodedPath = decodeURIComponent(req.path);
+  
   // Exclude paths from CSRF
   const excludedPaths = [
     '/api/admin/login',
     '/.identity',
-    '/api/agent'
+    '/api/agent',
+    '/api/profile-extras/agent'
   ];
 
+  // Log exclusion checks
+  console.log('[CSRF DEBUG] Decoded path:', decodedPath);
+  
   // Check if the current path should be excluded
-  const shouldExclude = excludedPaths.some(path => 
-    req.path === path || req.path.startsWith(path + '/')
-  );
+  const shouldExclude = 
+    // Check API key first
+    (req.headers['x-api-key'] && req.headers['x-api-key'] === process.env.AGENT_API_KEY) ||
+    // Then check paths
+    excludedPaths.some(path => 
+      decodedPath === path || 
+      decodedPath.startsWith(path + '/') ||
+      decodedPath.includes('/agent/') ||
+      decodedPath.includes('/profile-extras/agent/')
+    );
 
   if (shouldExclude) {
-    console.log('[CSRF] Path excluded from CSRF protection:', req.path);
+    console.log('[CSRF DEBUG] Path excluded from CSRF protection:', decodedPath);
     return next();
   }
 
   // Apply CSRF protection
-  console.log('[CSRF] Applying CSRF protection to:', req.path);
+  console.log('[CSRF DEBUG] Applying CSRF protection to:', decodedPath);
+  console.log('[CSRF DEBUG] ==================\n');
   csrfProtection(req, res, next);
 });
 
-// Make CSRF token available to views
+// Skip CSRF token generation for excluded paths
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/agent/')) {
-    return next();
-  }
+  const decodedPath = decodeURIComponent(req.path);
   
-  if (req.path === '/api/admin/login' && req.method === 'POST' ||
-      req.path === '/.identity') {
-    if (req.path === '/.identity') {
+  // Skip for agent routes and specific paths
+  if (req.headers['x-api-key'] === process.env.AGENT_API_KEY ||
+      decodedPath.includes('/agent/') ||
+      decodedPath.includes('/profile-extras/agent/') ||
+      decodedPath === '/api/admin/login' ||
+      decodedPath === '/.identity') {
+    
+    if (decodedPath === '/.identity') {
       return res.status(200).json({ status: 'ok' });
     }
     return next();
   }
 
-  const token = req.csrfToken();
-  res.locals.csrfToken = token;
-  
-  res.cookie('XSRF-TOKEN', token, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
-  });
+  try {
+    const token = req.csrfToken();
+    res.locals.csrfToken = token;
+    
+    res.cookie('XSRF-TOKEN', token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+  } catch (err) {
+    console.error('[CSRF] Error generating token:', err);
+  }
 
   next();
 });
@@ -105,6 +129,7 @@ const profileRoutes = require('./routes/api/profiles');
 const adminProfileRoutes = require('./routes/adminProfileRoutes');
 const authRoutes = require('./routes/api/auth');
 const agentProfileRoutes = require('./routes/api/agentProfiles');
+const profileExtrasRoutes = require('./routes/api/profileExtras');
 const indexRouter = require('./routes/index');
 
 // Mount main router first
@@ -119,6 +144,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/admin', adminViewRoutes);
 app.use('/api/agent/profiles', agentProfileRoutes);
+app.use('/api/profile-extras', profileExtrasRoutes);
 
 // Static files - serve AFTER routes
 app.use('/js', express.static(path.join(__dirname, 'public/js'), {

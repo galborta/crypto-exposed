@@ -163,23 +163,28 @@ router.put('/:id', protect, async (req, res) => {
         console.log('Updating profile:', req.params.id);
         console.log('Update data:', req.body);
         
-        const updateData = { ...req.body };
-        
-        // Ensure photoUrl is included in the update if it exists
-        if (req.body.photoUrl) {
-            updateData.photoUrl = req.body.photoUrl;
-        }
-
-        const profile = await Profile.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        if (!profile) {
+        // First get the existing profile
+        const existingProfile = await Profile.findById(req.params.id);
+        if (!existingProfile) {
             console.log('Profile not found:', req.params.id);
             return res.status(404).json({ error: 'Profile not found' });
         }
+
+        // Create update data by merging existing data with new data
+        const updateData = {};
+        
+        // Only include fields that are actually provided in the request body
+        Object.keys(req.body).forEach(key => {
+            if (req.body[key] !== undefined) {
+                updateData[key] = req.body[key];
+            }
+        });
+
+        const profile = await Profile.findByIdAndUpdate(
+            req.params.id,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
 
         console.log('Profile updated successfully:', profile);
         res.json(profile);

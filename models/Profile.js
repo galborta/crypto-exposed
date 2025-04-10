@@ -53,54 +53,6 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Overview is required']
   },
-  story: {
-    type: String,
-    required: false
-  },
-  methodology: {
-    type: [String],
-    required: [true, 'Methodology is required'],
-    validate: {
-      validator: function(v) {
-        return v && v.length > 0;
-      },
-      message: 'Methodology must have at least one entry'
-    }
-  },
-  blockchainAddresses: {
-    type: [{
-      chain: {
-        type: String,
-        required: true,
-        enum: ['Bitcoin', 'Ethereum', 'BNB Chain', 'Polygon', 'Solana', 'Other']
-      },
-      address: {
-        type: String,
-        required: true
-      },
-      description: String,
-      scannerUrl: String,
-      source: String,
-      sourceUrl: String
-    }],
-    default: []
-  },
-  socialProfiles: {
-    type: [{
-      platform: {
-        type: String,
-        required: true,
-        enum: ['Twitter', 'LinkedIn', 'Facebook', 'Instagram', 'Telegram', 'Discord', 'Other']
-      },
-      username: {
-        type: String,
-        required: true
-      },
-      description: String,
-      url: String
-    }],
-    default: []
-  },
   totalScammedUSD: {
     type: Number,
     required: [true, 'Total amount scammed is required'],
@@ -115,10 +67,6 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Associated projects are required']
   },
-  evidence: {
-    type: String,
-    required: [true, 'Evidence is required']
-  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -126,6 +74,63 @@ const profileSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  methodology: {
+    type: [String],
+    default: []
+  },
+  blockchainAddresses: {
+    type: [{
+      address: {
+        type: String,
+        required: true
+      },
+      blockchain: {
+        type: String,
+        required: true
+      },
+      description: String,
+      source: String,
+      scannerUrl: String
+    }],
+    default: []
+  },
+  socialProfiles: {
+    type: [{
+      platform: {
+        type: String,
+        required: true,
+        enum: ['Twitter/X', 'LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'Telegram', 'Discord', 'Reddit', 'TikTok']
+      },
+      username: {
+        type: String,
+        required: true
+      },
+      profileUrl: {
+        type: String,
+        required: true
+      },
+      source: String
+    }],
+    default: []
+  },
+  story: {
+    type: String,
+    default: ''
+  },
+  chronology: {
+    type: [{
+      date: {
+        type: Date,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      source: String
+    }],
+    default: []
   }
 });
 
