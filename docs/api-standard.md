@@ -19,13 +19,13 @@
   "overview": "string (required)",
   "associatedProjects": "string (optional)",
   "story": "string (optional)",
-  "methodology": "[string] (required)",
+  "methodology": "[string] (required, set during profile creation)",
   "blockchainAddresses": [
     {
       "address": "string (required)",
       "blockchain": "string (required)",
-      "description": "string (optional)",
-      "source": "string (optional)",
+      "description": "string (required)",
+      "source": "string (required)",
       "scannerUrl": "string (optional)"
     }
   ],
@@ -33,15 +33,15 @@
     {
       "platform": "string (required)",
       "username": "string (required)",
-      "profileUrl": "string (optional)",
-      "source": "string (optional)"
+      "profileUrl": "string (required)",
+      "source": "string (required)"
     }
   ],
   "chronology": [
     {
       "date": "ISO date string (required)",
       "description": "string (required)",
-      "source": "string (optional)"
+      "source": "string (required)"
     }
   ],
   "status": "string (enum: Draft, Published)",
@@ -67,7 +67,7 @@
 - `overview`: Brief summary of the scammer's activities
 - `associatedProjects`: Names of crypto projects involved (optional)
 - `story`: Detailed narrative of events (optional)
-- `methodology`: Array of scam methods used
+- `methodology`: Array of scam methods used (set during profile creation)
 - `blockchainAddresses`: Array of associated blockchain addresses
 - `socialProfiles`: Array of social media profiles
 - `chronology`: Array of chronological events
@@ -143,8 +143,44 @@ Creates a new profile. Requires all fields marked as required.
 ### PUT /api/profiles/:id
 Updates an existing profile. All fields are optional in updates.
 
+### PUT /api/profile-extras/agent/:fileNumber/all
+Updates additional profile information (blockchainAddresses, socialProfiles, chronology). Note that methodology cannot be updated through this endpoint as it is set during profile creation.
+
 ### DELETE /api/profiles/:id
 Deletes a profile by ID.
+
+## Profile Extras Update Format
+
+When updating additional profile information, use the following format:
+
+```json
+{
+  "blockchainAddresses": [
+    {
+      "address": "string (required)",
+      "blockchain": "string (required)",
+      "description": "string (required)",
+      "source": "string (required)",
+      "scannerUrl": "string (optional)"
+    }
+  ],
+  "socialProfiles": [
+    {
+      "platform": "string (required)",
+      "username": "string (required)",
+      "profileUrl": "string (required)",
+      "source": "string (required)"
+    }
+  ],
+  "chronology": [
+    {
+      "date": "ISO date string (required)",
+      "description": "string (required)",
+      "source": "string (required)"
+    }
+  ]
+}
+```
 
 ## Response Format
 
@@ -152,10 +188,20 @@ All API responses follow this structure:
 
 ```json
 {
-  "success": boolean,
-  "data": object | array | null,
-  "message": "string",
-  "error": "string" (only if success: false)
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    // Response data here
+  }
+}
+```
+
+For errors:
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "details": [] // Optional array of validation errors
 }
 ```
 

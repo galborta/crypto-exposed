@@ -126,7 +126,6 @@ router.put('/agent/:fileNumber/all', agentAuth, async (req, res) => {
         console.log('\n[DEBUG] ==================== START REQUEST ====================');
         console.log('[DEBUG] Starting profile update');
         console.log('[DEBUG] File number:', req.params.fileNumber);
-        console.log('[DEBUG] Request headers:', JSON.stringify(req.headers, null, 2));
         console.log('[DEBUG] Request body:', JSON.stringify(req.body, null, 2));
 
         // Find profile by file number
@@ -148,9 +147,8 @@ router.put('/agent/:fileNumber/all', agentAuth, async (req, res) => {
         });
 
         // Extract and validate data
-        const { methodology, blockchainAddresses, socialProfiles, chronology } = req.body;
+        const { blockchainAddresses, socialProfiles, chronology } = req.body;
         console.log('[DEBUG] Extracted fields from body:', {
-            hasMethodology: !!methodology,
             hasBlockchainAddresses: !!blockchainAddresses,
             hasSocialProfiles: !!socialProfiles,
             hasChronology: !!chronology
@@ -158,18 +156,6 @@ router.put('/agent/:fileNumber/all', agentAuth, async (req, res) => {
 
         const updates = {};
         const validationErrors = [];
-
-        // Validate methodology
-        if (methodology) {
-            console.log('[DEBUG] Validating methodology:', methodology);
-            const errors = validateMethodology(methodology);
-            if (errors.length > 0) {
-                console.log('[DEBUG] Methodology validation errors:', errors);
-                validationErrors.push(...errors);
-            } else {
-                updates.methodology = methodology;
-            }
-        }
 
         // Validate blockchain addresses
         if (blockchainAddresses) {
@@ -230,11 +216,6 @@ router.put('/agent/:fileNumber/all', agentAuth, async (req, res) => {
 
         // Update the profile directly
         try {
-            // Update each field individually
-            if (updates.methodology) {
-                console.log('[DEBUG] Updating methodology');
-                profile.methodology = updates.methodology;
-            }
             if (updates.blockchainAddresses) {
                 console.log('[DEBUG] Updating blockchain addresses');
                 profile.blockchainAddresses = updates.blockchainAddresses;
@@ -261,7 +242,6 @@ router.put('/agent/:fileNumber/all', agentAuth, async (req, res) => {
                     _id: profile._id,
                     name: profile.name,
                     fileNumber: profile.fileNumber,
-                    methodology: profile.methodology,
                     blockchainAddresses: profile.blockchainAddresses,
                     socialProfiles: profile.socialProfiles,
                     chronology: profile.chronology
