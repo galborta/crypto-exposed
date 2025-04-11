@@ -758,18 +758,36 @@
 
         #modalActivitiesStatus .timeline-source {
             font-family: 'SpaceMono', monospace;
-            font-size: 0.75rem;
-            color: #6b7280;
+            font-size: 0.6rem;
+            color: #9CA3AF;
             padding-left: 0.75rem;
+            margin-top: 0.25rem;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         #modalActivitiesStatus .timeline-source span {
-            color: #6b7280;
+            color: inherit;
         }
 
         #modalActivitiesStatus .timeline-source a {
-            color: #2563eb;
+            color: #6B7280;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        #modalActivitiesStatus .timeline-source a:hover {
+            color: #4B5563;
+        }
+
+        #modalActivitiesStatus .timeline-source svg {
+            width: 0.5rem;
+            height: 0.5rem;
+            margin-top: -1px;
         }
 
         @media screen and (max-width: 768px) {
@@ -1450,12 +1468,23 @@
                                 const sourceDiv = document.createElement('div');
                                 sourceDiv.className = 'timeline-source';
                                 
-                                // Check if source is a URL
-                                const isUrl = event.source.startsWith('http://') || event.source.startsWith('https://');
-                                
-                                if (isUrl) {
-                                    const url = new URL(event.source);
-                                    sourceDiv.innerHTML = `<span>Source:</span> <a href="${event.source}" target="_blank" rel="noopener noreferrer">${url.hostname.replace('www.', '')}</a>`;
+                                // Try to extract URL from the source text
+                                const urlMatch = event.source.match(/https?:\/\/[^\s]+/);
+                                if (urlMatch) {
+                                    try {
+                                        const url = new URL(urlMatch[0]);
+                                        sourceDiv.innerHTML = `
+                                            <span>Source:</span> 
+                                            <a href="${url.href}" target="_blank" rel="noopener noreferrer">
+                                                ${url.hostname.replace('www.', '')}
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                </svg>
+                                            </a>`;
+                                    } catch (e) {
+                                        sourceDiv.innerHTML = `<span>Source: ${event.source}</span>`;
+                                    }
                                 } else {
                                     sourceDiv.innerHTML = `<span>Source: ${event.source}</span>`;
                                 }

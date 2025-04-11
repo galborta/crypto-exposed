@@ -128,6 +128,20 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get single profile by file number - public
+router.get('/file/:fileNumber', async (req, res) => {
+    try {
+        const profile = await Profile.findOne({ fileNumber: req.params.fileNumber });
+        if (!profile) {
+            return res.status(404).json({ error: 'Profile not found' });
+        }
+        res.json(profile);
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ error: 'Error fetching profile' });
+    }
+});
+
 // Get single profile - public
 router.get('/:id', async (req, res) => {
     try {
@@ -163,28 +177,23 @@ router.put('/:id', protect, async (req, res) => {
         console.log('Updating profile:', req.params.id);
         console.log('Update data:', req.body);
         
-        // First get the existing profile
-        const existingProfile = await Profile.findById(req.params.id);
-        if (!existingProfile) {
-            console.log('Profile not found:', req.params.id);
-            return res.status(404).json({ error: 'Profile not found' });
-        }
-
-        // Create update data by merging existing data with new data
-        const updateData = {};
+        const updateData = { ...req.body };
         
-        // Only include fields that are actually provided in the request body
-        Object.keys(req.body).forEach(key => {
-            if (req.body[key] !== undefined) {
-                updateData[key] = req.body[key];
-            }
-        });
+        // Ensure photoUrl is included in the update if it exists
+        if (req.body.photoUrl) {
+            updateData.photoUrl = req.body.photoUrl;
+        }
 
         const profile = await Profile.findByIdAndUpdate(
             req.params.id,
-            { $set: updateData },
+            updateData,
             { new: true, runValidators: true }
         );
+
+        if (!profile) {
+            console.log('Profile not found:', req.params.id);
+            return res.status(404).json({ error: 'Profile not found' });
+        }
 
         console.log('Profile updated successfully:', profile);
         res.json(profile);
