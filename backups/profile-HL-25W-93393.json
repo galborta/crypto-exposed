@@ -1,0 +1,73 @@
+{
+  "_id": "67f7d0bdec0961bbdb4c1550",
+  "name": "Homero Joshua Garza",
+  "dateOfBirth": "1985-01-01T00:00:00.000Z",
+  "age": 39,
+  "height": "175 cm",
+  "weight": "75 kg",
+  "nationality": "American",
+  "placeOfBirth": "Unknown, United States",
+  "overview": "Founder of GAW Miners who orchestrated a $9 million cryptocurrency fraud through fake mining contracts called Hashlets and created PayCoin (XPY) with false promises of a $20 price floor supposedly backed by a non-existent $100 million reserve fund.",
+  "totalScammedUSD": 9000000,
+  "status": "Published",
+  "associatedProjects": "GAW Miners, PayCoin (XPY), Hashlets, ZenMiner",
+  "createdAt": "2025-04-10T02:46:12.639Z",
+  "updatedAt": "2025-04-10T14:07:57.231Z",
+  "methodology": [
+    "<b>Sold virtual mining contracts ('Hashlets')</b> for mining power that did not actually exist",
+    "<b>Operated a Ponzi scheme</b> by using new investor funds to pay returns to earlier participants",
+    "<b>Created PayCoin (XPY)</b> with false promises of a $20 price floor",
+    "<b>Claimed the existence</b> of a non-existent $100 million reserve fund to back PayCoin",
+    "<b>Fabricated partnerships</b> with major financial institutions to attract investors",
+    "<b>Continued to reassure investors</b> while knowing the operation was unsustainable"
+  ],
+  "blockchainAddresses": [],
+  "socialProfiles": [],
+  "story": "Homero Joshua Garza stood before the court in <b>September 2017</b>. The sentence was severe: <b>21 months in prison</b> and <b>$9.2 million in restitution</b>. His crypto empire had collapsed not with the revolutionary financial system he had promised eager investors, but instead with the harsh reality of a federal fraud conviction that echoed throughout the cryptocurrency community.\n\n<b>Three years earlier</b>, Garza had burst onto the cryptocurrency scene with GAW Miners. The company began legitimately. It sold specialized hardware for mining cryptocurrencies, attracting customers with Garza's charismatic personality and bold promises. Business boomed. <i>Millions in revenue flowed through the young company as digital gold rush fever spread among investors looking for their chance at crypto wealth.</i>\n\nBy <b>mid-2014</b>, Garza pivoted. He introduced \"<b>Hashlets</b>.\" These virtual mining contracts allowed customers to purchase mining power without owning physical equipment—all the rewards of cryptocurrency mining with none of the technical complexity. The concept appealed to many. Customers rushed to invest, completely unaware that behind the sleek marketing materials and confident presentations lay problematic mathematics that would eventually unravel the entire operation.\n\nGAW Miners had a secret. <b>It sold far more mining power than it actually possessed</b>. Customers who purchased Hashlets believed they were buying actual mining capacity from a legitimate operation with the hardware to back it up. <i>In reality, Garza operated what investigators would later determine was a classic Ponzi scheme, systematically using new investor funds to pay returns to earlier participants while the façade of legitimate business operations continued to attract fresh capital.</i>\n\n<b>In October 2014</b>, Garza escalated. \n\nHe announced <b>PayCoin (XPY)</b>. This new cryptocurrency would, he claimed, revolutionize the market through innovation and strategic partnerships with major financial institutions. The token came with an audacious promise: a <b>$20 price floor</b>, supposedly backed by a massive <b>$100 million reserve fund</b> that would stabilize the currency against market volatility. Excitement rippled through the crypto community. Early investors watched with growing satisfaction as PayCoin briefly spiked above $15 during its December launch, seemingly validating Garza's extravagant claims.\n\n<i>The promised $20 floor never materialized.</i> \n\nBy <b>January 2015</b>, PayCoin's value had plummeted below $2. Investors who had trusted Garza's guarantees found themselves holding rapidly devaluing assets while questions mounted about the existence of the reserve fund and the partnerships Garza had repeatedly referenced in promotional materials and investor communications.\n\nBehind closed doors, Garza scrambled frantically. He needed to maintain the illusion just a little longer. Internal communications later revealed by investigators showed he fully understood the operation could not sustain itself. Yet publicly, he continued reassuring increasingly concerned investors, desperately buying time as the elaborate scheme unraveled thread by thread around him.\n\nThe <b>SEC launched a formal investigation in early 2015</b>. By mid-year, GAW Miners ceased all operations. Websites went dark. <i>The company that had once processed millions in transactions vanished, leaving thousands of investors in limbo, their investments evaporating like morning dew under the harsh light of regulatory scrutiny.</i>\n\n<b>In February 2016</b>, the other shoe dropped. \n\nThe SEC filed civil charges against Garza and his companies, meticulously detailing allegations that he had defrauded investors of <b>$9 million</b> through PayCoin and Hashlets. The complaint explained exactly how GAW had sold mining capacity it didn't possess and made promises it couldn't possibly keep, laying bare the mechanics of the fraud for all to see.\n\nGarza initially fought the allegations with the same confidence he had once used to attract investors. But reality closed in. <b>In July 2017</b>, he accepted a plea agreement on criminal charges of wire fraud, admitting to a single count while acknowledging the broader scheme. <i>The cryptocurrency revolutionary now faced imprisonment.</i>\n\nAfter serving his sentence, Garza largely disappeared from public view. The industry continued its volatile evolution without him. His case remains a cautionary tale of cryptocurrency's dual capacity for innovation and exploitation—a reminder that in the digital gold rush, not all that glitters is coin.",
+  "chronology": [
+    {
+      "date": "2014-05-01T00:00:00.000Z",
+      "description": "Homero Joshua Garza begins fraudulent operations through GAW, GAW Miners, ZenMiner, and ZenCloud",
+      "source": "https://www.justice.gov/usao-ct/pr/former-virtual-currency-ceo-pleads-guilty-9-million-fraud-scheme",
+      "_id": "67f73cb430a9adad37d49720"
+    },
+    {
+      "date": "2014-08-01T00:00:00.000Z",
+      "description": "GAW sold $20 million worth of 'Hashlets' to over 10,000 investors (August-December 2014)",
+      "source": "https://crypto.news/ponzi-schemes-gaw-miners-zenminer-fined-10-million-each/",
+      "_id": "67f73cb430a9adad37d49721"
+    },
+    {
+      "date": "2014-11-01T00:00:00.000Z",
+      "description": "GAW Miners announced plans to launch PayCoin, a new virtual currency",
+      "source": "https://coinjournal.net/news/sec-charges-joshua-garza-gawminers-and-zenminers-with-fraud/",
+      "_id": "67f73cb430a9adad37d49722"
+    },
+    {
+      "date": "2015-12-01T00:00:00.000Z",
+      "description": "SEC files complaint against Garza, GAW Miners, and ZenMiner for fraud",
+      "source": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24281",
+      "_id": "67f73cb430a9adad37d49723"
+    },
+    {
+      "date": "2017-04-01T00:00:00.000Z",
+      "description": "Garza pleads guilty to wire fraud",
+      "source": "https://www.ccn.com/gaw-minerss-josh-garza-gets-21-month-prison-term-for-defrauding-9-2-million/",
+      "_id": "67f73cb430a9adad37d49724"
+    },
+    {
+      "date": "2018-09-13T00:00:00.000Z",
+      "description": "Garza sentenced to 21 months in prison, followed by 3 years of supervised release, with 6 months home confinement and ordered to pay $9.2 million in restitution",
+      "source": "https://cointelegraph.com/news/ceo-behind-gaw-miners-paycoin-ponzi-scheme-sentenced-to-21-months-in-prison",
+      "_id": "67f73cb430a9adad37d49725"
+    },
+    {
+      "date": "2023-06-30T00:00:00.000Z",
+      "description": "Final approval hearing for the GAW Miners and ZenMiner crypto class action lawsuit settlement",
+      "source": "https://topclassactions.com/lawsuit-settlements/closed-settlements/gaw-miners-zenminer-cryptocurrency-3-5m-class-action-settlement/",
+      "_id": "67f73cb430a9adad37d49726"
+    }
+  ],
+  "__v": 0,
+  "fileNumber": "HL-25W-93393"
+}

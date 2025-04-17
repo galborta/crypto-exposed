@@ -1237,61 +1237,31 @@
                     
                     if (profile.socialProfiles && profile.socialProfiles.length > 0) {
                         const socialsList = document.createElement('div');
-                        socialsList.className = 'space-y-3';
+                        socialsList.className = 'space-y-4';
                         
                         profile.socialProfiles.forEach(social => {
                             const socialItem = document.createElement('div');
-                            socialItem.className = 'flex items-start space-x-3 p-4 bg-gray-50 rounded-lg';
-                            
-                            const platformIcon = document.createElement('div');
-                            platformIcon.className = 'w-6 h-6 flex-shrink-0 text-gray-700 mt-1';
-                            platformIcon.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                            </svg>`;
-                            
-                            const socialInfo = document.createElement('div');
-                            socialInfo.className = 'flex-1 space-y-1';
-                            
-                            // Platform and handle in the same line
-                            const headerDiv = document.createElement('div');
-                            headerDiv.className = 'flex items-center justify-between';
-                            headerDiv.innerHTML = `
-                                <div class="font-medium text-gray-900">${social.platform}</div>
-                                ${social.url ? `
-                                    <a href="${social.url}" target="_blank" rel="noopener noreferrer" 
-                                       class="text-sm text-blue-600 hover:text-blue-700 flex items-center">
-                                        Visit Profile
-                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                        </svg>
-                                    </a>` : ''}
+                            socialItem.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
+                            socialItem.innerHTML = `
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-medium">${social.platform}</span>
+                                </div>
+                                <a href="${social.url}" target="_blank" rel="noopener noreferrer" 
+                                   class="text-blue-600 hover:text-blue-700 flex items-center">
+                                    View Profile
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
                             `;
-                            
-                            // Username with @ symbol
-                            const usernameDiv = document.createElement('div');
-                            usernameDiv.className = 'text-sm text-gray-600 font-mono';
-                            usernameDiv.textContent = `@${social.username}`;
-                            
-                            // Description if available
-                            if (social.description) {
-                                const descriptionDiv = document.createElement('div');
-                                descriptionDiv.className = 'text-sm text-gray-500 mt-2';
-                                descriptionDiv.textContent = social.description;
-                                socialInfo.appendChild(descriptionDiv);
-                            }
-                            
-                            socialInfo.appendChild(headerDiv);
-                            socialInfo.appendChild(usernameDiv);
-                            
-                            socialItem.appendChild(platformIcon);
-                            socialItem.appendChild(socialInfo);
                             socialsList.appendChild(socialItem);
                         });
                         
                         socialsContainer.appendChild(socialsList);
                     } else {
-                        socialsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No social profiles available</p>';
+                        // Hide the entire social profiles section if empty
+                        document.querySelector('button[onclick="toggleSection(\'socials\')"]').parentElement.style.display = 'none';
                     }
                     
                     // Update activities and status section

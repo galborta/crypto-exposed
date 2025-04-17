@@ -149,6 +149,84 @@ Updates additional profile information (blockchainAddresses, socialProfiles, chr
 ### DELETE /api/profiles/:id
 Deletes a profile by ID.
 
+### Get Complete Profile by File Number
+
+```http
+GET /api/profiles/file/:fileNumber
+```
+
+Retrieves complete profile information using the file number.
+
+#### Parameters
+
+| Parameter   | Type     | Description                              |
+|------------|----------|------------------------------------------|
+| fileNumber | `string` | File number in format: XX-XXX-XXXXX      |
+
+#### Response
+
+```json
+{
+    "success": true,
+    "data": {
+        "fileNumber": "XX-XXX-XXXXX",
+        "name": "string",
+        "email": "string",
+        "photoUrl": "string",
+        "story": "string",
+        "blockchainAddresses": [
+            {
+                "chain": "string",
+                "address": "string",
+                "description": "string",
+                "source": "string",
+                "sourceUrl": "string",
+                "scannerUrl": "string"
+            }
+        ],
+        "socialProfiles": [
+            {
+                "platform": "string",
+                "url": "string"
+            }
+        ],
+        "chronology": [
+            {
+                "date": "string (ISO 8601)",
+                "description": "string",
+                "source": "string"
+            }
+        ],
+        "methodology": "string",
+        "createdAt": "string (ISO 8601)",
+        "updatedAt": "string (ISO 8601)"
+    }
+}
+```
+
+#### Error Responses
+
+```json
+{
+    "success": false,
+    "error": "Invalid file number format. Expected format: XX-XXX-XXXXX"
+}
+```
+
+```json
+{
+    "success": false,
+    "error": "Profile not found"
+}
+```
+
+```json
+{
+    "success": false,
+    "error": "Server error while retrieving profile"
+}
+```
+
 ## Profile Extras Update Format
 
 When updating additional profile information, use the following format:
